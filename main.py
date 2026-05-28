@@ -6,12 +6,12 @@ FastAPI backend: Gemini AI proxy
 import os
 import json
 import re
+from dataclasses import dataclass
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import google.generativeai as genai
 
 # ── App Setup ──────────────────────────────────────────────────────────────────
@@ -34,12 +34,14 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 # ── Request Models ─────────────────────────────────────────────────────────────
-class SuggestComponentsRequest(BaseModel):
+@dataclass
+class SuggestComponentsRequest:
     initiative_description: str
-    mandate: Optional[str] = "Service Delivery"
+    mandate: str = "Service Delivery"
 
 
-class AuditNarrativeRequest(BaseModel):
+@dataclass
+class AuditNarrativeRequest:
     project_name: str
     department: str
     mandate: str
@@ -48,20 +50,23 @@ class AuditNarrativeRequest(BaseModel):
     components: list      # list of {type, description, targetBenchmark, verificationSource}
 
 
-class VerificationSuggestionsRequest(BaseModel):
+@dataclass
+class VerificationSuggestionsRequest:
     component_description: str
     component_type: str   # "Output" or "Outcome"
     mandate: str
     project_name: str
 
 
-class ImproveDescriptionRequest(BaseModel):
+@dataclass
+class ImproveDescriptionRequest:
     description: str
     component_type: str   # "Input" | "Activity" | "Output" | "Outcome"
     mandate: str
 
 
-class NaturalLanguageProjectRequest(BaseModel):
+@dataclass
+class NaturalLanguageProjectRequest:
     user_input: str
 
 
