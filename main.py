@@ -322,8 +322,13 @@ async def health():
 
 
 # ── Serve Static Frontend ──────────────────────────────────────────────────────
-app.mount("/static", StaticFiles(directory="."), name="static")
-
 @app.get("/")
-async def serve_frontend():
+async def serve_index():
     return FileResponse("index.html")
+
+@app.get("/app.html")
+async def serve_app():
+    return FileResponse("app.html")
+
+# Mount static files last so API routes take priority
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
