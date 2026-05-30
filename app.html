@@ -447,16 +447,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </button>
     </div>
-    <!-- AI Settings Panel (hidden by default) -->
-    <div id="ai-settings-panel" style="display:none;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.07);background:rgba(0,194,255,0.04);">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--cyan);margin-bottom:8px;">✨ Gemini API Key</div>
-      <input type="password" id="gemini-api-key-input" placeholder="AIza..." style="width:100%;padding:7px 10px;border:1px solid rgba(0,194,255,0.3);border-radius:5px;font-size:12px;background:rgba(255,255,255,0.04);color:var(--text);font-family:var(--font);outline:none;margin-bottom:8px;">
-      <div style="display:flex;gap:6px;">
-        <button id="btn-save-api-key" style="flex:1;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border:none;padding:6px 10px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;">Save Key</button>
-        <button id="btn-clear-api-key" style="background:rgba(196,30,58,0.15);color:#fb7185;border:1px solid rgba(196,30,58,0.2);padding:6px 10px;border-radius:5px;font-size:12px;cursor:pointer;">Clear</button>
-      </div>
-      <div id="api-key-status" style="font-size:11px;margin-top:6px;color:var(--muted);"></div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">Key is stored locally in your browser only. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--cyan);">aistudio.google.com</a></div>
+    <!-- AI Status Indicator -->
+    <div id="ai-status-bar" style="padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11px;display:flex;align-items:center;gap:7px;">
+      <span id="ai-status-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
+      <span id="ai-status-text" style="color:var(--muted);">Checking AI…</span>
     </div>
     <nav id="sidebar-nav">
       <div class="nav-item" data-view="home" title="Home">
@@ -491,11 +485,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         Reference Guide
       </div>
-      <div class="nav-item" id="nav-ai-settings" title="Configure Gemini AI API key" style="cursor:pointer;" onclick="toggleAISettings()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-        <span id="nav-ai-label">AI Settings</span>
-        <span id="nav-ai-badge" class="nav-badge" style="display:none;background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.3);color:var(--green);">✓</span>
-      </div>
+
     </nav>
     <div class="active-project-indicator">
       <div class="label">Active Project</div>
@@ -976,236 +966,49 @@ let auditLastChecked = Date.now();
 const STEPS = ['Input', 'Activity', 'Output', 'Outcome'];
 
 /* ── AI API Base URL (auto-detects local vs deployed) ── */
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+/* ── AI Backend URL ──────────────────────────────────────────────────────────
+   All AI calls go to the FastAPI backend (main.py + ai_processor.py).
+   On Render the app and backend are the same origin, so API_BASE is ''.
+   When developing locally the backend runs on port 8000.
+   ──────────────────────────────────────────────────────────────────────────── */
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:8000'
   : '';
 
-/* ════════════════════════════════════════════════════════
-   CLIENT-SIDE GEMINI AI PROCESSOR
-   Intercepts all AI calls. If backend responds → use it.
-   If not → call Gemini REST API directly from browser.
-   ════════════════════════════════════════════════════════ */
-const GEMINI_MODEL = 'gemini-1.5-flash';
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
-function getGeminiKey() { return localStorage.getItem('ks_gemini_api_key') || ''; }
-
-function updateAIKeyUI() {
-  const key = getGeminiKey();
-  const badge = document.getElementById('nav-ai-badge');
-  const status = document.getElementById('api-key-status');
-  if (badge) badge.style.display = key ? 'inline-flex' : 'none';
-  if (status) status.textContent = key ? '✓ API key saved. AI features active.' : 'No key saved — AI features disabled.';
-  if (status) status.style.color = key ? 'var(--green)' : 'var(--muted)';
-}
-
-
-function noKeyAlert() {
-  showToast('⚙ AI key needed — click "AI Settings" in the sidebar to add your free Gemini key.', true);
-  // Also flash the AI Settings nav item
-  const nav = document.getElementById('nav-ai-settings');
-  if (nav) {
-    nav.style.background = 'rgba(0,194,255,0.18)';
-    setTimeout(() => { nav.style.background = ''; }, 2000);
-    // Auto-open the panel
-    const panel = document.getElementById('ai-settings-panel');
-    if (panel) panel.style.display = 'block';
-  }
-}
-function toggleAISettings() {
-  const panel = document.getElementById('ai-settings-panel');
-  if (!panel) return;
-  const open = panel.style.display !== 'none';
-  panel.style.display = open ? 'none' : 'block';
-  if (!open) {
-    const inp = document.getElementById('gemini-api-key-input');
-    if (inp) { inp.value = getGeminiKey(); inp.focus(); }
-  }
-}
-
-/* Call Gemini REST API directly from the browser */
-async function callGeminiDirect(prompt) {
-  const key = getGeminiKey();
-  if (!key) throw new Error('NO_KEY');
-  const res = await fetch(`${GEMINI_ENDPOINT}?key=${encodeURIComponent(key)}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, maxOutputTokens: 2048 }
-    })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Gemini API error ${res.status}`);
-  }
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-}
-
-/* Strip markdown fences and parse JSON */
-function parseGeminiJSON(text) {
-  text = text.trim().replace(/^```(?:json)?\s*/,'').replace(/\s*```$/,'');
-  return JSON.parse(text);
-}
-
-/* Universal AI fetcher — tries backend first, falls back to direct Gemini */
-/* Detect whether we are running as a plain local file (no server) */
-const IS_FILE_PROTOCOL = window.location.protocol === 'file:';
-
 async function aiFetch(endpoint, payload) {
-  // Skip backend only when running as a local file with no server
-  if (!IS_FILE_PROTOCOL) {
-    try {
-      const res = await fetch(`${API_BASE}${endpoint}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(15000)
-      });
-      if (res.ok) return await res.json();
-      // Surface real server errors
-      const errBody = await res.json().catch(() => ({}));
-      const detail = errBody?.detail || `Server error ${res.status}`;
-      if (res.status === 503) {
-        console.warn('Gemini not configured on server, trying client-side key...');
-      } else {
-        throw new Error(`Server: ${detail}`);
-      }
-    } catch(e) {
-      if (e.message && e.message.startsWith('Server:')) throw e;
-      console.warn('Backend unreachable, falling back to client-side Gemini:', e.message);
-    }
-  }
-  // Client-side Gemini fallback (uses key from AI Settings panel)
-  if (!getGeminiKey()) throw new Error('NO_KEY');
-  return await geminiClientFallback(endpoint, payload);
-}
-
-/* Build prompts and call Gemini directly for each endpoint */
-async function geminiClientFallback(endpoint, payload) {
-  if (endpoint === '/api/ai/suggest-components') {
-    const existing = (payload.existing_components||[]).map(c=>`  - [${c.type}] ${c.description}`).join('\n');
-    const prompt = `You are an expert Canadian government policy analyst specialising in logic models.
-
-A policy analyst described their initiative: "${payload.initiative_description}"
-Mandate: ${payload.mandate}
-${existing ? `\nAlready in model (do NOT duplicate):\n${existing}` : ''}
-
-Generate a realistic logic model. Return ONLY valid JSON, no markdown:
-{"inputs":[{"description":"...","targetBenchmark":"...","verificationSource":"..."}],"activities":[...],"outputs":[...],"outcomes":[...]}
-
-Rules: 2-3 items per category. Specific, professional, evaluable. Named verification sources. For DRIPA/Self-Government mandates reference Indigenous governance and OCAP principles. Return ONLY the JSON.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, data: parseGeminiJSON(text) };
+  let res;
+  try {
+    res = await fetch(API_BASE + endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+      signal:  AbortSignal.timeout(30000),
+    });
+  } catch (networkErr) {
+    // Network failure (no server, timeout, CORS on wrong origin, etc.)
+    throw new Error(
+      'Could not reach the Keystone backend. ' +
+      'Make sure the app is deployed on Render (or run the backend locally with: uvicorn main:app --reload). ' +
+      'Error: ' + networkErr.message
+    );
   }
 
-  if (endpoint === '/api/ai/audit-narrative') {
-    const findingsText = (payload.audit_findings||[]).map(f=>`- [${f.riskLevel}/${f.errorType}] ${f.message}`).join('\n') || 'No risks.';
-    const compsText = (payload.components||[]).map(c=>`- [${c.type}] ${c.description}`).join('\n');
-    const prompt = `You are a senior policy evaluation advisor writing for a Deputy Minister audience.
+  if (res.ok) return await res.json();
 
-Project: ${payload.project_name}
-Department: ${payload.department}
-Mandate: ${payload.mandate}
-Health Score: ${payload.health_score}/100
+  // Parse the error body from FastAPI
+  let detail = `Server error ${res.status}`;
+  try {
+    const body = await res.json();
+    detail = body?.detail || detail;
+  } catch (_) { /* body not JSON */ }
 
-Components:
-${compsText}
-
-Audit findings (translate technical names to plain language — Dead_End = activity with no deliverable; Miracle_Leap = weak activities claiming major outcome; Blind_Spot = no tracking mechanism; Circular_Logic = outcome restates activity; Orphaned_Input = unused resource; Scale_Mismatch = quantified outcome with no activity benchmarks):
-${findingsText}
-
-Write a 2-3 paragraph plain-English diagnostic narrative. Open with an overall assessment. Explain what specific risk flags mean for THIS project. Close with a prioritised recommendation. Tone: professional, direct. No bullet points. No technical error type names verbatim. Return ONLY the narrative text.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, narrative: text.trim() };
+  if (res.status === 503) {
+    throw new Error(
+      'The AI is not configured on the server. ' +
+      'Add your GEMINI_API_KEY to your Render environment variables and redeploy.'
+    );
   }
-
-  if (endpoint === '/api/ai/verification-suggestions') {
-    const prompt = `You are a Canadian government policy evaluation specialist.
-
-Component flagged for missing verification source:
-Project: ${payload.project_name}
-Mandate: ${payload.mandate}
-Type: ${payload.component_type}
-Description: "${payload.component_description}"
-
-Suggest exactly 3 specific, realistic verification sources. Return ONLY valid JSON array, no markdown:
-[{"source":"...","rationale":"..."},{"source":"...","rationale":"..."},{"source":"...","rationale":"..."}]
-
-Rules: Named real mechanisms. For DRIPA/Self-Government, at least one Nation-controlled/OCAP-compliant source. One-sentence rationale each. Return ONLY the JSON array.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, suggestions: parseGeminiJSON(text) };
-  }
-
-  if (endpoint === '/api/ai/improve-description') {
-    const typeGuide = { Input:'resource type, quantity, timeframe', Activity:'concrete action, who performs it, expected scale', Output:'specific deliverable, its form, who receives it', Outcome:'systemic change, who benefits, scope of impact' }[payload.component_type] || 'be specific and evaluable';
-    const prompt = `You are a Canadian government policy writing specialist.
-
-Rewrite this ${payload.component_type} description for a ${payload.mandate} initiative to be specific, evaluable, and professional. Include ${typeGuide}. Keep to 1-2 sentences. Do not change the original intent.
-
-Original: "${payload.description}"
-
-Return ONLY the improved description text, no quotes, no markdown, no explanation.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, improved: text.trim() };
-  }
-
-  if (endpoint === '/api/ai/create-project') {
-    const prompt = `You are a Canadian government policy analyst assistant.
-
-Parse this plain-language description and extract structured project fields:
-"${payload.user_input}"
-
-Return ONLY valid JSON, no markdown:
-{"name":"...","department":"...","description":"...","mandate":"..."}
-
-Rules:
-- name: formal title-case project name
-- department: most likely BC or federal government department
-- description: 1-2 sentences in formal policy language
-- mandate: MUST be exactly one of: "DRIPA Alignment", "Self-Government Transition", "Service Delivery", "Economic Development"
-Return ONLY the JSON object.`;
-    const text = await callGeminiDirect(prompt);
-    const data = parseGeminiJSON(text);
-    const valid = ["DRIPA Alignment","Self-Government Transition","Service Delivery","Economic Development"];
-    if (!valid.includes(data.mandate)) data.mandate = "DRIPA Alignment";
-    return { success: true, project: data };
-  }
-
-  if (endpoint === '/api/ai/extract-components') {
-    const prompt = `You are an expert Canadian government policy analyst specialising in logic models.
-
-Document: ${payload.document_name || 'Untitled'}
-Mandate: ${payload.mandate}
-Text: ${payload.document_text}
-
-Extract logic model components. Return ONLY valid JSON, no markdown:
-{"inputs":[{"description":"...","targetBenchmark":"...","verificationSource":"...","sourceQuote":"..."}],"activities":[...],"outputs":[...],"outcomes":[...]}
-
-Rules: Only extract components explicitly stated or strongly implied. sourceQuote: max 80 char verbatim excerpt. Leave targetBenchmark/verificationSource as "" if not in document. Return ONLY the JSON.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, data: parseGeminiJSON(text) };
-  }
-
-  if (endpoint === '/api/ai/generate-timeline') {
-    const compsText = (payload.components||[]).map(c=>`- [${c.type}] ${c.description}${c.targetBenchmark?' (benchmark: '+c.targetBenchmark+')':''}`).join('\n');
-    const prompt = `You are a senior Canadian government programme manager creating a project timeline.
-
-Project: ${payload.project_name}
-Mandate: ${payload.mandate}
-
-Components:
-${compsText}
-
-Create a realistic timeline (weeks relative to project start). Return ONLY valid JSON, no markdown:
-{"total_weeks":52,"phases":[{"name":"Foundation","start_week":1,"end_week":12,"color":"#1d4ed8"}],"items":[{"component_type":"Input","description":"...","start_week":1,"end_week":4,"phase":"Foundation","is_milestone":false,"depends_on":null,"rationale":"..."}],"critical_path_indices":[0,2],"summary":"..."}
-
-Rules: Inputs start Week 1. Activities follow Inputs. Outputs are milestones at end of producing activities. Outcomes in final third. For DRIPA/Self-Government allow 12-24 months for negotiations. Return ONLY the JSON.`;
-    const text = await callGeminiDirect(prompt);
-    return { success: true, timeline: parseGeminiJSON(text) };
-  }
-
-  throw new Error(`Unknown endpoint: ${endpoint}`);
+  throw new Error(detail);
 }
 
 /* ── Toast ── */
@@ -1845,7 +1648,7 @@ document.getElementById('btn-ai-suggest').addEventListener('click', async () => 
     runAuditEngine(activeProjectId); renderComponentList();
     showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
   } catch(e) {
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('AI suggestion failed. Please try again.', true);}
+    showToast('AI suggestion failed. Please try again.', true);
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -1877,7 +1680,7 @@ document.getElementById('btn-ai-narrative').addEventListener('click', async () =
     narrativeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('✨ AI diagnostic summary generated.');
   } catch(e) {
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate narrative. Please try again.', true);}
+    showToast('Failed to generate narrative. Please try again.', true);
     console.error(e);
   } finally { btn.disabled = false; btn.textContent = '✨ Generate AI Diagnostic Summary'; }
 });
@@ -1902,7 +1705,7 @@ async function aiSuggestVerification(btn, compId, compType, compDesc) {
     btn.textContent = '✨ Refresh suggestions';
     btn.disabled = false;
   } catch(e) {
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to fetch suggestions. Please try again.', true);}
+    showToast('Failed to fetch suggestions. Please try again.', true);
     btn.textContent = '✨ Suggest verification sources';
     btn.disabled = false;
     console.error(e);
@@ -1928,7 +1731,7 @@ async function aiImproveDescription(btn) {
     runAuditEngine(activeProjectId); renderComponentList();
     showToast('✨ Description improved.');
   } catch(e) {
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to improve description. Please try again.', true);}
+    showToast('Failed to improve description. Please try again.', true);
     btn.disabled = false; btn.textContent = '✨ Improve';
     console.error(e);
   }
@@ -1950,7 +1753,7 @@ document.getElementById('btn-ai-nl-fill').addEventListener('click', async () => 
     document.getElementById('modal-mandate').value = p.mandate || 'DRIPA Alignment';
     showToast('✨ Form filled by AI. Review and submit.');
   } catch(e) {
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('AI fill failed. Please try again.', true);}
+    showToast('AI fill failed. Please try again.', true);
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -2255,7 +2058,7 @@ async function processDAFile(file) {
   } catch(e) {
     document.getElementById('da-loading').style.display = 'none';
     document.getElementById('da-upload-area').style.display = 'block';
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to extract components. Please try again.', true);} console.error(e);
+    showToast('Failed to extract components. Please try again.', true); console.error(e);
   }
 }
 
@@ -2332,7 +2135,7 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
   } catch(e) {
     document.getElementById('tl-loading').style.display='none';
     document.getElementById('tl-content').style.display='none';
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate timeline. ' + (e.message||'Please try again.'), true);} console.error(e);
+    showToast('Failed to generate timeline. ' + (e.message||'Please try again.'), true); console.error(e);
   }
 });
 
@@ -2410,38 +2213,31 @@ document.getElementById('import-file-input').addEventListener('change', async (e
   } catch(err) { showToast('Import failed. Please check the file format.', true); console.error(err); }
   e.target.value='';
 });
-/* ── Gemini API Key UI wiring ── */
+/* ── AI Backend Status Check ── */
 (function() {
-  // Save button
-  const saveBtn = document.getElementById('btn-save-api-key');
-  if (saveBtn) saveBtn.addEventListener('click', () => {
-    const val = document.getElementById('gemini-api-key-input').value.trim();
-    if (!val) { showToast('Please enter a valid API key.', true); return; }
-    localStorage.setItem('ks_gemini_api_key', val);
-    updateAIKeyUI();
-    showToast('✓ Gemini API key saved. AI features are now active.');
-    document.getElementById('ai-settings-panel').style.display = 'none';
-  });
-  // Clear button
-  const clearBtn = document.getElementById('btn-clear-api-key');
-  if (clearBtn) clearBtn.addEventListener('click', () => {
-    localStorage.removeItem('ks_gemini_api_key');
-    const inp = document.getElementById('gemini-api-key-input');
-    if (inp) inp.value = '';
-    updateAIKeyUI();
-    showToast('API key cleared.');
-  });
-  // Enter key in input
-  const inp = document.getElementById('gemini-api-key-input');
-  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn && saveBtn.click(); });
-  // Init badge state
-  updateAIKeyUI();
-  // Show settings panel automatically on first load if no key set
-  if (!getGeminiKey()) {
-    setTimeout(() => {
-      const panel = document.getElementById('ai-settings-panel');
-      if (panel) panel.style.display = 'block';
-    }, 800);
+  async function checkAIStatus() {
+    const dot  = document.getElementById('ai-status-dot');
+    const text = document.getElementById('ai-status-text');
+    try {
+      const res = await fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error('non-ok');
+      const data = await res.json();
+      if (data.gemini_ready) {
+        dot.style.background  = 'var(--green)';
+        dot.style.boxShadow   = '0 0 6px var(--green)';
+        text.style.color      = 'var(--green)';
+        text.textContent      = 'AI ready';
+      } else {
+        dot.style.background  = '#fbbf24';
+        text.style.color      = '#fbbf24';
+        text.textContent      = 'AI: set GEMINI_API_KEY on Render';
+      }
+    } catch(_) {
+      dot.style.background  = 'var(--muted)';
+      text.style.color      = 'var(--muted)';
+      text.textContent      = 'Backend offline';
+    }
   }
+  checkAIStatus();
 })();
 </script>
