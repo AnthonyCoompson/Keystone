@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,50 +7,101 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <style>
 :root {
-  --slate: #1d4ed8; --slate-dark: #0a0f1a; --slate-light: #2563eb;
-  --charcoal: #1a2540; --white: #ffffff; --bg: #0d1424; --border: rgba(255,255,255,0.08);
-  --text: #c8d4e8; --muted: #8a9bbf; --amber: #b8860b; --red: #c41e3a;
-  --green: #10b981; --cyan: #00c2ff; --purple: #818cf8;
   --font: 'DM Sans', sans-serif;
+  --cyan: #00c2ff;
+  --green: #10b981;
+  --red: #c41e3a;
+  --amber: #b8860b;
+  --purple: #818cf8;
+  --blue: #1d4ed8;
+  --blue2: #2563eb;
+}
+
+[data-theme="dark"] {
+  --bg:          #0d1424;
+  --bg2:         #0a0f1a;
+  --bg3:         rgba(13,20,36,0.95);
+  --sidebar-bg:  rgba(5,10,20,0.95);
+  --border:      rgba(255,255,255,0.08);
+  --border2:     rgba(255,255,255,0.05);
+  --white:       #ffffff;
+  --text:        #c8d4e8;
+  --muted:       #8a9bbf;
+  --card-bg:     rgba(13,20,36,0.9);
+  --input-bg:    rgba(255,255,255,0.04);
+  --hover-bg:    rgba(255,255,255,0.05);
+  --active-bg:   rgba(0,194,255,0.08);
+  --slate:       #1d4ed8;
+  --slate-dark:  #0a0f1a;
+  --slate-light: #2563eb;
+}
+
+[data-theme="light"] {
+  --bg:          #f2f5fa;
+  --bg2:         #e8edf5;
+  --bg3:         #ffffff;
+  --sidebar-bg:  #1a2540;
+  --border:      #dde3ed;
+  --border2:     #c8d4e8;
+  --white:       #ffffff;
+  --text:        #1a2740;
+  --muted:       #6b7a99;
+  --card-bg:     #ffffff;
+  --input-bg:    #ffffff;
+  --hover-bg:    rgba(29,78,216,0.06);
+  --active-bg:   rgba(0,194,255,0.1);
+  --slate:       #1d4ed8;
+  --slate-dark:  #1a2740;
+  --slate-light: #2563eb;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font); color: var(--text); background: rgba(255,255,255,0.03); -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
 button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
 input, textarea, select { font-family: var(--font); outline: none; }
 a { color: inherit; text-decoration: none; }
 #app-shell { display: grid; grid-template-columns: 220px 1fr; height: 100vh; overflow: hidden; }
-#sidebar { background: rgba(5,10,20,0.95); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.07); }
+#sidebar { background: var(--sidebar-bg); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.07); }
 .brand { display: flex; align-items: center; gap: 10px; padding: 20px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 .brand svg { flex-shrink: 0; }
-.brand-name { font-size: 17px; font-weight: 600; color: var(--white); letter-spacing: 0.02em; font-family: 'Cormorant Garamond', serif; }
-#sidebar-nav { flex: 1; padding: 12px 0; display: flex; flex-direction: column; gap: 2px; }
+.brand-name { font-size: 17px; font-weight: 600; color: #ffffff; letter-spacing: 0.02em; font-family: 'Cormorant Garamond', serif; }
+#sidebar-nav { flex: 1; padding: 12px 0; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; color: var(--muted); font-size: 13.5px; font-weight: 500; cursor: pointer; border-left: 3px solid transparent; transition: background 0.15s, color 0.15s, border-color 0.15s; user-select: none; }
-.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
-.nav-item.active { border-left-color: var(--cyan); background: rgba(0,194,255,0.08); color: var(--white); }
+.nav-item:hover { background: var(--hover-bg); color: #ffffff; }
+.nav-item.active { border-left-color: var(--cyan); background: var(--active-bg); color: #ffffff; }
 .nav-item svg { flex-shrink: 0; opacity: 0.8; }
-.nav-item-home { border-top: 1px solid rgba(255,255,255,0.07); margin-top: 4px; padding-top: 14px; }
+.nav-divider { height: 1px; background: var(--border); margin: 6px 12px; }
+.nav-badge { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); background: rgba(0,194,255,0.1); border: 1px solid rgba(0,194,255,0.2); padding: 1px 5px; border-radius: 8px; margin-left: auto; }
 .active-project-indicator { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 11.5px; }
 .active-project-indicator .label { color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
 .active-project-indicator .project-name { color: rgba(255,255,255,0.7); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .active-project-indicator .project-name.none { color: var(--muted); font-style: italic; }
-#main-area { overflow: hidden; display: flex; flex-direction: column; position: relative; background: #0d1424; }
+#main-area { overflow: hidden; display: flex; flex-direction: column; position: relative; background: var(--bg); }
 .view-panel { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; overflow: hidden; }
 .view-panel.active { opacity: 1; pointer-events: all; }
+/* ── Theme Toggle ── */
+.theme-toggle-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 10px; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--muted); }
+.theme-toggle-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+.theme-toggle-btn { background: none; border: none; cursor: pointer; padding: 2px; }
+.theme-toggle-track { display: flex; align-items: center; width: 36px; height: 20px; border-radius: 20px; background: rgba(255,255,255,0.12); border: 1px solid var(--border); position: relative; transition: background 0.2s; }
+[data-theme="light"] .theme-toggle-track { background: rgba(0,194,255,0.2); border-color: var(--cyan); }
+.theme-toggle-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--muted); position: absolute; left: 2px; transition: left 0.2s, background 0.2s; }
+[data-theme="light"] .theme-toggle-thumb { left: 18px; background: var(--cyan); }
 </style>
 <style>
 #view-projects { padding: 28px 32px; overflow-y: auto; }
 .view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .view-title { font-size: 22px; font-weight: 700; color: var(--white); font-family: 'Cormorant Garamond', serif; }
-.btn-primary { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: var(--white); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: box-shadow 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
+.btn-primary { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #ffffff; padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: box-shadow 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
 .btn-primary:hover { box-shadow: 0 6px 24px rgba(37,99,235,0.5); }
-.btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
-.btn-secondary:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+.btn-secondary { background: var(--input-bg); color: var(--text); padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid var(--border); transition: background 0.15s; }
+.btn-secondary:hover { background: var(--hover-bg); color: var(--white); }
 .btn-danger { background: transparent; color: #fb7185; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid rgba(196,30,58,0.25); transition: background 0.15s; }
 .btn-danger:hover { background: rgba(196,30,58,0.1); }
 .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.project-card { background: linear-gradient(135deg, rgba(13,20,36,0.9), rgba(17,26,46,0.8)); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, border-color 0.15s; }
+.project-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, border-color 0.15s; }
 .project-card:hover { box-shadow: 0 4px 20px rgba(0,194,255,0.08); border-color: rgba(0,194,255,0.15); }
 .project-card-name { font-size: 15px; font-weight: 700; color: var(--white); line-height: 1.3; }
 .project-card-dept { font-size: 12px; color: var(--muted); }
@@ -73,10 +124,14 @@ a { color: inherit; text-decoration: none; }
 .badge-self-gov { background: rgba(129,140,248,0.12); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); }
 .badge-service  { background: rgba(29,78,216,0.15); color: #93c5fd; border: 1px solid rgba(29,78,216,0.2); }
 .badge-economic { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+/* Timeframe badges */
+.badge-timeframe-short  { background: rgba(16,185,129,0.1);  color: var(--green);  border: 1px solid rgba(16,185,129,0.2);  font-size: 10px; padding: 2px 6px; border-radius: 20px; }
+.badge-timeframe-medium { background: rgba(184,134,11,0.1);  color: #fbbf24; border: 1px solid rgba(184,134,11,0.2); font-size: 10px; padding: 2px 6px; border-radius: 20px; }
+.badge-timeframe-long   { background: rgba(129,140,248,0.1); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); font-size: 10px; padding: 2px 6px; border-radius: 20px; }
 </style>
 <style>
 #view-new-framework { display: grid; grid-template-columns: 1fr 400px; height: 100%; overflow: hidden; }
-#form-panel { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.07); background: #0d1424; }
+#form-panel { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--border); background: var(--bg); }
 .form-panel-header { padding: 20px 24px 0; flex-shrink: 0; }
 .form-panel-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 16px; font-family: 'Cormorant Garamond', serif; letter-spacing: -0.01em; }
 .step-indicator { display: flex; align-items: center; margin-bottom: 20px; }
@@ -95,14 +150,14 @@ a { color: inherit; text-decoration: none; }
 .form-group { margin-bottom: 14px; }
 .form-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
 .form-label .required { color: #fb7185; margin-left: 2px; }
-.form-control { width: 100%; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 13.5px; color: var(--white); background: rgba(255,255,255,0.04); transition: border-color 0.15s; }
+.form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13.5px; color: var(--white); background: var(--input-bg); transition: border-color 0.15s; }
 .form-control:focus { border-color: var(--cyan); background: rgba(0,194,255,0.04); }
 .form-control.error { border-color: #fb7185; }
 textarea.form-control { resize: vertical; min-height: 80px; }
 .form-hint { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
 .form-error { font-size: 12px; color: #fb7185; margin-top: 4px; display: none; }
 .form-error.visible { display: block; }
-.form-panel-footer { padding: 12px 24px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: rgba(5,10,20,0.6); }
+.form-panel-footer { padding: 12px 24px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: var(--bg2); }
 .btn-add-component { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: var(--white); padding: 9px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: box-shadow 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.25); }
 .btn-add-component:hover { box-shadow: 0 6px 24px rgba(37,99,235,0.45); }
 .step-nav { display: flex; gap: 8px; }
@@ -113,7 +168,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .component-list-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
 .component-group { margin-bottom: 14px; }
 .component-group-label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-.component-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; margin-bottom: 5px; }
+.component-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 5px; }
 .component-item-desc { flex: 1; font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn-delete-component { background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 5px; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
 .btn-delete-component:hover { color: #fb7185; background: rgba(196,30,58,0.1); }
@@ -125,8 +180,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .no-project-notice p { font-size: 14px; line-height: 1.5; }
 </style>
 <style>
-#audit-panel { display: flex; flex-direction: column; overflow: hidden; background: rgba(13,20,36,0.95); }
-.audit-header { padding: 18px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+#audit-panel { display: flex; flex-direction: column; overflow: hidden; background: var(--card-bg); }
+.audit-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .audit-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 .audit-title { font-size: 15px; font-weight: 700; color: var(--white); }
 .audit-timestamp { font-size: 11.5px; color: var(--muted); }
@@ -196,28 +251,27 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 #view-methodology { padding: 32px 40px; overflow-y: auto; max-width: 860px; }
 .methodology-title { font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 28px; }
 .methodology-section { margin-bottom: 32px; }
-.methodology-section-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+.methodology-section-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
 .methodology-section p { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
 .methodology-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.methodology-table th { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 10px 14px; text-align: left; font-weight: 600; }
-.methodology-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); vertical-align: top; line-height: 1.5; }
-.methodology-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.methodology-table th { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 10px 14px; text-align: left; font-weight: 600; }
+.methodology-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; color: var(--text); }
+.methodology-table tr:nth-child(even) td { background: var(--input-bg); }
 .error-type-cell { font-weight: 700; color: var(--text); }
 .modal-overlay { position: fixed; inset: 0; background: rgba(26,39,64,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal { background: rgba(13,20,36,0.95); border-radius: 12px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(26,39,64,0.25); transform: translateY(8px); transition: transform 0.2s; }
+.modal { background: var(--bg); border-radius: 12px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(26,39,64,0.25); transform: translateY(8px); transition: transform 0.2s; border: 1px solid var(--border); }
 .modal-overlay.open .modal { transform: translateY(0); }
-.modal { background: #0d1424 !important; color: var(--text); }
 .modal-title { font-size: 18px; font-weight: 700; color: var(--white); font-family: "Cormorant Garamond", serif; margin-bottom: 20px; }
 .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.btn-modal-cancel { background: rgba(13,20,36,0.95); color: var(--text); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid rgba(255,255,255,0.08); transition: background 0.15s; }
-.btn-modal-cancel:hover { background: rgba(255,255,255,0.03); }
-.btn-modal-submit { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
+.btn-modal-cancel { background: var(--input-bg); color: var(--text); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid var(--border); transition: background 0.15s; }
+.btn-modal-cancel:hover { background: var(--hover-bg); }
+.btn-modal-submit { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
 .btn-modal-submit:hover { background: var(--slate-light); }
-.ai-fill-row { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-.ai-fill-input { flex: 1; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; font-size: 13px; color: var(--text); background: rgba(255,255,255,0.03); }
+.ai-fill-row { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.ai-fill-input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text); background: var(--input-bg); }
 .ai-fill-input:focus { border-color: var(--cyan); outline: none; }
-.btn-ai-fill { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 9px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: opacity 0.15s; }
+.btn-ai-fill { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: #ffffff; padding: 9px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: opacity 0.15s; }
 .btn-ai-fill:hover { opacity: 0.9; }
 .btn-ai-fill:disabled { opacity: 0.4; cursor: not-allowed; }
 .ai-suggest-bar { background: rgba(14,165,233,0.06); border: 1px solid rgba(14,165,233,0.2); border-radius: 8px; margin-bottom: 16px; overflow: hidden; transition: border-color 0.2s; }
@@ -229,42 +283,35 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ai-suggest-bar.collapsed .ai-suggest-bar-toggle svg { transform: rotate(-90deg); }
 .ai-suggest-bar-body { padding: 0 14px 12px; }
 .ai-suggest-bar.collapsed .ai-suggest-bar-body { display: none; }
-.ai-suggest-bar textarea { width: 100%; padding: 8px 10px; border: 1px solid rgba(14,165,233,0.3); border-radius: 6px; font-size: 13px; color: var(--text); background: rgba(13,20,36,0.95); resize: none; min-height: 60px; }
+.ai-suggest-bar textarea { width: 100%; padding: 8px 10px; border: 1px solid rgba(14,165,233,0.3); border-radius: 6px; font-size: 13px; color: var(--text); background: var(--bg); resize: none; min-height: 60px; }
 .ai-suggest-bar textarea:focus { border-color: var(--cyan); outline: none; }
-.btn-ai-suggest-components { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 8px; transition: opacity 0.15s; }
+.btn-ai-suggest-components { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: #ffffff; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 8px; transition: opacity 0.15s; }
 .btn-ai-suggest-components:hover { opacity: 0.9; }
 .btn-ai-suggest-components:disabled { opacity: 0.4; cursor: not-allowed; }
 .ai-loading { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
 .ai-loading::before { content: ''; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* ── Inline component editing ── */
 .component-item-desc.editable { cursor: text; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.component-item-desc.editable:hover { background: rgba(45,63,94,0.06); }
-.component-item-desc[contenteditable="true"] { outline: 2px solid var(--cyan); background: rgba(13,20,36,0.95); border-radius: 3px; padding: 2px 5px; white-space: normal; overflow: visible; cursor: text; min-width: 60px; }
-/* ── Risk feed group headers ── */
+.component-item-desc.editable:hover { background: var(--hover-bg); }
+.component-item-desc[contenteditable="true"] { outline: 2px solid var(--cyan); background: var(--bg); border-radius: 3px; padding: 2px 5px; white-space: normal; overflow: visible; cursor: text; min-width: 60px; }
 .risk-group-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0 6px; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
 .risk-group-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .risk-group-header.high { color: var(--red); }
 .risk-group-header.medium { color: #fbbf24; }
 .risk-group-header.low { color: var(--green); }
-/* ── Demo banner ── */
 .demo-banner { background: rgba(14,165,233,0.07); border: 1px solid rgba(14,165,233,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: var(--text); line-height: 1.5; }
 .demo-banner-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .demo-banner-close { margin-left: auto; background: none; color: var(--muted); font-size: 18px; padding: 0 4px; border-radius: 3px; cursor: pointer; flex-shrink: 0; transition: color 0.15s; line-height: 1; }
 .demo-banner-close:hover { color: var(--text); }
-/* ── Score animation ── */
 .score-gauge { transition: background 0.6s ease; }
-/* ── Tooltip for disabled buttons ── */
 .btn-with-tooltip { position: relative; }
-.btn-with-tooltip[disabled]:hover::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); font-size: 11.5px; padding: 5px 9px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 100; }
-/* ── Highlighted component in list ── */
+.btn-with-tooltip[disabled]:hover::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; font-size: 11.5px; padding: 5px 9px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 100; }
 .component-item.highlight { outline: 2px solid var(--cyan); background: rgba(14,165,233,0.05); transition: outline 0.3s, background 0.3s; }
-/* ── AI narrative slot (above buttons, animated) ── */
 .ai-narrative-slot { overflow: hidden; max-height: 0; transition: max-height 0.35s ease; flex-shrink: 0; }
 .ai-narrative-slot.open { max-height: 280px; overflow-y: auto; }
 .ai-narrative-box { background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.65; color: var(--text); margin-bottom: 4px; }
 .ai-narrative-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--purple); margin-bottom: 6px; }
-.ai-toast { position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 320px; }
+.ai-toast { position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 320px; }
 .ai-toast.show { opacity: 1; transform: translateY(0); }
 .ai-toast.error { background: var(--red); }
 @media (max-width: 768px) {
@@ -280,7 +327,105 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   #view-new-framework { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
   #audit-panel { max-height: 320px; }
   #view-methodology { padding: 20px; }
+  .home-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .theme-toggle-bar { display: none; }
 }
+/* ── Home View ── */
+.home-view { padding: 32px 40px; overflow-y: auto; height: 100%; }
+.home-hero { margin-bottom: 32px; }
+.home-hero-title { font-size: 32px; font-weight: 700; color: var(--white); font-family: 'Cormorant Garamond', serif; margin-bottom: 8px; }
+.home-hero-sub { font-size: 15px; color: var(--muted); line-height: 1.6; max-width: 600px; }
+.home-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
+.home-stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+.home-stat-num { font-size: 28px; font-weight: 700; color: var(--white); font-family: 'DM Mono', monospace; }
+.home-stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.home-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; }
+.home-recent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.home-recent-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.home-recent-card:hover { border-color: rgba(0,194,255,0.3); box-shadow: 0 4px 16px rgba(0,194,255,0.06); }
+.home-recent-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; line-height: 1.3; }
+.home-recent-dept { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.home-recent-meta { display: flex; align-items: center; gap: 8px; }
+.home-quick-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.home-action-btn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); transition: background 0.15s, border-color 0.15s; }
+.home-action-btn:hover { background: var(--hover-bg); border-color: rgba(0,194,255,0.3); color: var(--white); }
+.home-action-btn.primary { background: linear-gradient(135deg,#1d4ed8,#2563eb); border-color: transparent; color: #ffffff; }
+.home-action-btn.primary:hover { opacity: 0.9; }
+/* ── Quick Start View ── */
+.qs-view { padding: 32px 40px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 24px; }
+.qs-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.qs-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.qs-pill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--input-bg); color: var(--muted); transition: all 0.15s; }
+.qs-pill.active { background: var(--cyan); color: #0a0f1a; border-color: var(--cyan); }
+.qs-pill.done { background: rgba(16,185,129,0.15); color: var(--green); border-color: rgba(16,185,129,0.3); }
+.qs-step-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 28px 32px; display: none; }
+.qs-step-panel.active { display: block; }
+.qs-step-title { font-size: 20px; font-weight: 700; color: var(--white); font-family: 'Cormorant Garamond', serif; margin-bottom: 8px; }
+.qs-step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+.qs-demo-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: var(--text); line-height: 1.6; }
+.qs-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+/* ── Document Analysis View ── */
+.da-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.da-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.da-upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+.da-upload-zone:hover, .da-upload-zone.drag-over { border-color: var(--cyan); background: rgba(0,194,255,0.04); }
+.da-upload-icon { font-size: 32px; margin-bottom: 10px; }
+.da-upload-text { font-size: 14px; color: var(--muted); }
+.da-upload-text strong { color: var(--cyan); }
+.da-upload-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.da-results { display: flex; flex-direction: column; gap: 10px; }
+.da-component-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s; }
+.da-component-card.accepted { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
+.da-component-card.rejected { opacity: 0.4; }
+.da-card-header { display: flex; align-items: center; gap: 8px; }
+.da-card-desc { font-size: 13.5px; color: var(--text); line-height: 1.5; }
+.da-card-quote { font-size: 12px; color: var(--muted); font-style: italic; border-left: 2px solid var(--border); padding-left: 8px; }
+.da-card-actions { display: flex; gap: 8px; }
+.btn-da-accept { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.3); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-da-accept:hover { background: rgba(16,185,129,0.2); }
+.btn-da-reject { background: rgba(196,30,58,0.08); color: #fb7185; border: 1px solid rgba(196,30,58,0.2); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-da-reject:hover { background: rgba(196,30,58,0.15); }
+/* ── Timeline View ── */
+.tl-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.tl-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.tl-summary { background: rgba(0,194,255,0.06); border: 1px solid rgba(0,194,255,0.18); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--text); line-height: 1.6; }
+.tl-phase-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+.tl-phase-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text); }
+.tl-phase-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.tl-gantt-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); }
+.tl-gantt { min-width: 800px; padding: 16px; }
+.tl-gantt-header { display: flex; margin-bottom: 8px; padding-left: 200px; }
+.tl-week-label { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; text-align: center; flex-shrink: 0; }
+.tl-row { display: flex; align-items: center; margin-bottom: 6px; min-height: 32px; }
+.tl-row-label { width: 200px; flex-shrink: 0; font-size: 12px; color: var(--text); padding-right: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-row-track { flex: 1; position: relative; height: 28px; background: rgba(255,255,255,0.02); border-radius: 4px; }
+.tl-bar { position: absolute; top: 4px; height: 20px; border-radius: 4px; opacity: 0.85; transition: opacity 0.15s; display: flex; align-items: center; padding: 0 6px; overflow: hidden; }
+.tl-bar:hover { opacity: 1; }
+.tl-bar-label { font-size: 10px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-milestone { position: absolute; top: 6px; width: 16px; height: 16px; background: #fff; border-radius: 3px; transform: rotate(45deg); opacity: 0.9; }
+.tl-critical-note { font-size: 12px; color: var(--muted); border-left: 3px solid #fb7185; padding-left: 12px; }
+.tl-bar-input    { background: #1d4ed8; }
+.tl-bar-activity { background: #0891b2; }
+.tl-bar-output   { background: #10b981; }
+.tl-bar-outcome  { background: #7c3aed; }
+/* ── Timeframe Mismatch ── */
+.risk-item.timeframe { border-left-color: #fb923c; }
+.risk-item.timeframe .risk-type-label { color: #fb923c; }
+/* ── Timeframe badges ── */
+.badge-timeframe-short  { background: rgba(16,185,129,0.1);  color: var(--green);  border: 1px solid rgba(16,185,129,0.2);  font-size: 10px; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; }
+.badge-timeframe-medium { background: rgba(184,134,11,0.1);  color: #fbbf24; border: 1px solid rgba(184,134,11,0.2); font-size: 10px; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; }
+.badge-timeframe-long   { background: rgba(129,140,248,0.1); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); font-size: 10px; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; }
+/* ── Light mode overrides ── */
+[data-theme="light"] #sidebar { background: #1a2540; }
+[data-theme="light"] .nav-item { color: rgba(255,255,255,0.6); }
+[data-theme="light"] .nav-item:hover { background: rgba(255,255,255,0.08); color: #ffffff; }
+[data-theme="light"] .nav-item.active { color: #ffffff; }
+[data-theme="light"] .brand-name { color: #ffffff; }
+[data-theme="light"] .active-project-indicator .label { color: rgba(255,255,255,0.4); }
+[data-theme="light"] .active-project-indicator .project-name { color: rgba(255,255,255,0.8); }
+[data-theme="light"] .score-gauge::before { background: var(--bg2); }
+[data-theme="light"] .form-control { color: var(--text); }
+[data-theme="light"] select.form-control option { background: var(--bg3); color: var(--text); }
 </style>
 </head>
 <body>
@@ -294,22 +439,46 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </svg>
       <span class="brand-name">Keystone</span>
     </div>
+    <div class="theme-toggle-bar">
+      <span class="theme-toggle-label" id="theme-label">Dark</span>
+      <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle light/dark mode">
+        <div class="theme-toggle-track">
+          <div class="theme-toggle-thumb"></div>
+        </div>
+      </button>
+    </div>
     <nav id="sidebar-nav">
+      <div class="nav-item" data-view="home" title="Home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </div>
       <div class="nav-item" data-view="projects" title="View all active projects">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         Active Projects
       </div>
-      <div class="nav-item active" data-view="new-framework" title="Build or edit a logic framework">
+      <div class="nav-item" data-view="new-framework" title="Build or edit a logic framework">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         New Evaluation
       </div>
-      <div class="nav-item" data-view="methodology" title="Programme theory and methodology reference">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-        Methodology
+      <div class="nav-divider"></div>
+      <div class="nav-item" data-view="quick-start" title="Quick Start guide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Quick Start
+        <span class="nav-badge">New</span>
       </div>
-      <div class="nav-item nav-item-home" onclick="window.location.href='index.html'" title="Back to Keystone home page">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Home
+      <div class="nav-item" data-view="document-analysis" title="Upload and analyse policy documents">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Document Analysis
+        <span class="nav-badge">New</span>
+      </div>
+      <div class="nav-item" data-view="timeline" title="AI-generated project timeline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Timeline
+        <span class="nav-badge">New</span>
+      </div>
+      <div class="nav-item" data-view="reference" title="Reference guide and methodology">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        Reference Guide
       </div>
     </nav>
     <div class="active-project-indicator">
@@ -323,7 +492,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div id="view-projects" class="view-panel">
       <div class="view-header">
         <h1 class="view-title">Active Projects</h1>
-        <button class="btn-primary" id="btn-new-project">+ New Project</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn-secondary" id="btn-import-project">⬆ Import</button>
+          <input type="file" id="import-file-input" accept=".json" style="display:none;">
+          <button class="btn-primary" id="btn-new-project">+ New Project</button>
+        </div>
       </div>
       <div id="projects-grid" class="projects-grid"></div>
     </div>
@@ -436,6 +609,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 <div class="form-error" id="err-3">Description is required.</div>
               </div>
               <div class="form-group">
+                <label class="form-label" for="outcome-timeframe-select">Timeframe</label>
+                <select class="form-control" id="outcome-timeframe-select">
+                  <option value="short">Short-term (within 1 year)</option>
+                  <option value="medium" selected>Medium-term (1–3 years)</option>
+                  <option value="long">Long-term (3+ years)</option>
+                </select>
+                <div class="form-hint">When is this outcome expected to be achieved?</div>
+              </div>
+              <div class="form-group">
                 <label class="form-label" for="bench-3">Target Benchmark</label>
                 <input type="text" class="form-control" id="bench-3" placeholder="e.g., Legal recognition in place by FY2027">
               </div>
@@ -502,8 +684,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
-    <!-- View: Methodology -->
-    <div id="view-methodology" class="view-panel">
+    <!-- View: Reference Guide -->
+    <div id="view-reference" class="view-panel">
       <h1 class="methodology-title">Programme Theory &amp; Logic Model Reference</h1>
       <div class="methodology-section">
         <h2 class="methodology-section-title">The Theory of Change</h2>
@@ -527,6 +709,193 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <p>The <em>Declaration on the Rights of Indigenous Peoples Act</em> (DRIPA), enacted by the Province of British Columbia in 2019, requires the provincial government to take all measures necessary to ensure provincial laws are consistent with the UN Declaration on the Rights of Indigenous Peoples (UNDRIP). Section 7 of DRIPA specifically enables the Province and Indigenous governing bodies to enter into agreements for joint decision-making on matters affecting Indigenous peoples.</p>
         <p>A critical evaluation consideration in DRIPA-aligned frameworks is <strong>Indigenous data sovereignty</strong> — the right of Indigenous peoples to govern the collection, ownership, and application of data about their communities, territories, and resources. The OCAP® principles (Ownership, Control, Access, and Possession), developed by the First Nations Information Governance Centre, provide the operational framework for data sovereignty in Canadian Indigenous policy contexts.</p>
         <p>The Blind Spot audit rule is particularly relevant in DRIPA contexts. A verification source that relies solely on provincial government reporting systems — without Nation-controlled data governance — may satisfy a Treasury Board requirement while failing the substantive standard of Indigenous data sovereignty. Analysts are encouraged to name Nation-specific data stewardship bodies, community-controlled survey instruments, or jointly governed data repositories as verification sources wherever possible.</p>
+      </div>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">All Seven Audit Rules</h2>
+        <table class="methodology-table">
+          <thead><tr><th>Rule</th><th>Risk Level</th><th>Triggers When</th><th>How to Resolve</th></tr></thead>
+          <tbody>
+            <tr><td class="error-type-cell">Dead End</td><td>High</td><td>Activities exist but no Outputs or Outcomes are defined.</td><td>Add at least one Output or Outcome to every Activity.</td></tr>
+            <tr><td class="error-type-cell">Miracle Leap</td><td>Medium/High</td><td>60%+ of Activities are low-leverage (webinars, meetings) but an Outcome claims major systemic change.</td><td>Add high-leverage Activities: legislative drafting, formal negotiations, co-governance establishment.</td></tr>
+            <tr><td class="error-type-cell">Blind Spot</td><td>Medium</td><td>An Output, Outcome, or benchmarked Activity has no named verification source.</td><td>Name a specific tracking mechanism: a reporting system, registry, survey instrument, or government submission.</td></tr>
+            <tr><td class="error-type-cell">Circular Logic</td><td>Medium</td><td>An Outcome's description has 65%+ word overlap with an Activity.</td><td>Rewrite the Outcome to describe the systemic change the Activity causes, not the Activity itself.</td></tr>
+            <tr><td class="error-type-cell">Orphaned Input</td><td>Advisory</td><td>An Input's keywords appear in no Activity description.</td><td>Reference the Input in at least one Activity, or remove it from the model.</td></tr>
+            <tr><td class="error-type-cell">Scale Mismatch</td><td>Advisory</td><td>An Outcome has a quantified target (%) but no Activity has a benchmark.</td><td>Add measurable benchmarks to Activities to show effort matches ambition.</td></tr>
+            <tr><td class="error-type-cell">Duplicate Component</td><td>Advisory</td><td>Two components of the same type have 70%+ semantic overlap.</td><td>Consolidate or clearly differentiate the two components.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">Health Score Formula</h2>
+        <p>The Health Score is a 0–100 integer calculated after every audit run:</p>
+        <p style="font-family:'DM Mono',monospace;background:var(--input-bg);padding:12px 16px;border-radius:6px;border:1px solid var(--border);font-size:13px;">Score = max(0, 100 − (High × 20) − (Medium × 8) − (Advisory × 3))</p>
+        <p>A score of 70+ is considered structurally sound for submission. 40–69 indicates material gaps that require attention. Below 40 indicates fundamental logic model failures.</p>
+      </div>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">Component Type Quick Reference</h2>
+        <table class="methodology-table">
+          <thead><tr><th>Type</th><th>Question it answers</th><th>Examples</th><th>Common mistake</th></tr></thead>
+          <tbody>
+            <tr><td class="error-type-cell">Input</td><td>What resources are committed?</td><td>Funding envelopes, FTE staff, legislative authority, partner capacity</td><td>Listing activities as inputs (e.g. "consultation sessions" is an Activity, not an Input)</td></tr>
+            <tr><td class="error-type-cell">Activity</td><td>What actions will be taken?</td><td>Engagement sessions, co-drafting processes, formal negotiations, training delivery</td><td>Listing outputs as activities (e.g. "produce a report" is an Output)</td></tr>
+            <tr><td class="error-type-cell">Output</td><td>What tangible deliverables result?</td><td>Agreements signed, committees established, frameworks published, sessions completed</td><td>Listing outcomes as outputs (e.g. "improved governance" is an Outcome)</td></tr>
+            <tr><td class="error-type-cell">Outcome</td><td>What systemic changes result?</td><td>Jurisdictional recognition, governance structure shifts, data sovereignty gains, community wellbeing changes</td><td>Listing activities or outputs restated as outcomes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- View: Home -->
+    <div id="view-home" class="view-panel">
+      <div class="home-view">
+        <div class="home-hero">
+          <h1 class="home-hero-title">Welcome to Keystone</h1>
+          <p class="home-hero-sub">A policy logic diagnostic tool for Canadian government analysts. Build, audit, and stress-test your programme logic models before submission.</p>
+        </div>
+        <div class="home-stats-row" id="home-stats-row">
+          <div class="home-stat-card"><div class="home-stat-num" id="home-stat-projects">0</div><div class="home-stat-label">Projects</div></div>
+          <div class="home-stat-card"><div class="home-stat-num" id="home-stat-components">0</div><div class="home-stat-label">Components</div></div>
+          <div class="home-stat-card"><div class="home-stat-num" id="home-stat-flags">0</div><div class="home-stat-label">Risk Flags</div></div>
+          <div class="home-stat-card"><div class="home-stat-num" id="home-stat-score">—</div><div class="home-stat-label">Avg Health Score</div></div>
+        </div>
+        <div class="home-section-title">Recent Projects</div>
+        <div class="home-recent-grid" id="home-recent-grid"></div>
+        <div class="home-section-title">Quick Actions</div>
+        <div class="home-quick-actions">
+          <button class="home-action-btn primary" id="home-btn-new-project">+ New Project</button>
+          <button class="home-action-btn" id="home-btn-quick-start">▶ Quick Start Guide</button>
+          <button class="home-action-btn" id="home-btn-doc-analysis">📄 Analyse a Document</button>
+          <button class="home-action-btn" onclick="window.location.href='index.html'">🏠 Landing Page</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Quick Start -->
+    <div id="view-quick-start" class="view-panel">
+      <div class="qs-view">
+        <div class="qs-header">
+          <div>
+            <h1 style="font-size:24px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:6px;">Quick Start Guide</h1>
+            <p style="font-size:14px;color:var(--muted);">Learn Keystone in 5 steps. Click any step to jump to it.</p>
+          </div>
+        </div>
+        <div class="qs-pills" id="qs-pills">
+          <div class="qs-pill active" data-qs-step="0">1. Create a Project</div>
+          <div class="qs-pill" data-qs-step="1">2. Add Components</div>
+          <div class="qs-pill" data-qs-step="2">3. Run the Audit</div>
+          <div class="qs-pill" data-qs-step="3">4. Use AI Features</div>
+          <div class="qs-pill" data-qs-step="4">5. Export &amp; Share</div>
+        </div>
+        <div class="qs-step-panel active" data-qs-panel="0">
+          <div class="qs-step-title">Step 1: Create a Project</div>
+          <div class="qs-step-desc">Every logic model lives inside a project. A project captures the initiative name, responsible department, and mandate classification — the context that shapes how the audit engine evaluates your framework.</div>
+          <div class="qs-demo-box">
+            <strong>Try it:</strong> Click <strong>Active Projects</strong> in the sidebar, then <strong>+ New Project</strong>. Or use the <strong>✨ AI Fill</strong> button — describe your initiative in plain language and Keystone will fill the form automatically.
+          </div>
+          <div class="qs-nav"><span></span><button class="btn-primary" id="qs-btn-next-0">Next →</button></div>
+        </div>
+        <div class="qs-step-panel" data-qs-panel="1">
+          <div class="qs-step-title">Step 2: Add Logic Model Components</div>
+          <div class="qs-step-desc">A logic model has four component types: <strong>Inputs</strong> (resources committed), <strong>Activities</strong> (actions taken), <strong>Outputs</strong> (tangible deliverables), and <strong>Outcomes</strong> (systemic changes). Each component should have a description, a measurable benchmark, and a verification source.</div>
+          <div class="qs-demo-box">
+            <strong>Shortcut:</strong> Use the <strong>✨ AI Component Suggester</strong> in the Framework Builder — describe your initiative and Keystone generates a complete logic model in seconds. You can then edit, delete, or add to the suggestions.
+          </div>
+          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-1">← Back</button><button class="btn-primary" id="qs-btn-next-1">Next →</button></div>
+        </div>
+        <div class="qs-step-panel" data-qs-panel="2">
+          <div class="qs-step-title">Step 3: Read the Logic Audit</div>
+          <div class="qs-step-desc">The audit panel runs automatically every time you add or edit a component. It checks for seven structural failure patterns and calculates a Health Score from 0–100. A score of 70+ is considered submission-ready.</div>
+          <div class="qs-demo-box">
+            <strong>Key rules:</strong> Dead End (activities with no outputs), Miracle Leap (weak activities claiming major outcomes), Blind Spot (no verification source), Circular Logic (outcome restates an activity), Orphaned Input, Scale Mismatch, Duplicate Component.
+          </div>
+          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-2">← Back</button><button class="btn-primary" id="qs-btn-next-2">Next →</button></div>
+        </div>
+        <div class="qs-step-panel" data-qs-panel="3">
+          <div class="qs-step-title">Step 4: Use AI Features</div>
+          <div class="qs-step-desc">Keystone has five AI features powered by Google Gemini. All require a live deployment with a valid API key.</div>
+          <div class="qs-demo-box">
+            <strong>✨ AI Component Suggester</strong> — generates a full logic model from plain text.<br>
+            <strong>✨ AI Diagnostic Summary</strong> — plain-English narrative for a Deputy Minister audience.<br>
+            <strong>✨ Suggest Verification Sources</strong> — appears on Blind Spot flags.<br>
+            <strong>✨ Improve Description</strong> — rewrites vague component descriptions.<br>
+            <strong>✨ AI Fill (New Project)</strong> — auto-fills the project form from plain language.
+          </div>
+          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-3">← Back</button><button class="btn-primary" id="qs-btn-next-3">Next →</button></div>
+        </div>
+        <div class="qs-step-panel" data-qs-panel="4">
+          <div class="qs-step-title">Step 5: Export &amp; Share</div>
+          <div class="qs-step-desc">When your logic model is ready, you have two export options.</div>
+          <div class="qs-demo-box">
+            <strong>Executive Briefing</strong> — generates a print-ready diagnostic report with the full logic model, audit findings, and recommendations. Open it from the audit panel.<br><br>
+            <strong>JSON Export</strong> — exports the full project (components + audit log) as a JSON file for sharing with colleagues or importing into another Keystone instance. Find it on the project card in Active Projects.
+          </div>
+          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-4">← Back</button><button class="btn-primary" onclick="showView('new-framework')">Start Building →</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Document Analysis -->
+    <div id="view-document-analysis" class="view-panel">
+      <div class="da-view">
+        <div class="da-header">
+          <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:4px;">Document Analysis</h1>
+            <p style="font-size:13px;color:var(--muted);">Upload a policy document (.docx or .pdf) and AI will extract logic model components for review.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" id="da-btn-reset" style="display:none;">Upload New Document</button>
+            <button class="btn-primary" id="da-btn-import" style="display:none;">⬇ Import Accepted Components</button>
+          </div>
+        </div>
+        <div id="da-upload-area">
+          <div class="da-upload-zone" id="da-upload-zone">
+            <div class="da-upload-icon">📄</div>
+            <div class="da-upload-text">Drop a <strong>.docx</strong> or <strong>.pdf</strong> file here, or <strong>click to browse</strong></div>
+            <div class="da-upload-hint">Max 10MB · Policy documents, agreements, frameworks, briefing notes</div>
+            <input type="file" id="da-file-input" accept=".docx,.pdf" style="display:none;">
+          </div>
+        </div>
+        <div id="da-loading" style="display:none;padding:32px;text-align:center;">
+          <span class="ai-loading">Extracting components from document...</span>
+        </div>
+        <div id="da-results-area" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);">Extracted Components</div>
+            <div style="font-size:12px;color:var(--muted);" id="da-accept-count">0 accepted</div>
+          </div>
+          <div class="da-results" id="da-results-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Timeline -->
+    <div id="view-timeline" class="view-panel">
+      <div class="tl-view">
+        <div class="tl-header">
+          <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:4px;">Project Timeline</h1>
+            <p style="font-size:13px;color:var(--muted);" id="tl-project-name">Select a project to generate a timeline.</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" id="tl-btn-print">⎙ Export</button>
+            <button class="btn-primary" id="tl-btn-generate">✨ Generate Timeline</button>
+          </div>
+        </div>
+        <div id="tl-no-project" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;text-align:center;color:var(--muted);">
+          <div style="font-size:40px;margin-bottom:12px;">📅</div>
+          <div style="font-size:14px;">Select a project with components to generate a timeline.</div>
+        </div>
+        <div id="tl-loading" style="display:none;padding:32px;text-align:center;">
+          <span class="ai-loading">Generating AI timeline...</span>
+        </div>
+        <div id="tl-content" style="display:none;display:flex;flex-direction:column;gap:16px;">
+          <div class="tl-summary" id="tl-summary"></div>
+          <div class="tl-phase-legend" id="tl-phase-legend"></div>
+          <div class="tl-gantt-wrapper">
+            <div class="tl-gantt" id="tl-gantt"></div>
+          </div>
+          <div class="tl-critical-note" id="tl-critical-note"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -617,15 +986,20 @@ function escHtml(s) {
 /* ── Navigation ── */
 function showView(v) {
   document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item[data-view]').forEach(n => n.classList.remove('active'));
   const panel = document.getElementById('view-' + v);
   if (panel) panel.classList.add('active');
   const nav = document.querySelector(`.nav-item[data-view="${v}"]`);
   if (nav) nav.classList.add('active');
   if (v === 'projects') renderProjects();
+  if (v === 'home') renderHomeView();
   if (v === 'new-framework') renderFormPanel();
+  if (v === 'quick-start') renderQuickStart();
+  if (v === 'document-analysis') renderDocumentAnalysis();
+  if (v === 'timeline') renderTimeline();
+  if (v === 'reference') { /* static content */ }
 }
-document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => showView(item.dataset.view)));
+document.querySelectorAll('.nav-item[data-view]').forEach(item => item.addEventListener('click', () => showView(item.dataset.view)));
 document.getElementById('btn-go-projects').addEventListener('click', () => showView('projects'));
 </script>
 <script>
@@ -746,6 +1120,21 @@ function runAuditEngine(projectId) {
     }
   });
 
+  // Rule H: Timeframe Coherence
+  const longActivities = activities.filter(a => {
+    const d = a.description.toLowerCase();
+    return ['negotiation','legislative','co-governance','treaty','jurisdiction','formal agreement'].some(kw => d.includes(kw));
+  });
+  outcomes.filter(o => o.timeframe === 'short').forEach(outcome => {
+    if (longActivities.length > 0) {
+      newEntries.push({
+        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Timeframe_Mismatch',
+        message: `Timeframe Mismatch: This outcome is marked short-term (< 1 year) but the project includes high-leverage activities (negotiation, legislative drafting) that realistically require more than 12 months. Consider updating the timeframe to medium or long-term.`,
+        componentId: outcome.id
+      });
+    }
+  });
+
   setData('ks_audit_log', [...log, ...newEntries]);
   recordScoreHistory(projectId, calcHealthScoreFromEntries(newEntries));
   auditLastChecked = Date.now();
@@ -860,7 +1249,8 @@ function renderAuditPanel() {
     Circular_Logic: 'Circular Logic',
     Orphaned_Input: 'Orphaned Input',
     Scale_Mismatch: 'Scale Mismatch',
-    Duplicate_Component: 'Duplicate'
+    Duplicate_Component: 'Duplicate',
+    Timeframe_Mismatch: 'Timeframe Mismatch'
   };
 
   // CSS modifier class per error type
@@ -870,7 +1260,8 @@ function renderAuditPanel() {
       Circular_Logic: 'circular',
       Orphaned_Input: 'orphaned',
       Scale_Mismatch: 'scale',
-      Duplicate_Component: 'duplicate'
+      Duplicate_Component: 'duplicate',
+      Timeframe_Mismatch: 'timeframe'
     };
     return typeMap[entry.errorType] || levelClass;
   }
@@ -984,8 +1375,12 @@ function renderComponentList() {
     html += `<div class="component-group"><div class="component-group-label">${type}s</div>`;
     group.forEach(comp => {
       const desc = comp.description.length > 60 ? comp.description.slice(0, 60) + '…' : comp.description;
+      const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
+        ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe === 'short' ? '< 1yr' : comp.timeframe === 'medium' ? '1–3yr' : '3yr+'}</span>`
+        : '';
       html += `<div class="component-item" data-id="${comp.id}">
         <span class="badge ${typeBadgeClass(type)}">${type}</span>
+        ${timeframeBadge}
         <span class="component-item-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
         <button class="btn-improve" data-id="${comp.id}" title="AI: Improve this description">✨</button>
         <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
@@ -1056,8 +1451,11 @@ function addCurrentComponent() {
   const desc = descEl.value.trim();
   if (!desc) { descEl.classList.add('error'); errEl.classList.add('visible'); return; }
   descEl.classList.remove('error'); errEl.classList.remove('visible');
-  setData('ks_components', [...getData('ks_components'), { id: generateId(), projectId: activeProjectId, type: STEPS[currentStep], description: desc, targetBenchmark: benchEl.value.trim(), verificationSource: srcEl.value.trim() }]);
-  descEl.value = ''; benchEl.value = ''; srcEl.value = '';
+  const newComp = { id: generateId(), projectId: activeProjectId, type: STEPS[currentStep], description: desc, targetBenchmark: benchEl.value.trim(), verificationSource: srcEl.value.trim() };
+  if (STEPS[currentStep] === 'Outcome') {
+    newComp.timeframe = document.getElementById('outcome-timeframe-select')?.value || 'medium';
+  }
+  setData('ks_components', [...getData('ks_components'), newComp]);  descEl.value = ''; benchEl.value = ''; srcEl.value = '';
   runAuditEngine(activeProjectId); renderComponentList();
 }
 
@@ -1090,10 +1488,11 @@ function renderProjects() {
       <div class="project-card-name">${escHtml(proj.name)}</div>
       <div class="project-card-dept">${escHtml(proj.department)}</div>
       <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}</div>
-      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
+  grid.querySelectorAll('.btn-export-project').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); exportProject(btn.dataset.id); }));
   grid.querySelectorAll('.btn-delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
 }
 
@@ -1461,8 +1860,8 @@ function init() {
     const demo = projects.find(p => p.id === 'demo-001') || projects[0];
     setActiveProject(demo.id);
   }
-  currentStep = 0;
-  showView('new-framework');
+  qsCurrentStep = 0;
+  showView('home');
 }
 
 // Override setActiveProject to also reset narrative slot and show/hide demo banner
@@ -1493,6 +1892,261 @@ setTimeout(() => {
   }
 }, 0);
 
+</script>
+<script>
+/* ── Theme Toggle ── */
+(function() {
+  const html = document.documentElement;
+  const btn = document.getElementById('theme-toggle-btn');
+  const label = document.getElementById('theme-label');
+  const saved = localStorage.getItem('ks_theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  if (label) label.textContent = saved === 'dark' ? 'Dark' : 'Light';
+  if (btn) btn.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light';
+    localStorage.setItem('ks_theme', next);
+  });
+})();
+
+/* ── Home View ── */
+function renderHomeView() {
+  const projects = getData('ks_projects');
+  const allComponents = getData('ks_components');
+  const allFlags = getData('ks_audit_log');
+  document.getElementById('home-stat-projects').textContent = projects.length;
+  document.getElementById('home-stat-components').textContent = allComponents.length;
+  document.getElementById('home-stat-flags').textContent = allFlags.length;
+  if (projects.length > 0) {
+    const scores = projects.map(p => Math.max(0, 100 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='High').length*20 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='Medium').length*8 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='Low').length*3));
+    document.getElementById('home-stat-score').textContent = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  } else { document.getElementById('home-stat-score').textContent = '—'; }
+  const grid = document.getElementById('home-recent-grid');
+  const recent = [...projects].slice(-6).reverse();
+  if (recent.length === 0) {
+    grid.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1;">No projects yet. Create your first project to get started.</div>';
+  } else {
+    grid.innerHTML = recent.map(proj => {
+      const comps = allComponents.filter(c=>c.projectId===proj.id).length;
+      const score = Math.max(0, 100 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='High').length*20 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='Medium').length*8 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='Low').length*3);
+      const scoreColor = score>=70?'var(--green)':score>=40?'#fbbf24':'#fb7185';
+      return `<div class="home-recent-card" data-proj-id="${proj.id}"><div class="home-recent-name">${escHtml(proj.name)}</div><div class="home-recent-dept">${escHtml(proj.department)}</div><div class="home-recent-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span style="font-size:12px;color:var(--muted);">${comps} components</span><span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;">${score}</span></div></div>`;
+    }).join('');
+    grid.querySelectorAll('.home-recent-card').forEach(card => card.addEventListener('click', () => openProject(card.dataset.projId)));
+  }
+}
+document.getElementById('home-btn-new-project').addEventListener('click', () => { showView('projects'); setTimeout(() => document.getElementById('btn-new-project').click(), 100); });
+document.getElementById('home-btn-quick-start').addEventListener('click', () => showView('quick-start'));
+document.getElementById('home-btn-doc-analysis').addEventListener('click', () => showView('document-analysis'));
+
+/* ── Quick Start ── */
+let qsCurrentStep = 0;
+function renderQuickStart() {
+  document.querySelectorAll('.qs-pill').forEach((p,i) => { p.classList.toggle('active', i===qsCurrentStep); p.classList.toggle('done', i<qsCurrentStep); });
+  document.querySelectorAll('.qs-step-panel').forEach((p,i) => p.classList.toggle('active', i===qsCurrentStep));
+}
+document.querySelectorAll('.qs-pill').forEach(pill => pill.addEventListener('click', () => { qsCurrentStep=parseInt(pill.dataset.qsStep); renderQuickStart(); }));
+[0,1,2,3].forEach(i => {
+  const nb = document.getElementById(`qs-btn-next-${i}`); if (nb) nb.addEventListener('click', () => { qsCurrentStep=i+1; renderQuickStart(); });
+  const pb = document.getElementById(`qs-btn-prev-${i+1}`); if (pb) pb.addEventListener('click', () => { qsCurrentStep=i; renderQuickStart(); });
+});
+
+/* ── Document Analysis ── */
+let daExtractedComponents = [];
+function renderDocumentAnalysis() {
+  if (daExtractedComponents.length === 0) {
+    document.getElementById('da-upload-area').style.display = 'block';
+    document.getElementById('da-results-area').style.display = 'none';
+    document.getElementById('da-btn-reset').style.display = 'none';
+    document.getElementById('da-btn-import').style.display = 'none';
+  }
+}
+const daZone = document.getElementById('da-upload-zone');
+const daFileInput = document.getElementById('da-file-input');
+daZone.addEventListener('click', () => daFileInput.click());
+daZone.addEventListener('dragover', e => { e.preventDefault(); daZone.classList.add('drag-over'); });
+daZone.addEventListener('dragleave', () => daZone.classList.remove('drag-over'));
+daZone.addEventListener('drop', e => { e.preventDefault(); daZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processDAFile(e.dataTransfer.files[0]); });
+daFileInput.addEventListener('change', e => { if (e.target.files[0]) processDAFile(e.target.files[0]); e.target.value=''; });
+
+async function processDAFile(file) {
+  const proj = activeProjectId ? getData('ks_projects').find(p=>p.id===activeProjectId) : null;
+  document.getElementById('da-upload-area').style.display = 'none';
+  document.getElementById('da-loading').style.display = 'block';
+  try {
+    let docText='', docBase64='', mimeType=file.type||'application/octet-stream';
+    if (file.name.endsWith('.docx')) {
+      const ab = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: ab });
+      docText = result.value;
+    } else {
+      const ab = await file.arrayBuffer();
+      const bytes = new Uint8Array(ab);
+      let binary=''; bytes.forEach(b => binary+=String.fromCharCode(b));
+      docBase64 = btoa(binary); mimeType='application/pdf';
+    }
+    const res = await fetch(`${API_BASE}/api/ai/extract-components`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ document_text:docText, document_base64:docBase64, document_mime_type:mimeType, document_name:file.name, mandate:proj?.mandate||'Service Delivery' })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    daExtractedComponents = [];
+    ['inputs','activities','outputs','outcomes'].forEach((key,i) => {
+      (data.data[key]||[]).forEach(item => daExtractedComponents.push({...item, componentType:['Input','Activity','Output','Outcome'][i], accepted:true}));
+    });
+    document.getElementById('da-loading').style.display = 'none';
+    renderDAResults();
+  } catch(e) {
+    document.getElementById('da-loading').style.display = 'none';
+    document.getElementById('da-upload-area').style.display = 'block';
+    showToast('Failed to extract components. Please try again.', true); console.error(e);
+  }
+}
+
+function renderDAResults() {
+  document.getElementById('da-results-area').style.display = 'block';
+  document.getElementById('da-btn-reset').style.display = 'inline-block';
+  document.getElementById('da-btn-import').style.display = 'inline-block';
+  const list = document.getElementById('da-results-list');
+  list.innerHTML = daExtractedComponents.map((comp,idx) => `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button></div></div>`).join('');
+  list.querySelectorAll('.btn-da-accept').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=true; renderDAResults(); }));
+  list.querySelectorAll('.btn-da-reject').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=false; renderDAResults(); }));
+  document.getElementById('da-accept-count').textContent = `${daExtractedComponents.filter(c=>c.accepted).length} accepted`;
+}
+
+document.getElementById('da-btn-reset').addEventListener('click', () => {
+  daExtractedComponents=[];
+  document.getElementById('da-upload-area').style.display='block';
+  document.getElementById('da-results-area').style.display='none';
+  document.getElementById('da-btn-reset').style.display='none';
+  document.getElementById('da-btn-import').style.display='none';
+});
+
+document.getElementById('da-btn-import').addEventListener('click', () => {
+  if (!activeProjectId) { showToast('Select a project first.', true); return; }
+  const accepted = daExtractedComponents.filter(c=>c.accepted);
+  if (!accepted.length) { showToast('No components accepted.', true); return; }
+  const newComps = accepted.map(c => ({ id:generateId(), projectId:activeProjectId, type:c.componentType, description:c.description, targetBenchmark:c.targetBenchmark||'', verificationSource:c.verificationSource||'' }));
+  setData('ks_components', [...getData('ks_components'), ...newComps]);
+  runAuditEngine(activeProjectId);
+  showToast(`✓ Imported ${newComps.length} components.`);
+  daExtractedComponents=[];
+  showView('new-framework');
+});
+
+/* ── Timeline View ── */
+let tlTimelineData = null;
+function renderTimeline() {
+  const proj = activeProjectId ? getData('ks_projects').find(p=>p.id===activeProjectId) : null;
+  const components = activeProjectId ? getData('ks_components').filter(c=>c.projectId===activeProjectId) : [];
+  if (!proj || components.length < 2) {
+    document.getElementById('tl-no-project').style.display='flex';
+    document.getElementById('tl-content').style.display='none';
+    document.getElementById('tl-loading').style.display='none';
+    return;
+  }
+  document.getElementById('tl-no-project').style.display='none';
+  document.getElementById('tl-project-name').textContent=proj.name;
+  if (tlTimelineData && tlTimelineData.projectId===activeProjectId) {
+    document.getElementById('tl-content').style.display='flex';
+    renderTLGantt(tlTimelineData.timeline);
+  }
+}
+
+document.getElementById('tl-btn-generate').addEventListener('click', async () => {
+  if (!activeProjectId) { showToast('Select a project first.', true); return; }
+  const proj = getData('ks_projects').find(p=>p.id===activeProjectId);
+  const components = getData('ks_components').filter(c=>c.projectId===activeProjectId);
+  if (components.length < 2) { showToast('Add at least 2 components before generating a timeline.', true); return; }
+  document.getElementById('tl-loading').style.display='block';
+  document.getElementById('tl-content').style.display='none';
+  try {
+    const res = await fetch(`${API_BASE}/api/ai/generate-timeline`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ project_name:proj.name, mandate:proj.mandate, components:components.map(c=>({type:c.type,description:c.description,targetBenchmark:c.targetBenchmark})) })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    tlTimelineData = { projectId:activeProjectId, timeline:data.timeline };
+    document.getElementById('tl-loading').style.display='none';
+    document.getElementById('tl-content').style.display='flex';
+    renderTLGantt(data.timeline);
+    showToast('✨ Timeline generated.');
+  } catch(e) {
+    document.getElementById('tl-loading').style.display='none';
+    showToast('Failed to generate timeline. Please try again.', true); console.error(e);
+  }
+});
+
+function renderTLGantt(tl) {
+  document.getElementById('tl-summary').textContent = tl.summary||'';
+  const legendEl = document.getElementById('tl-phase-legend');
+  legendEl.innerHTML = (tl.phases||[]).map(p=>`<div class="tl-phase-pill"><div class="tl-phase-dot" style="background:${p.color}"></div>${escHtml(p.name)} (Wk ${p.start_week}–${p.end_week})</div>`).join('');
+  const ganttEl = document.getElementById('tl-gantt');
+  const totalWeeks = tl.total_weeks||52;
+  const typeColorMap = {Input:'tl-bar-input',Activity:'tl-bar-activity',Output:'tl-bar-output',Outcome:'tl-bar-outcome'};
+  const criticalSet = new Set(tl.critical_path_indices||[]);
+  let headerHtml = '<div class="tl-gantt-header">';
+  const step = Math.ceil(totalWeeks/12);
+  for (let w=1; w<=totalWeeks; w+=step) headerHtml+=`<div class="tl-week-label" style="width:${(step/totalWeeks*100).toFixed(1)}%">Wk ${w}</div>`;
+  headerHtml+='</div>';
+  const rowsHtml = (tl.items||[]).map((item,idx) => {
+    const left=((item.start_week-1)/totalWeeks*100).toFixed(2);
+    const width=((item.end_week-item.start_week+1)/totalWeeks*100).toFixed(2);
+    const isCritical=criticalSet.has(idx);
+    const barClass=typeColorMap[item.component_type]||'tl-bar-input';
+    const truncLabel=item.description.length>30?item.description.slice(0,30)+'…':item.description;
+    return `<div class="tl-row"><div class="tl-row-label" title="${escHtml(item.description)}"><span style="font-size:10px;font-weight:700;color:var(--muted)">${item.component_type[0]}</span>${escHtml(truncLabel)}</div><div class="tl-row-track">${item.is_milestone?`<div class="tl-milestone" style="left:calc(${left}% - 8px);${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.description)}"></div>`:`<div class="tl-bar ${barClass}" style="left:${left}%;width:${width}%;${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.rationale||'')}"><span class="tl-bar-label">${escHtml(truncLabel)}</span></div>`}</div></div>`;
+  }).join('');
+  ganttEl.innerHTML = headerHtml+rowsHtml;
+  const critCount=criticalSet.size;
+  document.getElementById('tl-critical-note').textContent = critCount>0?`${critCount} items on the critical path (outlined in red). Delays to these components will extend the overall project timeline.`:'';
+}
+
+document.getElementById('tl-btn-print').addEventListener('click', () => {
+  const content=document.getElementById('tl-content');
+  if (!content||content.style.display==='none') { showToast('Generate a timeline first.', true); return; }
+  const proj=getData('ks_projects').find(p=>p.id===activeProjectId);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>${escHtml(proj?.name||'Timeline')}</title><style>body{font-family:sans-serif;padding:32px;}</style></head><body><h1>${escHtml(proj?.name||'Project Timeline')}</h1><p>Generated ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</p>${content.innerHTML}</body></html>`);
+  win.document.close(); setTimeout(()=>win.print(),600);
+});
+
+/* ── JSON Export / Import ── */
+function exportProject(projectId) {
+  const proj=getData('ks_projects').find(p=>p.id===projectId);
+  if (!proj) return;
+  const components=getData('ks_components').filter(c=>c.projectId===projectId);
+  const auditLog=getData('ks_audit_log').filter(e=>e.projectId===projectId);
+  const payload={version:'1.0',exportedAt:new Date().toISOString(),project:proj,components,auditLog};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download=`keystone-${proj.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40)}-${Date.now()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Project exported as JSON.');
+}
+
+document.getElementById('btn-import-project').addEventListener('click', () => document.getElementById('import-file-input').click());
+document.getElementById('import-file-input').addEventListener('change', async (e) => {
+  const file=e.target.files[0]; if (!file) return;
+  try {
+    const text=await file.text();
+    const payload=JSON.parse(text);
+    if (!payload.project||!payload.components) throw new Error('Invalid format');
+    const newProjectId=generateId();
+    const newProject={...payload.project,id:newProjectId,name:payload.project.name+' (Imported)'};
+    const newComponents=payload.components.map(c=>({...c,id:generateId(),projectId:newProjectId}));
+    setData('ks_projects',[...getData('ks_projects'),newProject]);
+    setData('ks_components',[...getData('ks_components'),...newComponents]);
+    runAuditEngine(newProjectId); renderProjects();
+    showToast(`Project "${newProject.name}" imported successfully.`);
+  } catch(err) { showToast('Import failed. Please check the file format.', true); console.error(err); }
+  e.target.value='';
+});
 </script>
 </body>
 </html>

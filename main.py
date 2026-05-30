@@ -71,6 +71,22 @@ class NaturalLanguageProjectRequest:
     user_input: str
 
 
+@dataclass
+class ExtractComponentsRequest:
+    document_text: str = ""
+    document_base64: str = ""
+    document_mime_type: str = "application/pdf"
+    document_name: str = ""
+    mandate: str = "Service Delivery"
+
+
+@dataclass
+class GenerateTimelineRequest:
+    project_name: str
+    mandate: str
+    components: list  # [{type, description, targetBenchmark}]
+
+
 # ── Helper: safe JSON parse from Gemini response ───────────────────────────────
 def extract_json(text: str):
     """Strip markdown code fences and parse JSON from Gemini response."""
@@ -319,6 +335,125 @@ Rules:
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "model": "gemini-1.5-flash"}
+
+
+# ── Endpoint 6: Document Component Extraction ─────────────────────────────────
+@app.post("/api/ai/extract-components")
+async def extract_components(req: ExtractComponentsRequest):
+    """
+    Extract logic model components from a policy document (text or PDF).
+    """
+    prompt_text = f"""You are an expert Canadian government policy analyst specialising in logic models.
+
+A policy document has been provided. Extract all logic model components from it.
+
+Document name: {req.document_name or "Untitled"}
+Mandate classification: {req.mandate}
+
+Identify and extract Inputs, Activities, Outputs, and Outcomes from this document.
+
+Return ONLY a valid JSON object with this exact structure — no markdown, no explanation:
+{{
+  "inputs": [
+    {{"description": "...", "targetBenchmark": "...", "verificationSource": "...", "sourceQuote": "..."}}
+  ],
+  "activities": [
+    {{"description": "...", "targetBenchmark": "...", "verificationSource": "...", "sourceQuote": "..."}}
+  ],
+  "outputs": [
+    {{"description": "...", "targetBenchmark": "...", "verificationSource": "...", "sourceQuote": "..."}}
+  ],
+  "outcomes": [
+    {{"description": "...", "targetBenchmark": "...", "verificationSource": "...", "sourceQuote": "..."}}
+  ]
+}}
+
+Rules:
+- Extract only components explicitly stated or strongly implied in the document
+- sourceQuote: a short verbatim excerpt (max 80 chars) from the document that supports this component
+- If targetBenchmark or verificationSource are not in the document, leave them as empty strings
+- Use formal Canadian government policy language
+- Return ONLY the JSON object, nothing else"""
+
+    try:
+        if req.document_base64:
+            response = model.generate_content([
+                {"inline_data": {"mime_type": req.document_mime_type, "data": req.document_base64}},
+                prompt_text
+            ])
+        else:
+            full_prompt = prompt_text + f"\n\nDocument text:\n{req.document_text}"
+            response = model.generate_content(full_prompt)
+        data = extract_json(response.text)
+        return {"success": True, "data": data}
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse AI response as JSON: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Endpoint 7: Timeline Generation ───────────────────────────────────────────
+@app.post("/api/ai/generate-timeline")
+async def generate_timeline(req: GenerateTimelineRequest):
+    """
+    Generate a structured project timeline with start/end weeks,
+    phases, dependencies, and rationale for each component.
+    """
+    components_text = "\n".join([
+        f"- [{c['type']}] {c['description']}" + (f" (benchmark: {c['targetBenchmark']})" if c.get('targetBenchmark') else "")
+        for c in req.components
+    ])
+
+    prompt = f"""You are a senior Canadian government programme manager creating a realistic project timeline.
+
+Project: {req.project_name}
+Mandate: {req.mandate}
+
+Logic Model Components:
+{components_text}
+
+Create a realistic project timeline for these components. Weeks are relative to project start (Week 1 = project start).
+
+Return ONLY a valid JSON object — no markdown, no explanation:
+{{
+  "total_weeks": 52,
+  "phases": [
+    {{"name": "Foundation", "start_week": 1, "end_week": 12, "color": "#1d4ed8"}},
+    {{"name": "Implementation", "start_week": 13, "end_week": 40, "color": "#00c2ff"}},
+    {{"name": "Evaluation", "start_week": 41, "end_week": 52, "color": "#10b981"}}
+  ],
+  "items": [
+    {{
+      "component_type": "Input",
+      "description": "...",
+      "start_week": 1,
+      "end_week": 4,
+      "phase": "Foundation",
+      "is_milestone": false,
+      "depends_on": null,
+      "rationale": "one sentence explaining this timing"
+    }}
+  ],
+  "critical_path_indices": [0, 2],
+  "summary": "2-3 sentence plain-English explanation of the recommended timeline and key sequencing decisions"
+}}
+
+Rules:
+- Inputs always start at Week 1
+- Activities follow Inputs; sequence them logically
+- Outputs are milestones at the END of their producing Activities
+- Outcomes sit in the final third of the timeline
+- For DRIPA Alignment or Self-Government Transition, allow 12-24 months minimum for negotiation activities
+- Return ONLY the JSON object"""
+
+    try:
+        response = model.generate_content(prompt)
+        data = extract_json(response.text)
+        return {"success": True, "timeline": data}
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse AI response as JSON: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Serve Static Frontend ──────────────────────────────────────────────────────
