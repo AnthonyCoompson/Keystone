@@ -114,9 +114,13 @@ def require_gemini():
 
 # ── Helper: safe JSON parse from Gemini response ───────────────────────────────
 def extract_json(text: str):
+    """Strip markdown code fences robustly and parse JSON."""
     text = text.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text)
-    text = re.sub(r"\s*```$", "", text)
+    # Remove opening fence (``` or ```json) with optional trailing whitespace/newline
+    text = re.sub(r"^```(?:json)?[ \t]*\n?", "", text)
+    # Remove closing fence with optional leading whitespace/newline
+    text = re.sub(r"\n?[ \t]*```\s*$", "", text)
+    text = text.strip()
     return json.loads(text)
 
 

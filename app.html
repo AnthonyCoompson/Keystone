@@ -187,7 +187,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .audit-timestamp { font-size: 11.5px; color: var(--muted); }
 .health-score-section { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 .score-gauge { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
-.score-gauge::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: rgba(13,20,36,0.95); }
+.score-gauge::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--bg2); }
 .score-gauge.green { background: conic-gradient(var(--green) var(--pct), var(--border) 0); }
 .score-gauge.amber { background: conic-gradient(var(--amber) var(--pct), var(--border) 0); }
 .score-gauge.red   { background: conic-gradient(var(--red) var(--pct), var(--border) 0); }
@@ -905,7 +905,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div id="tl-loading" style="display:none;padding:32px;text-align:center;">
           <span class="ai-loading">Generating AI timeline...</span>
         </div>
-        <div id="tl-content" style="display:none;display:flex;flex-direction:column;gap:16px;">
+        <div id="tl-content" style="display:none;flex-direction:column;gap:16px;">
           <div class="tl-summary" id="tl-summary"></div>
           <div class="tl-phase-legend" id="tl-phase-legend"></div>
           <div class="tl-gantt-wrapper">
@@ -965,7 +965,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
    ═══════════════════════════════════════════════════ */
 
 /* ── Storage Helpers ── */
-function getData(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; } }
+function getData(key) { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : []; } catch(e) { return []; } }
 function setData(key, array) { localStorage.setItem(key, JSON.stringify(array)); }
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
@@ -1313,17 +1313,18 @@ function runAuditEngine(projectId) {
     }
   });
 
-  // Rule D: Circular Logic
+  // Rule D: Circular Logic — one flag per outcome maximum
   outcomes.forEach(outcome => {
-    activities.forEach(activity => {
-      if (wordOverlap(activity.description, outcome.description) > 0.65) {
-        newEntries.push({
-          id: generateId(), projectId, riskLevel: 'Medium', errorType: 'Circular_Logic',
-          message: `Circular Logic: This outcome closely mirrors an activity ("${activity.description.slice(0,50)}…"). An outcome should describe a systemic change caused by the activity, not restate the activity itself.`,
-          componentId: outcome.id
-        });
-      }
-    });
+    const offendingActivity = activities.find(activity =>
+      wordOverlap(activity.description, outcome.description) > 0.65
+    );
+    if (offendingActivity) {
+      newEntries.push({
+        id: generateId(), projectId, riskLevel: 'Medium', errorType: 'Circular_Logic',
+        message: `Circular Logic: This outcome closely mirrors an activity ("${offendingActivity.description.slice(0,50)}…"). An outcome should describe a systemic change caused by the activity, not restate the activity itself.`,
+        componentId: outcome.id
+      });
+    }
   });
 
   // Rule E: Orphaned Input
@@ -1359,9 +1360,11 @@ function runAuditEngine(projectId) {
     for (let i = 0; i < group.length; i++) {
       for (let j = i + 1; j < group.length; j++) {
         if (wordOverlap(group[i].description, group[j].description) > 0.70) {
+          const descA = group[i].description.length > 40 ? group[i].description.slice(0,40)+'…' : group[i].description;
+          const descB = group[j].description.length > 40 ? group[j].description.slice(0,40)+'…' : group[j].description;
           newEntries.push({
             id: generateId(), projectId, riskLevel: 'Low', errorType: 'Duplicate_Component',
-            message: `Duplicate Component: Two ${type} components appear to describe the same thing. "${group[i].description.slice(0,40)}…" and "${group[j].description.slice(0,40)}…" — consolidate or differentiate them.`,
+            message: `Duplicate Component: Two ${type} components appear to describe the same thing. "${descA}" and "${descB}" — consolidate or differentiate them.`,
             componentId: group[j].id
           });
         }
@@ -1484,8 +1487,9 @@ function renderAuditPanel() {
   const highC = entries.filter(e => e.riskLevel === 'High').length;
   const medC  = entries.filter(e => e.riskLevel === 'Medium').length;
   const lowC  = entries.filter(e => e.riskLevel === 'Low').length;
+  const hasComponents = getData('ks_components').filter(c => c.projectId === activeProjectId).length > 0;
   scoreRisks.textContent = entries.length === 0
-    ? 'No risks detected'
+    ? (hasComponents ? 'No risks detected' : 'Add components to run audit')
     : [highC && `${highC}H`, medC && `${medC}M`, lowC && `${lowC}L`].filter(Boolean).join(' · ') + ` risk${entries.length !== 1 ? 's' : ''}`;
 
   if (sparklineContainer) sparklineContainer.innerHTML = renderSparkline(activeProjectId);
@@ -1704,7 +1708,11 @@ function addCurrentComponent() {
   if (STEPS[currentStep] === 'Outcome') {
     newComp.timeframe = document.getElementById('outcome-timeframe-select')?.value || 'medium';
   }
-  setData('ks_components', [...getData('ks_components'), newComp]);  descEl.value = ''; benchEl.value = ''; srcEl.value = '';
+  setData('ks_components', [...getData('ks_components'), newComp]);
+  descEl.value = ''; benchEl.value = ''; srcEl.value = '';
+  // Reset timeframe to default after adding an outcome
+  const tfSelect = document.getElementById('outcome-timeframe-select');
+  if (tfSelect && STEPS[currentStep] === 'Outcome') tfSelect.value = 'medium';
   runAuditEngine(activeProjectId); renderComponentList();
 }
 
@@ -2041,7 +2049,18 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
   </body></html>`;
 
   const win = window.open('', '_blank');
-  if (win) { win.document.write(html); win.document.close(); }
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  } else {
+    // Popup blocked — fall back to a blob download
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `keystone-briefing-${Date.now()}.html`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Popup blocked — briefing downloaded as HTML file.');
+  }
 });
 </script>
 <script>
@@ -2093,15 +2112,17 @@ function init() {
   if (projects.length > 0) {
     const demo = projects.find(p => p.id === 'demo-001') || projects[0];
     setActiveProject(demo.id);
+    // Show banner for demo project on first load
+    const slot = document.getElementById('ai-narrative-slot');
+    if (slot) slot.classList.remove('open');
   }
   qsCurrentStep = 0;
   showView('home');
 }
 
-// Override setActiveProject to also reset narrative slot and show/hide demo banner
-const _origSetActive = setActiveProject;
-function setActiveProjectFull(id) {
-  _origSetActive(id);
+// openProject: open a project and navigate to the builder view
+function openProject(id) {
+  setActiveProject(id);
   // Reset narrative slot on project switch
   const slot = document.getElementById('ai-narrative-slot');
   if (slot) slot.classList.remove('open');
@@ -2112,19 +2133,17 @@ function setActiveProjectFull(id) {
     const alreadyShown = sessionStorage.getItem('ks_demo_banner_shown') === '1';
     banner.style.display = (isDemoProject && !alreadyShown) ? 'flex' : 'none';
   }
+  showView('new-framework');
 }
-// Patch all callers
-const _origOpenProject = openProject;
-function openProject(id) { setActiveProjectFull(id); showView('new-framework'); }
 
 init();
-// Show banner after init if demo
-setTimeout(() => {
+// Show demo banner after init if applicable (done synchronously - no race)
+(function() {
   const banner = document.getElementById('demo-banner');
   if (banner && activeProjectId === 'demo-001' && sessionStorage.getItem('ks_demo_banner_shown') !== '1') {
     banner.style.display = 'flex';
   }
-}, 0);
+})();
 
 </script>
 <script>
@@ -2171,7 +2190,7 @@ function renderHomeView() {
     grid.querySelectorAll('.home-recent-card').forEach(card => card.addEventListener('click', () => openProject(card.dataset.projId)));
   }
 }
-document.getElementById('home-btn-new-project').addEventListener('click', () => { showView('projects'); setTimeout(() => document.getElementById('btn-new-project').click(), 100); });
+document.getElementById('home-btn-new-project').addEventListener('click', () => { showView('projects'); openModal(); });
 document.getElementById('home-btn-quick-start').addEventListener('click', () => showView('quick-start'));
 document.getElementById('home-btn-doc-analysis').addEventListener('click', () => showView('document-analysis'));
 
@@ -2218,7 +2237,12 @@ async function processDAFile(file) {
     } else {
       const ab = await file.arrayBuffer();
       const bytes = new Uint8Array(ab);
-      let binary=''; bytes.forEach(b => binary+=String.fromCharCode(b));
+      // Chunked encoding to avoid call-stack overflow on large PDFs
+      let binary = '';
+      const CHUNK = 8192;
+      for (let i = 0; i < bytes.length; i += CHUNK) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+      }
       docBase64 = btoa(binary); mimeType='application/pdf';
     }
     const data = await aiFetch('/api/ai/extract-components', {
@@ -2283,9 +2307,12 @@ function renderTimeline() {
   }
   document.getElementById('tl-no-project').style.display='none';
   document.getElementById('tl-project-name').textContent=proj.name;
+  const tlContent = document.getElementById('tl-content');
   if (tlTimelineData && tlTimelineData.projectId===activeProjectId) {
-    document.getElementById('tl-content').style.display='flex';
+    tlContent.style.display='flex';
     renderTLGantt(tlTimelineData.timeline);
+  } else {
+    tlContent.style.display='none';
   }
 }
 
@@ -2308,7 +2335,8 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
     showToast('✨ Timeline generated.');
   } catch(e) {
     document.getElementById('tl-loading').style.display='none';
-    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate timeline. Please try again.', true);} console.error(e);
+    document.getElementById('tl-content').style.display='none';
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate timeline. ' + (e.message||'Please try again.'), true);} console.error(e);
   }
 });
 
@@ -2341,9 +2369,15 @@ document.getElementById('tl-btn-print').addEventListener('click', () => {
   const content=document.getElementById('tl-content');
   if (!content||content.style.display==='none') { showToast('Generate a timeline first.', true); return; }
   const proj=getData('ks_projects').find(p=>p.id===activeProjectId);
+  const printHtml = `<!DOCTYPE html><html><head><title>${escHtml(proj?.name||'Timeline')}</title><style>body{font-family:sans-serif;padding:32px;}</style></head><body><h1>${escHtml(proj?.name||'Project Timeline')}</h1><p>Generated ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</p>${content.innerHTML}</body></html>`;
   const win=window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>${escHtml(proj?.name||'Timeline')}</title><style>body{font-family:sans-serif;padding:32px;}</style></head><body><h1>${escHtml(proj?.name||'Project Timeline')}</h1><p>Generated ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</p>${content.innerHTML}</body></html>`);
-  win.document.close(); setTimeout(()=>win.print(),600);
+  if (win) { win.document.write(printHtml); win.document.close(); setTimeout(()=>win.print(),600); }
+  else {
+    const blob=new Blob([printHtml],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`keystone-timeline-${Date.now()}.html`; a.click(); URL.revokeObjectURL(url);
+    showToast('Popup blocked — timeline downloaded as HTML.');
+  }
 });
 
 /* ── JSON Export / Import ── */
@@ -2373,8 +2407,10 @@ document.getElementById('import-file-input').addEventListener('change', async (e
     const newComponents=payload.components.map(c=>({...c,id:generateId(),projectId:newProjectId}));
     setData('ks_projects',[...getData('ks_projects'),newProject]);
     setData('ks_components',[...getData('ks_components'),...newComponents]);
-    runAuditEngine(newProjectId); renderProjects();
-    showToast(`Project "${newProject.name}" imported successfully.`);
+    // Re-run audit fresh (don't trust exported audit log IDs)
+    runAuditEngine(newProjectId);
+    renderProjects();
+    showToast(`Project "${newProject.name}" imported with ${newComponents.length} components.`);
   } catch(err) { showToast('Import failed. Please check the file format.', true); console.error(err); }
   e.target.value='';
 });
