@@ -999,6 +999,19 @@ function updateAIKeyUI() {
   if (status) status.style.color = key ? 'var(--green)' : 'var(--muted)';
 }
 
+
+function noKeyAlert() {
+  showToast('⚙ AI key needed — click "AI Settings" in the sidebar to add your free Gemini key.', true);
+  // Also flash the AI Settings nav item
+  const nav = document.getElementById('nav-ai-settings');
+  if (nav) {
+    nav.style.background = 'rgba(0,194,255,0.18)';
+    setTimeout(() => { nav.style.background = ''; }, 2000);
+    // Auto-open the panel
+    const panel = document.getElementById('ai-settings-panel');
+    if (panel) panel.style.display = 'block';
+  }
+}
 function toggleAISettings() {
   const panel = document.getElementById('ai-settings-panel');
   if (!panel) return;
@@ -1037,19 +1050,22 @@ function parseGeminiJSON(text) {
 }
 
 /* Universal AI fetcher — tries backend first, falls back to direct Gemini */
+/* Detect whether we are running as a plain local file (no server) */
+const IS_FILE_PROTOCOL = window.location.protocol === 'file:';
+
 async function aiFetch(endpoint, payload) {
-  // Try backend if we have a base URL
-  if (API_BASE) {
+  // Try backend first — relative URLs work on Render; skip only for file:// protocol
+  if (!IS_FILE_PROTOCOL) {
     try {
       const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(8000)
+        signal: AbortSignal.timeout(10000)
       });
       if (res.ok) return await res.json();
-    } catch(e) { /* backend unavailable — fall through */ }
+    } catch(e) { /* backend unavailable — fall through to Gemini */ }
   }
-  // Client-side Gemini fallback
+  // Client-side Gemini direct API fallback
   if (!getGeminiKey()) throw new Error('NO_KEY');
   return await geminiClientFallback(endpoint, payload);
 }
@@ -1810,7 +1826,7 @@ document.getElementById('btn-ai-suggest').addEventListener('click', async () => 
     runAuditEngine(activeProjectId); renderComponentList();
     showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
   } catch(e) {
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('AI suggestion failed. Please try again.', true);}
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('AI suggestion failed. Please try again.', true);}
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -1842,7 +1858,7 @@ document.getElementById('btn-ai-narrative').addEventListener('click', async () =
     narrativeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('✨ AI diagnostic summary generated.');
   } catch(e) {
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('Failed to generate narrative. Please try again.', true);}
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate narrative. Please try again.', true);}
     console.error(e);
   } finally { btn.disabled = false; btn.textContent = '✨ Generate AI Diagnostic Summary'; }
 });
@@ -1867,7 +1883,7 @@ async function aiSuggestVerification(btn, compId, compType, compDesc) {
     btn.textContent = '✨ Refresh suggestions';
     btn.disabled = false;
   } catch(e) {
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('Failed to fetch suggestions. Please try again.', true);}
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to fetch suggestions. Please try again.', true);}
     btn.textContent = '✨ Suggest verification sources';
     btn.disabled = false;
     console.error(e);
@@ -1893,7 +1909,7 @@ async function aiImproveDescription(btn) {
     runAuditEngine(activeProjectId); renderComponentList();
     showToast('✨ Description improved.');
   } catch(e) {
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('Failed to improve description. Please try again.', true);}
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to improve description. Please try again.', true);}
     btn.disabled = false; btn.textContent = '✨ Improve';
     console.error(e);
   }
@@ -1915,7 +1931,7 @@ document.getElementById('btn-ai-nl-fill').addEventListener('click', async () => 
     document.getElementById('modal-mandate').value = p.mandate || 'DRIPA Alignment';
     showToast('✨ Form filled by AI. Review and submit.');
   } catch(e) {
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('AI fill failed. Please try again.', true);}
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('AI fill failed. Please try again.', true);}
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -2204,7 +2220,7 @@ async function processDAFile(file) {
   } catch(e) {
     document.getElementById('da-loading').style.display = 'none';
     document.getElementById('da-upload-area').style.display = 'block';
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('Failed to extract components. Please try again.', true);} console.error(e);
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to extract components. Please try again.', true);} console.error(e);
   }
 }
 
@@ -2277,7 +2293,7 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
     showToast('✨ Timeline generated.');
   } catch(e) {
     document.getElementById('tl-loading').style.display='none';
-    if(e.message==='NO_KEY'){showToast('⚙ Add your Gemini API key in AI Settings (sidebar) to use AI features.', true);}else{showToast('Failed to generate timeline. Please try again.', true);} console.error(e);
+    if(e.message==='NO_KEY'){noKeyAlert();}else{showToast('Failed to generate timeline. Please try again.', true);} console.error(e);
   }
 });
 
