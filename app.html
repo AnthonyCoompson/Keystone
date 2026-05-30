@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keystone — Policy Logic Diagnostic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --slate: #1d4ed8; --slate-dark: #0a0f1a; --slate-light: #2563eb;
+  --charcoal: #1a2540; --white: #ffffff; --bg: #0d1424; --border: rgba(255,255,255,0.08);
+  --text: #c8d4e8; --muted: #8a9bbf; --amber: #b8860b; --red: #c41e3a;
+  --green: #10b981; --cyan: #00c2ff; --purple: #818cf8;
+  --font: 'DM Sans', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); color: var(--text); background: rgba(255,255,255,0.03); -webkit-font-smoothing: antialiased; }
+button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
+input, textarea, select { font-family: var(--font); outline: none; }
+a { color: inherit; text-decoration: none; }
+#app-shell { display: grid; grid-template-columns: 220px 1fr; height: 100vh; overflow: hidden; }
+#sidebar { background: rgba(5,10,20,0.95); display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.07); }
+.brand { display: flex; align-items: center; gap: 10px; padding: 20px 18px 18px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.brand svg { flex-shrink: 0; }
+.brand-name { font-size: 17px; font-weight: 600; color: var(--white); letter-spacing: 0.02em; font-family: 'Cormorant Garamond', serif; }
+#sidebar-nav { flex: 1; padding: 12px 0; display: flex; flex-direction: column; gap: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; color: var(--muted); font-size: 13.5px; font-weight: 500; cursor: pointer; border-left: 3px solid transparent; transition: background 0.15s, color 0.15s, border-color 0.15s; user-select: none; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+.nav-item.active { border-left-color: var(--cyan); background: rgba(0,194,255,0.08); color: var(--white); }
+.nav-item svg { flex-shrink: 0; opacity: 0.8; }
+.nav-item-home { border-top: 1px solid rgba(255,255,255,0.07); margin-top: 4px; padding-top: 14px; }
+.active-project-indicator { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 11.5px; }
+.active-project-indicator .label { color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.active-project-indicator .project-name { color: rgba(255,255,255,0.7); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.active-project-indicator .project-name.none { color: var(--muted); font-style: italic; }
+#main-area { overflow: hidden; display: flex; flex-direction: column; position: relative; background: #0d1424; }
+.view-panel { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; overflow: hidden; }
+.view-panel.active { opacity: 1; pointer-events: all; }
+</style>
+<style>
+#view-projects { padding: 28px 32px; overflow-y: auto; }
+.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.view-title { font-size: 22px; font-weight: 700; color: var(--white); font-family: 'Cormorant Garamond', serif; }
+.btn-primary { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: var(--white); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: box-shadow 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(37,99,235,0.5); }
+.btn-secondary { background: rgba(255,255,255,0.05); color: var(--text); padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
+.btn-secondary:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+.btn-danger { background: transparent; color: #fb7185; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid rgba(196,30,58,0.25); transition: background 0.15s; }
+.btn-danger:hover { background: rgba(196,30,58,0.1); }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.project-card { background: linear-gradient(135deg, rgba(13,20,36,0.9), rgba(17,26,46,0.8)); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, border-color 0.15s; }
+.project-card:hover { box-shadow: 0 4px 20px rgba(0,194,255,0.08); border-color: rgba(0,194,255,0.15); }
+.project-card-name { font-size: 15px; font-weight: 700; color: var(--white); line-height: 1.3; }
+.project-card-dept { font-size: 12px; color: var(--muted); }
+.project-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.project-card-stats { font-size: 12px; color: var(--muted); }
+.risk-flag { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+.risk-flag.high { background: rgba(196,30,58,0.15); color: #fb7185; }
+.risk-flag.medium { background: rgba(184,134,11,0.15); color: #fbbf24; }
+.project-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.empty-state-text { font-size: 13.5px; }
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+.badge-input    { background: rgba(29,78,216,0.15); color: #93c5fd; border: 1px solid rgba(29,78,216,0.2); }
+.badge-activity { background: rgba(0,194,255,0.1); color: #00c2ff; border: 1px solid rgba(0,194,255,0.2); }
+.badge-output   { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+.badge-outcome  { background: rgba(129,140,248,0.12); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); }
+.badge-dripa    { background: rgba(184,134,11,0.15); color: #fbbf24; border: 1px solid rgba(184,134,11,0.2); }
+.badge-self-gov { background: rgba(129,140,248,0.12); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); }
+.badge-service  { background: rgba(29,78,216,0.15); color: #93c5fd; border: 1px solid rgba(29,78,216,0.2); }
+.badge-economic { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+</style>
+<style>
+#view-new-framework { display: grid; grid-template-columns: 1fr 400px; height: 100%; overflow: hidden; }
+#form-panel { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid rgba(255,255,255,0.07); background: #0d1424; }
+.form-panel-header { padding: 20px 24px 0; flex-shrink: 0; }
+.form-panel-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 16px; font-family: 'Cormorant Garamond', serif; letter-spacing: -0.01em; }
+.step-indicator { display: flex; align-items: center; margin-bottom: 20px; }
+.step-item { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: background 0.15s; flex: 1; justify-content: center; }
+.step-item:hover { background: rgba(255,255,255,0.04); }
+.step-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.08); color: var(--muted); flex-shrink: 0; transition: background 0.15s, color 0.15s; }
+.step-item.active .step-dot { background: var(--cyan); color: #0a0f1a; }
+.step-item.completed .step-dot { background: var(--green); color: #0a0f1a; }
+.step-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.step-item.active .step-label { color: var(--white); font-weight: 600; }
+.step-connector { width: 20px; height: 2px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
+.form-panel-body { flex: 1; overflow-y: auto; padding: 0 24px 16px; }
+.step-content { display: none; }
+.step-content.active { display: block; }
+.step-description { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+.form-label .required { color: #fb7185; margin-left: 2px; }
+.form-control { width: 100%; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 13.5px; color: var(--white); background: rgba(255,255,255,0.04); transition: border-color 0.15s; }
+.form-control:focus { border-color: var(--cyan); background: rgba(0,194,255,0.04); }
+.form-control.error { border-color: #fb7185; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+.form-hint { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+.form-error { font-size: 12px; color: #fb7185; margin-top: 4px; display: none; }
+.form-error.visible { display: block; }
+.form-panel-footer { padding: 12px 24px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; background: rgba(5,10,20,0.6); }
+.btn-add-component { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: var(--white); padding: 9px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: box-shadow 0.15s; box-shadow: 0 4px 16px rgba(37,99,235,0.25); }
+.btn-add-component:hover { box-shadow: 0 6px 24px rgba(37,99,235,0.45); }
+.step-nav { display: flex; gap: 8px; }
+.btn-step { background: rgba(255,255,255,0.05); color: var(--text); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,0.1); transition: background 0.15s; }
+.btn-step:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+.btn-step:disabled { opacity: 0.3; cursor: not-allowed; }
+.component-list-section { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
+.component-list-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
+.component-group { margin-bottom: 14px; }
+.component-group-label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.component-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; margin-bottom: 5px; }
+.component-item-desc { flex: 1; font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-delete-component { background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 5px; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+.btn-delete-component:hover { color: #fb7185; background: rgba(196,30,58,0.1); }
+.btn-improve { background: none; border: 1px solid rgba(129,140,248,0.3); color: #a5b4fc; font-size: 11px; padding: 2px 7px; border-radius: 4px; cursor: pointer; transition: background 0.15s; flex-shrink: 0; white-space: nowrap; }
+.btn-improve:hover { background: rgba(129,140,248,0.1); }
+.btn-improve:disabled { opacity: 0.4; cursor: not-allowed; }
+.no-project-notice { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(--muted); text-align: center; padding: 40px; }
+.no-project-notice .icon { font-size: 36px; }
+.no-project-notice p { font-size: 14px; line-height: 1.5; }
+</style>
+<style>
+#audit-panel { display: flex; flex-direction: column; overflow: hidden; background: rgba(13,20,36,0.95); }
+.audit-header { padding: 18px 20px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+.audit-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.audit-title { font-size: 15px; font-weight: 700; color: var(--white); }
+.audit-timestamp { font-size: 11.5px; color: var(--muted); }
+.health-score-section { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.score-gauge { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+.score-gauge::before { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: rgba(13,20,36,0.95); }
+.score-gauge.green { background: conic-gradient(var(--green) var(--pct), var(--border) 0); }
+.score-gauge.amber { background: conic-gradient(var(--amber) var(--pct), var(--border) 0); }
+.score-gauge.red   { background: conic-gradient(var(--red) var(--pct), var(--border) 0); }
+.score-value { font-size: 18px; font-weight: 700; color: var(--white); position: relative; z-index: 1; font-family: 'DM Mono', monospace; }
+.score-meta { flex: 1; }
+.score-label { font-size: 13px; font-weight: 600; color: var(--white); }
+.score-risks { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+/* ── Sparkline ── */
+.score-sparkline { display: flex; align-items: flex-end; gap: 2px; height: 24px; margin-top: 3px; }
+.sparkline-bar { width: 5px; border-radius: 2px 2px 0 0; flex-shrink: 0; }
+.sparkline-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+/* ── New error type styles ── */
+.risk-item.circular { border-left-color: var(--purple); }
+.risk-item.circular .risk-type-label { color: #a5b4fc; }
+.risk-item.orphaned { border-left-color: var(--muted); }
+.risk-item.orphaned .risk-type-label { color: var(--muted); }
+.risk-item.scale { border-left-color: var(--cyan); }
+.risk-item.scale .risk-type-label { color: var(--cyan); }
+.risk-item.duplicate { border-left-color: #fbbf24; }
+.risk-item.duplicate .risk-type-label { color: #fbbf24; }
+.coverage-section { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+.coverage-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+.coverage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.coverage-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 7px 6px; text-align: center; }
+.coverage-box.warn { border-color: var(--amber); background: rgba(245,158,11,0.06); }
+.coverage-count { font-size: 18px; font-weight: 700; color: var(--white); line-height: 1; }
+.coverage-box.warn .coverage-count { color: #fbbf24; }
+.coverage-type { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+.risk-feed-section { flex: 1; overflow-y: auto; padding: 12px 20px; }
+.risk-feed-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+.risk-item { border-left: 3px solid var(--border); padding: 8px 10px; margin-bottom: 8px; border-radius: 0 6px 6px 0; background: rgba(255,255,255,0.03); }
+.risk-item.high   { border-left-color: var(--red); }
+.risk-item.medium { border-left-color: var(--amber); }
+.risk-item.low    { border-left-color: var(--green); }
+.risk-type-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.risk-item.high   .risk-type-label { color: var(--red); }
+.risk-item.medium .risk-type-label { color: #fbbf24; }
+.risk-item.low    .risk-type-label { color: var(--green); }
+.risk-message { font-size: 12.5px; color: var(--text); line-height: 1.4; margin-bottom: 3px; }
+.risk-component { font-size: 11.5px; color: var(--muted); font-style: italic; }
+.risk-empty { text-align: center; padding: 24px 12px; color: var(--green); font-size: 13px; font-weight: 500; }
+.btn-verify-suggest { background: none; border: 1px solid rgba(14,165,233,0.4); color: var(--cyan); font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; margin-top: 5px; transition: background 0.15s; display: inline-block; }
+.btn-verify-suggest:hover { background: rgba(14,165,233,0.08); }
+.verify-suggestions { margin-top: 8px; padding: 8px; background: rgba(14,165,233,0.05); border-radius: 6px; border: 1px solid rgba(14,165,233,0.15); }
+.verify-suggestion-item { font-size: 12px; color: var(--text); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid rgba(14,165,233,0.1); }
+.verify-suggestion-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.verify-suggestion-source { font-weight: 600; color: var(--white); }
+.verify-suggestion-rationale { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.audit-footer { padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+.btn-briefing { width: 100%; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 10px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
+.btn-briefing:hover { background: var(--slate-light); }
+.btn-briefing:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-ai-narrative { width: 100%; background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 9px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: opacity 0.15s; }
+.btn-ai-narrative:hover { opacity: 0.9; }
+.btn-ai-narrative:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-narrative-box { background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px; padding: 12px 14px; font-size: 13px; line-height: 1.65; color: var(--text); margin-top: 4px; display: none; }
+.ai-narrative-box.visible { display: block; }
+.ai-narrative-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--purple); margin-bottom: 6px; }
+</style>
+<style>
+#view-methodology { padding: 32px 40px; overflow-y: auto; max-width: 860px; }
+.methodology-title { font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 28px; }
+.methodology-section { margin-bottom: 32px; }
+.methodology-section-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); }
+.methodology-section p { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
+.methodology-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.methodology-table th { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 10px 14px; text-align: left; font-weight: 600; }
+.methodology-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.07); vertical-align: top; line-height: 1.5; }
+.methodology-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+.error-type-cell { font-weight: 700; color: var(--text); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,39,64,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: rgba(13,20,36,0.95); border-radius: 12px; padding: 28px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(26,39,64,0.25); transform: translateY(8px); transition: transform 0.2s; }
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal { background: #0d1424 !important; color: var(--text); }
+.modal-title { font-size: 18px; font-weight: 700; color: var(--white); font-family: "Cormorant Garamond", serif; margin-bottom: 20px; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.btn-modal-cancel { background: rgba(13,20,36,0.95); color: var(--text); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid rgba(255,255,255,0.08); transition: background 0.15s; }
+.btn-modal-cancel:hover { background: rgba(255,255,255,0.03); }
+.btn-modal-submit { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
+.btn-modal-submit:hover { background: var(--slate-light); }
+.ai-fill-row { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.ai-fill-input { flex: 1; padding: 9px 12px; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; font-size: 13px; color: var(--text); background: rgba(255,255,255,0.03); }
+.ai-fill-input:focus { border-color: var(--cyan); outline: none; }
+.btn-ai-fill { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 9px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; transition: opacity 0.15s; }
+.btn-ai-fill:hover { opacity: 0.9; }
+.btn-ai-fill:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-suggest-bar { background: rgba(14,165,233,0.06); border: 1px solid rgba(14,165,233,0.2); border-radius: 8px; margin-bottom: 16px; overflow: hidden; transition: border-color 0.2s; }
+.ai-suggest-bar-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; cursor: pointer; user-select: none; }
+.ai-suggest-bar-header:hover { background: rgba(14,165,233,0.04); }
+.ai-suggest-bar-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); }
+.ai-suggest-bar-toggle { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.ai-suggest-bar-toggle svg { transition: transform 0.2s; }
+.ai-suggest-bar.collapsed .ai-suggest-bar-toggle svg { transform: rotate(-90deg); }
+.ai-suggest-bar-body { padding: 0 14px 12px; }
+.ai-suggest-bar.collapsed .ai-suggest-bar-body { display: none; }
+.ai-suggest-bar textarea { width: 100%; padding: 8px 10px; border: 1px solid rgba(14,165,233,0.3); border-radius: 6px; font-size: 13px; color: var(--text); background: rgba(13,20,36,0.95); resize: none; min-height: 60px; }
+.ai-suggest-bar textarea:focus { border-color: var(--cyan); outline: none; }
+.btn-ai-suggest-components { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 8px; transition: opacity 0.15s; }
+.btn-ai-suggest-components:hover { opacity: 0.9; }
+.btn-ai-suggest-components:disabled { opacity: 0.4; cursor: not-allowed; }
+.ai-loading { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.ai-loading::before { content: ''; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+/* ── Inline component editing ── */
+.component-item-desc.editable { cursor: text; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.component-item-desc.editable:hover { background: rgba(45,63,94,0.06); }
+.component-item-desc[contenteditable="true"] { outline: 2px solid var(--cyan); background: rgba(13,20,36,0.95); border-radius: 3px; padding: 2px 5px; white-space: normal; overflow: visible; cursor: text; min-width: 60px; }
+/* ── Risk feed group headers ── */
+.risk-group-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0 6px; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+.risk-group-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.risk-group-header.high { color: var(--red); }
+.risk-group-header.medium { color: #fbbf24; }
+.risk-group-header.low { color: var(--green); }
+/* ── Demo banner ── */
+.demo-banner { background: rgba(14,165,233,0.07); border: 1px solid rgba(14,165,233,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; font-size: 12.5px; color: var(--text); line-height: 1.5; }
+.demo-banner-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.demo-banner-close { margin-left: auto; background: none; color: var(--muted); font-size: 18px; padding: 0 4px; border-radius: 3px; cursor: pointer; flex-shrink: 0; transition: color 0.15s; line-height: 1; }
+.demo-banner-close:hover { color: var(--text); }
+/* ── Score animation ── */
+.score-gauge { transition: background 0.6s ease; }
+/* ── Tooltip for disabled buttons ── */
+.btn-with-tooltip { position: relative; }
+.btn-with-tooltip[disabled]:hover::after { content: attr(data-tooltip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); font-size: 11.5px; padding: 5px 9px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 100; }
+/* ── Highlighted component in list ── */
+.component-item.highlight { outline: 2px solid var(--cyan); background: rgba(14,165,233,0.05); transition: outline 0.3s, background 0.3s; }
+/* ── AI narrative slot (above buttons, animated) ── */
+.ai-narrative-slot { overflow: hidden; max-height: 0; transition: max-height 0.35s ease; flex-shrink: 0; }
+.ai-narrative-slot.open { max-height: 280px; overflow-y: auto; }
+.ai-narrative-box { background: rgba(124,58,237,0.05); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.65; color: var(--text); margin-bottom: 4px; }
+.ai-narrative-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--purple); margin-bottom: 6px; }
+.ai-toast { position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 320px; }
+.ai-toast.show { opacity: 1; transform: translateY(0); }
+.ai-toast.error { background: var(--red); }
+@media (max-width: 768px) {
+  #app-shell { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; }
+  #sidebar { flex-direction: row; align-items: center; height: 52px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 12px; }
+  .brand { padding: 0 12px 0 0; border-bottom: none; border-right: 1px solid rgba(255,255,255,0.08); }
+  .brand-name { display: none; }
+  #sidebar-nav { flex-direction: row; padding: 0 8px; gap: 0; flex: 1; }
+  .nav-item { padding: 8px 12px; border-left: none; border-bottom: 3px solid transparent; flex-direction: column; gap: 2px; font-size: 0; }
+  .nav-item.active { border-left-color: transparent; border-bottom-color: var(--cyan); background: rgba(14,165,233,0.12); }
+  .nav-item svg { opacity: 1; }
+  .active-project-indicator { display: none; }
+  #view-new-framework { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+  #audit-panel { max-height: 320px; }
+  #view-methodology { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<div id="app-shell">
+  <aside id="sidebar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 26,10 26,18 14,26 2,18 2,10" fill="none" stroke="#0ea5e9" stroke-width="2"/>
+        <polygon points="14,7 21,11.5 21,16.5 14,21 7,16.5 7,11.5" fill="#0ea5e9" opacity="0.3"/>
+        <polygon points="14,11 18,13.5 18,16.5 14,19 10,16.5 10,13.5" fill="#0ea5e9"/>
+      </svg>
+      <span class="brand-name">Keystone</span>
+    </div>
+    <nav id="sidebar-nav">
+      <div class="nav-item" data-view="projects" title="View all active projects">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Active Projects
+      </div>
+      <div class="nav-item active" data-view="new-framework" title="Build or edit a logic framework">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        New Evaluation
+      </div>
+      <div class="nav-item" data-view="methodology" title="Programme theory and methodology reference">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        Methodology
+      </div>
+      <div class="nav-item nav-item-home" onclick="window.location.href='index.html'" title="Back to Keystone home page">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </div>
+    </nav>
+    <div class="active-project-indicator">
+      <div class="label">Active Project</div>
+      <div class="project-name none" id="active-project-name">No project selected</div>
+    </div>
+  </aside>
+
+  <main id="main-area">
+    <!-- View: Active Projects -->
+    <div id="view-projects" class="view-panel">
+      <div class="view-header">
+        <h1 class="view-title">Active Projects</h1>
+        <button class="btn-primary" id="btn-new-project">+ New Project</button>
+      </div>
+      <div id="projects-grid" class="projects-grid"></div>
+    </div>
+    <!-- View: New Evaluation Framework -->
+    <div id="view-new-framework" class="view-panel active">
+      <div id="form-panel">
+        <div class="form-panel-header">
+          <div class="form-panel-title">Framework Builder</div>
+          <div class="step-indicator" id="step-indicator">
+            <div class="step-item active" data-step="0"><div class="step-dot">1</div><span class="step-label">Input</span></div>
+            <div class="step-connector"></div>
+            <div class="step-item" data-step="1"><div class="step-dot">2</div><span class="step-label">Activity</span></div>
+            <div class="step-connector"></div>
+            <div class="step-item" data-step="2"><div class="step-dot">3</div><span class="step-label">Output</span></div>
+            <div class="step-connector"></div>
+            <div class="step-item" data-step="3"><div class="step-dot">4</div><span class="step-label">Outcome</span></div>
+          </div>
+        </div>
+        <div class="form-panel-body" id="form-panel-body">
+          <div id="no-project-notice" class="no-project-notice">
+            <div class="icon">📋</div>
+            <p>No project selected.<br>Open a project from <strong>Active Projects</strong> or create a new one to start building your logic framework.</p>
+            <button class="btn-primary" id="btn-go-projects">Go to Projects</button>
+          </div>
+          <div id="step-forms" style="display:none;">
+            <!-- Demo Banner (shown on first load with demo project) -->
+            <div class="demo-banner" id="demo-banner" style="display:none;">
+              <span class="demo-banner-icon">💡</span>
+              <span>This is a <strong>pre-loaded demo project</strong> — the Ktunaxa Nation DRIPA Section 7 Agreement. Explore the logic model and audit panel, then create your own project when ready.</span>
+              <button class="demo-banner-close" id="demo-banner-close" title="Dismiss">×</button>
+            </div>
+            <!-- AI Component Suggester Bar -->
+            <div class="ai-suggest-bar" id="ai-suggest-bar">
+              <div class="ai-suggest-bar-header" id="ai-suggest-bar-header">
+                <span class="ai-suggest-bar-label">✨ AI Component Suggester</span>
+                <span class="ai-suggest-bar-toggle">
+                  <span id="ai-suggest-toggle-label">collapse</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+              <div class="ai-suggest-bar-body" id="ai-suggest-bar-body">
+                <textarea id="ai-suggest-input" placeholder="Describe your policy initiative in plain language... e.g. 'A joint decision-making agreement with the Nisga'a Nation on child welfare jurisdiction under DRIPA Section 7'" rows="2"></textarea>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                  <button class="btn-ai-suggest-components" id="btn-ai-suggest">✨ Generate Full Logic Model</button>
+                  <span id="ai-suggest-loading" style="display:none;" class="ai-loading">Generating...</span>
+                </div>
+              </div>
+            </div>
+            <!-- Step 0: Input -->
+            <div class="step-content active" data-step-content="0">
+              <p class="step-description">Define the <strong>Inputs</strong> for this initiative. Inputs are the resources committed before any activities begin.</p>
+              <div class="form-group">
+                <label class="form-label" for="desc-0">Description <span class="required">*</span></label>
+                <textarea class="form-control" id="desc-0" rows="3" placeholder="Describe this input resource..."></textarea>
+                <div class="form-hint">Resources committed to this initiative. Include funding envelopes, FTEs, and legislative time.</div>
+                <div class="form-error" id="err-0">Description is required.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bench-0">Target Benchmark</label>
+                <input type="text" class="form-control" id="bench-0" placeholder="e.g., $2.4M committed by Q1 FY2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="source-0">Verification / Data Source</label>
+                <input type="text" class="form-control" id="source-0" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
+              </div>
+            </div>
+            <!-- Step 1: Activity -->
+            <div class="step-content" data-step-content="1">
+              <p class="step-description">Define the <strong>Activities</strong> undertaken using these inputs. Activities are the concrete actions your team will take.</p>
+              <div class="form-group">
+                <label class="form-label" for="desc-1">Description <span class="required">*</span></label>
+                <textarea class="form-control" id="desc-1" rows="3" placeholder="Describe this activity..."></textarea>
+                <div class="form-hint">Actions taken using these inputs. Include engagement sessions, co-drafting processes, consultations.</div>
+                <div class="form-error" id="err-1">Description is required.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bench-1">Target Benchmark</label>
+                <input type="text" class="form-control" id="bench-1" placeholder="e.g., 14 sessions completed by Q3">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="source-1">Verification / Data Source</label>
+                <input type="text" class="form-control" id="source-1" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
+              </div>
+            </div>
+            <!-- Step 2: Output -->
+            <div class="step-content" data-step-content="2">
+              <p class="step-description">Define the <strong>Outputs</strong> produced by your activities. Outputs are tangible, countable deliverables.</p>
+              <div class="form-group">
+                <label class="form-label" for="desc-2">Description <span class="required">*</span></label>
+                <textarea class="form-control" id="desc-2" rows="3" placeholder="Describe this output deliverable..."></textarea>
+                <div class="form-hint">Tangible deliverables produced. Include documents signed, sessions held, frameworks published.</div>
+                <div class="form-error" id="err-2">Description is required.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bench-2">Target Benchmark</label>
+                <input type="text" class="form-control" id="bench-2" placeholder="e.g., 1 agreement executed by March 2026">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="source-2">Verification / Data Source</label>
+                <input type="text" class="form-control" id="source-2" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
+              </div>
+            </div>
+            <!-- Step 3: Outcome -->
+            <div class="step-content" data-step-content="3">
+              <p class="step-description">Define the <strong>Outcomes</strong> — the systemic changes your programme aims to achieve over time.</p>
+              <div class="form-group">
+                <label class="form-label" for="desc-3">Description <span class="required">*</span></label>
+                <textarea class="form-control" id="desc-3" rows="3" placeholder="Describe this systemic outcome..."></textarea>
+                <div class="form-hint">Systemic changes achieved. Include jurisdictional recognition, governance shifts, data sovereignty gains.</div>
+                <div class="form-error" id="err-3">Description is required.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="bench-3">Target Benchmark</label>
+                <input type="text" class="form-control" id="bench-3" placeholder="e.g., Legal recognition in place by FY2027">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="source-3">Verification / Data Source</label>
+                <input type="text" class="form-control" id="source-3" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
+              </div>
+            </div>
+            <div class="component-list-section" id="component-list-section">
+              <div class="component-list-title">Framework Components</div>
+              <div id="component-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-panel-footer" id="form-panel-footer" style="display:none;">
+          <div class="step-nav">
+            <button class="btn-step" id="btn-prev" disabled>← Previous</button>
+            <button class="btn-step" id="btn-next">Next →</button>
+          </div>
+          <button class="btn-add-component" id="btn-add-component">+ Add Component</button>
+        </div>
+      </div>
+      <!-- Right: Audit Panel -->
+      <div id="audit-panel">
+        <div class="audit-header">
+          <div class="audit-header-row">
+            <span class="audit-title">Logic Audit</span>
+            <span class="audit-timestamp" id="audit-timestamp">Last checked: just now</span>
+          </div>
+        </div>
+        <div class="health-score-section">
+          <div class="score-gauge green" id="score-gauge" style="--pct: 360deg;">
+            <span class="score-value" id="score-value">—</span>
+          </div>
+          <div class="score-meta">
+            <div class="score-label">Health Score</div>
+            <div class="score-risks" id="score-risks">Select a project to begin</div>
+            <div id="score-sparkline-container"></div>
+          </div>
+        </div>
+        <div class="coverage-section">
+          <div class="coverage-title">Component Coverage</div>
+          <div class="coverage-grid" id="coverage-grid">
+            <div class="coverage-box" id="cov-input"><div class="coverage-count">—</div><div class="coverage-type">Inputs</div></div>
+            <div class="coverage-box" id="cov-activity"><div class="coverage-count">—</div><div class="coverage-type">Activities</div></div>
+            <div class="coverage-box" id="cov-output"><div class="coverage-count">—</div><div class="coverage-type">Outputs</div></div>
+            <div class="coverage-box" id="cov-outcome"><div class="coverage-count">—</div><div class="coverage-type">Outcomes</div></div>
+          </div>
+        </div>
+        <div class="risk-feed-section">
+          <div class="risk-feed-title">Risk Feed</div>
+          <div id="risk-feed"><div class="risk-empty">Select a project to view audit results.</div></div>
+        </div>
+        <div class="audit-footer">
+          <div class="ai-narrative-slot" id="ai-narrative-slot">
+            <div class="ai-narrative-box" id="ai-narrative-box">
+              <div class="ai-narrative-label">✨ AI Diagnostic Summary</div>
+              <div id="ai-narrative-text"></div>
+            </div>
+          </div>
+          <button class="btn-ai-narrative" id="btn-ai-narrative" disabled>✨ Generate AI Diagnostic Summary</button>
+          <button class="btn-briefing btn-with-tooltip" id="btn-briefing" disabled data-tooltip="Add at least 2 components to generate a briefing">Generate Executive Briefing</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Methodology -->
+    <div id="view-methodology" class="view-panel">
+      <h1 class="methodology-title">Programme Theory &amp; Logic Model Reference</h1>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">The Theory of Change</h2>
+        <p>A logic model is a structured representation of how a programme is expected to work. It maps the causal chain from resource allocation through to systemic impact, making the underlying theory of change explicit and testable. The four-stage model — Inputs, Activities, Outputs, and Outcomes — is the foundational framework used by the Treasury Board of Canada Secretariat, the BC Government's Core Policy and Procedures Manual, and international bodies including the OECD Development Assistance Committee for programme evaluation.</p>
+        <p><strong>Inputs</strong> are the resources committed before any work begins: funding envelopes, staff time, legislative authority, and partner capacity. <strong>Activities</strong> are the concrete actions taken using those inputs — engagement sessions, co-drafting processes, formal negotiations, and consultations. <strong>Outputs</strong> are the tangible, countable deliverables produced by those activities: agreements signed, committees established, frameworks published. <strong>Outcomes</strong> are the medium- to long-term systemic changes that the programme aims to achieve — shifts in jurisdiction, governance structures, or community wellbeing indicators.</p>
+        <p>The critical discipline of logic modelling is ensuring that each link in the chain is causally plausible. An activity must be substantively capable of producing its claimed outputs, and outputs must be structurally sufficient to drive the stated outcomes. When these links are weak or absent, the programme theory fails — not necessarily the programme itself, but the analyst's ability to evaluate, defend, or improve it. Keystone's audit engine is designed to surface these structural weaknesses before they become accountability gaps.</p>
+      </div>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">Common Logic Failures</h2>
+        <table class="methodology-table">
+          <thead><tr><th>Error Type</th><th>Description</th><th>How to Fix</th></tr></thead>
+          <tbody>
+            <tr><td class="error-type-cell">Dead End</td><td>An activity with no mapped outputs or outcomes. Resources are being allocated to actions that produce no documented deliverable or systemic impact, making the activity unaccountable and unevaluable.</td><td>Define at least one measurable output or outcome for every activity. If an activity genuinely produces nothing, it should be removed from the logic model.</td></tr>
+            <tr><td class="error-type-cell">Miracle Leap</td><td>A major systemic outcome — such as jurisdictional recognition or governance transformation — that is claimed to result from activities that are structurally insufficient to produce it.</td><td>Either reduce the ambition of the stated outcome to match the scale of activities, or add high-leverage activities such as legislative drafting, formal treaty negotiations, or co-governance body establishment.</td></tr>
+            <tr><td class="error-type-cell">Blind Spot</td><td>An output or outcome with no defined verification source or data collection mechanism. Without a named tracking method, the benchmark cannot be measured, reported on, or audited.</td><td>Name a specific data collection mechanism for every output and outcome: a reporting system, a legal registry, a community survey instrument, or a government submission process.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="methodology-section">
+        <h2 class="methodology-section-title">DRIPA Alignment Notes</h2>
+        <p>The <em>Declaration on the Rights of Indigenous Peoples Act</em> (DRIPA), enacted by the Province of British Columbia in 2019, requires the provincial government to take all measures necessary to ensure provincial laws are consistent with the UN Declaration on the Rights of Indigenous Peoples (UNDRIP). Section 7 of DRIPA specifically enables the Province and Indigenous governing bodies to enter into agreements for joint decision-making on matters affecting Indigenous peoples.</p>
+        <p>A critical evaluation consideration in DRIPA-aligned frameworks is <strong>Indigenous data sovereignty</strong> — the right of Indigenous peoples to govern the collection, ownership, and application of data about their communities, territories, and resources. The OCAP® principles (Ownership, Control, Access, and Possession), developed by the First Nations Information Governance Centre, provide the operational framework for data sovereignty in Canadian Indigenous policy contexts.</p>
+        <p>The Blind Spot audit rule is particularly relevant in DRIPA contexts. A verification source that relies solely on provincial government reporting systems — without Nation-controlled data governance — may satisfy a Treasury Board requirement while failing the substantive standard of Indigenous data sovereignty. Analysts are encouraged to name Nation-specific data stewardship bodies, community-controlled survey instruments, or jointly governed data repositories as verification sources wherever possible.</p>
+      </div>
+    </div>
+  </main>
+</div>
+<!-- New Project Modal -->
+<div class="modal-overlay" id="modal-new-project">
+  <div class="modal">
+    <div class="modal-title">New Evaluation Project</div>
+    <!-- AI Natural Language Fill -->
+    <div class="ai-fill-row">
+      <input type="text" class="ai-fill-input" id="ai-nl-input" placeholder="✨ Describe your initiative in plain language and let AI fill the form...">
+      <button class="btn-ai-fill" id="btn-ai-nl-fill">✨ AI Fill</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="modal-name">Project Name <span class="required">*</span></label>
+      <input type="text" class="form-control" id="modal-name" placeholder="e.g., DRIPA Section 7 Joint Decision-Making Agreement">
+      <div class="form-error" id="modal-err-name">Project name is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="modal-dept">Department <span class="required">*</span></label>
+      <input type="text" class="form-control" id="modal-dept" placeholder="e.g., BC Ministry of Indigenous Relations and Reconciliation">
+      <div class="form-error" id="modal-err-dept">Department is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="modal-desc">Description</label>
+      <textarea class="form-control" id="modal-desc" rows="3" placeholder="Brief description of this policy initiative..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="modal-mandate">Mandate Classification</label>
+      <select class="form-control" id="modal-mandate">
+        <option value="DRIPA Alignment">DRIPA Alignment</option>
+        <option value="Self-Government Transition">Self-Government Transition</option>
+        <option value="Service Delivery">Service Delivery</option>
+        <option value="Economic Development">Economic Development</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <span id="modal-ai-loading" style="display:none;" class="ai-loading">AI filling form...</span>
+      <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
+      <button class="btn-modal-submit" id="btn-modal-submit">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI Toast -->
+<div class="ai-toast" id="ai-toast"></div>
+<script>
+/* ═══════════════════════════════════════════════════
+   KEYSTONE — Core App Logic
+   ═══════════════════════════════════════════════════ */
+
+/* ── Storage Helpers ── */
+function getData(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch(e) { return []; } }
+function setData(key, array) { localStorage.setItem(key, JSON.stringify(array)); }
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+/* ── App State ── */
+let activeProjectId = null;
+let currentStep = 0;
+let auditLastChecked = Date.now();
+const STEPS = ['Input', 'Activity', 'Output', 'Outcome'];
+
+/* ── AI API Base URL (auto-detects local vs deployed) ── */
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : '';
+
+/* ── Toast ── */
+function showToast(msg, isError = false) {
+  const t = document.getElementById('ai-toast');
+  t.textContent = msg;
+  t.className = 'ai-toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = 'ai-toast'; }, 3500);
+}
+
+/* ── Badge Helpers ── */
+function mandateBadgeClass(m) {
+  return { 'DRIPA Alignment':'badge-dripa','Self-Government Transition':'badge-self-gov','Service Delivery':'badge-service','Economic Development':'badge-economic' }[m] || 'badge-service';
+}
+function typeBadgeClass(t) {
+  return { Input:'badge-input',Activity:'badge-activity',Output:'badge-output',Outcome:'badge-outcome' }[t] || 'badge-input';
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ── Navigation ── */
+function showView(v) {
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const panel = document.getElementById('view-' + v);
+  if (panel) panel.classList.add('active');
+  const nav = document.querySelector(`.nav-item[data-view="${v}"]`);
+  if (nav) nav.classList.add('active');
+  if (v === 'projects') renderProjects();
+  if (v === 'new-framework') renderFormPanel();
+}
+document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => showView(item.dataset.view)));
+document.getElementById('btn-go-projects').addEventListener('click', () => showView('projects'));
+</script>
+<script>
+/* ── Audit Engine ── */
+const MIRACLE_KEYWORDS  = ["jurisdiction","sovereignty","self-government","governance","treaty","title","rights","systemic","transformational","full authority","nation-to-nation","reconciliation","decolonization","cultural revitalization"];
+const MINOR_KEYWORDS    = ["webinar","workshop","meeting","email","newsletter","survey","report drafted","presentation","info session","awareness"];
+const PERCENT_PATTERN   = /(\d+)\s*%/;
+const NUMBER_PATTERN    = /\b(\d{2,})\b/;
+
+function wordOverlap(a, b) {
+  const wordsA = new Set(a.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 3));
+  const wordsB = b.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 3);
+  if (!wordsB.length) return 0;
+  return wordsB.filter(w => wordsA.has(w)).length / wordsB.length;
+}
+
+function runAuditEngine(projectId) {
+  if (!projectId) return;
+  let log = getData('ks_audit_log').filter(e => e.projectId !== projectId);
+  const components = getData('ks_components').filter(c => c.projectId === projectId);
+  const newEntries = [];
+  const inputs     = components.filter(c => c.type === 'Input');
+  const outputs    = components.filter(c => c.type === 'Output');
+  const outcomes   = components.filter(c => c.type === 'Outcome');
+  const activities = components.filter(c => c.type === 'Activity');
+
+  // Rule A: Dead End
+  if (outputs.length === 0 && outcomes.length === 0) {
+    activities.forEach(act => newEntries.push({
+      id: generateId(), projectId, riskLevel: 'High', errorType: 'Dead_End',
+      message: 'Dead End: Activities are committed with no mapped deliverables or systemic impact. Add at least one Output or Outcome to complete the logic chain.',
+      componentId: act.id
+    }));
+  }
+
+  // Rule B: Miracle Leap (ratio-based)
+  outcomes.forEach(outcome => {
+    const txt = outcome.description.toLowerCase();
+    if (MIRACLE_KEYWORDS.some(kw => txt.includes(kw)) && activities.length > 0) {
+      const minorCount = activities.filter(a => MINOR_KEYWORDS.some(kw => a.description.toLowerCase().includes(kw))).length;
+      const minorRatio = minorCount / activities.length;
+      if (minorRatio >= 0.6) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: minorRatio === 1 ? 'High' : 'Medium', errorType: 'Miracle_Leap',
+          message: `Miracle Leap: ${Math.round(minorRatio*100)}% of your activities are low-leverage (meetings, webinars, surveys) yet this outcome claims major systemic change. Add substantive activities — legislative drafting, formal negotiations, co-governance body establishment — to support this claim.`,
+          componentId: outcome.id
+        });
+      }
+    }
+  });
+
+  // Rule C: Blind Spot
+  const bsCandidates = [...outputs, ...outcomes, ...activities.filter(a => a.targetBenchmark && a.targetBenchmark.trim())];
+  bsCandidates.forEach(comp => {
+    if (!comp.verificationSource || !comp.verificationSource.trim()) {
+      const trunc = comp.description.length > 40 ? comp.description.slice(0, 40) + '…' : comp.description;
+      newEntries.push({
+        id: generateId(), projectId, riskLevel: 'Medium', errorType: 'Blind_Spot',
+        message: `Blind Spot: "${trunc}" has no defined data source. Without a tracking mechanism this benchmark cannot be evaluated or reported on.`,
+        componentId: comp.id
+      });
+    }
+  });
+
+  // Rule D: Circular Logic
+  outcomes.forEach(outcome => {
+    activities.forEach(activity => {
+      if (wordOverlap(activity.description, outcome.description) > 0.65) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: 'Medium', errorType: 'Circular_Logic',
+          message: `Circular Logic: This outcome closely mirrors an activity ("${activity.description.slice(0,50)}…"). An outcome should describe a systemic change caused by the activity, not restate the activity itself.`,
+          componentId: outcome.id
+        });
+      }
+    });
+  });
+
+  // Rule E: Orphaned Input
+  inputs.forEach(input => {
+    if (activities.length === 0) return;
+    const inputWords = input.description.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 4);
+    const matched = activities.some(act => inputWords.some(w => act.description.toLowerCase().includes(w)));
+    if (!matched && inputWords.length > 2) {
+      newEntries.push({
+        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Orphaned_Input',
+        message: `Orphaned Input: "${input.description.slice(0,50)}…" does not appear to be consumed by any Activity. Confirm this resource is referenced in at least one activity, or remove it from the model.`,
+        componentId: input.id
+      });
+    }
+  });
+
+  // Rule F: Scale Mismatch
+  outcomes.forEach(outcome => {
+    const benchText = (outcome.targetBenchmark || '').toLowerCase();
+    if ((PERCENT_PATTERN.test(benchText) || NUMBER_PATTERN.test(benchText)) &&
+        !activities.some(a => a.targetBenchmark && a.targetBenchmark.trim())) {
+      newEntries.push({
+        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Scale_Mismatch',
+        message: `Scale Mismatch: This outcome sets a quantified target ("${(outcome.targetBenchmark||'').slice(0,60)}") but no Activity has a benchmark. Without measurable activity-level commitments, the scale of effort cannot be shown to match the scale of ambition.`,
+        componentId: outcome.id
+      });
+    }
+  });
+
+  // Rule G: Duplicate Component
+  STEPS.forEach(type => {
+    const group = components.filter(c => c.type === type);
+    for (let i = 0; i < group.length; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        if (wordOverlap(group[i].description, group[j].description) > 0.70) {
+          newEntries.push({
+            id: generateId(), projectId, riskLevel: 'Low', errorType: 'Duplicate_Component',
+            message: `Duplicate Component: Two ${type} components appear to describe the same thing. "${group[i].description.slice(0,40)}…" and "${group[j].description.slice(0,40)}…" — consolidate or differentiate them.`,
+            componentId: group[j].id
+          });
+        }
+      }
+    }
+  });
+
+  setData('ks_audit_log', [...log, ...newEntries]);
+  recordScoreHistory(projectId, calcHealthScoreFromEntries(newEntries));
+  auditLastChecked = Date.now();
+  renderAuditPanel();
+}
+
+function calcHealthScoreFromEntries(entries) {
+  return Math.max(0, 100
+    - (entries.filter(e => e.riskLevel === 'High').length * 20)
+    - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
+    - (entries.filter(e => e.riskLevel === 'Low').length * 3)
+  );
+}
+
+function calcHealthScore(projectId) {
+  const entries = getData('ks_audit_log').filter(e => e.projectId === projectId);
+  return Math.max(0, 100
+    - (entries.filter(e => e.riskLevel === 'High').length * 20)
+    - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
+    - (entries.filter(e => e.riskLevel === 'Low').length * 3)
+  );
+}
+
+/* ── Score History (sparkline) ── */
+function recordScoreHistory(projectId, score) {
+  let history = {};
+  try { history = JSON.parse(localStorage.getItem('ks_score_history')) || {}; } catch(e) {}
+  if (!history[projectId]) history[projectId] = [];
+  history[projectId].push({ score, ts: Date.now() });
+  if (history[projectId].length > 12) history[projectId] = history[projectId].slice(-12);
+  localStorage.setItem('ks_score_history', JSON.stringify(history));
+}
+
+function getScoreHistory(projectId) {
+  try { return (JSON.parse(localStorage.getItem('ks_score_history')) || {})[projectId] || []; }
+  catch(e) { return []; }
+}
+
+function renderSparkline(projectId) {
+  const history = getScoreHistory(projectId);
+  if (history.length < 2) return '';
+  const h = 24;
+  const bars = history.map(entry => {
+    const pct = entry.score / 100;
+    const barH = Math.max(3, Math.round(pct * h));
+    const color = entry.score >= 70 ? 'var(--green)' : entry.score >= 40 ? 'var(--amber)' : 'var(--red)';
+    return `<div class="sparkline-bar" style="height:${barH}px;background:${color};" title="Score: ${entry.score}"></div>`;
+  }).join('');
+  return `<div style="margin-top:6px;"><div class="sparkline-label">Score trend (last ${history.length} saves)</div><div class="score-sparkline">${bars}</div></div>`;
+}
+</script>
+<script>
+/* ── Render Audit Panel ── */
+let _lastScore = null;
+function animateScore(from, to, el) {
+  if (from === null || from === to) { el.textContent = to; return; }
+  const start = performance.now();
+  const duration = 500;
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(from + (to - from) * ease);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function renderAuditPanel() {
+  const scoreGauge   = document.getElementById('score-gauge');
+  const scoreValue   = document.getElementById('score-value');
+  const scoreRisks   = document.getElementById('score-risks');
+  const riskFeed     = document.getElementById('risk-feed');
+  const btnBriefing  = document.getElementById('btn-briefing');
+  const btnNarrative = document.getElementById('btn-ai-narrative');
+  const sparklineContainer = document.getElementById('score-sparkline-container');
+
+  if (!activeProjectId) {
+    _lastScore = null;
+    scoreValue.textContent = '—';
+    scoreRisks.textContent = 'Select a project to begin';
+    if (sparklineContainer) sparklineContainer.innerHTML = '';
+    riskFeed.innerHTML = '<div class="risk-empty">Select a project to view audit results.</div>';
+    updateCoverage(null);
+    btnBriefing.disabled = true;
+    btnNarrative.disabled = true;
+    return;
+  }
+
+  const entries    = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const score      = calcHealthScore(activeProjectId);
+
+  animateScore(_lastScore, score, scoreValue);
+  _lastScore = score;
+  scoreGauge.style.setProperty('--pct', (score / 100 * 360) + 'deg');
+  scoreGauge.className = 'score-gauge ' + (score >= 70 ? 'green' : score >= 40 ? 'amber' : 'red');
+
+  const highC = entries.filter(e => e.riskLevel === 'High').length;
+  const medC  = entries.filter(e => e.riskLevel === 'Medium').length;
+  const lowC  = entries.filter(e => e.riskLevel === 'Low').length;
+  scoreRisks.textContent = entries.length === 0
+    ? 'No risks detected'
+    : [highC && `${highC}H`, medC && `${medC}M`, lowC && `${lowC}L`].filter(Boolean).join(' · ') + ` risk${entries.length !== 1 ? 's' : ''}`;
+
+  if (sparklineContainer) sparklineContainer.innerHTML = renderSparkline(activeProjectId);
+
+  // Human-readable label for each error type
+  const ERROR_LABELS = {
+    Dead_End: 'Dead End',
+    Miracle_Leap: 'Miracle Leap',
+    Blind_Spot: 'Blind Spot',
+    Circular_Logic: 'Circular Logic',
+    Orphaned_Input: 'Orphaned Input',
+    Scale_Mismatch: 'Scale Mismatch',
+    Duplicate_Component: 'Duplicate'
+  };
+
+  // CSS modifier class per error type
+  function riskItemClass(entry) {
+    const levelClass = entry.riskLevel.toLowerCase();
+    const typeMap = {
+      Circular_Logic: 'circular',
+      Orphaned_Input: 'orphaned',
+      Scale_Mismatch: 'scale',
+      Duplicate_Component: 'duplicate'
+    };
+    return typeMap[entry.errorType] || levelClass;
+  }
+
+  const sorted = [...entries].sort((a, b) =>
+    ({ High: 0, Medium: 1, Low: 2 }[a.riskLevel] ?? 3) - ({ High: 0, Medium: 1, Low: 2 }[b.riskLevel] ?? 3)
+  );
+
+  if (sorted.length === 0) {
+    riskFeed.innerHTML = '<div class="risk-empty">✓ No logic gaps detected. Keep building your framework.</div>';
+  } else {
+    const groups = [
+      { level: 'High',   label: 'High Risk',  items: sorted.filter(e => e.riskLevel === 'High') },
+      { level: 'Medium', label: 'Medium Risk', items: sorted.filter(e => e.riskLevel === 'Medium') },
+      { level: 'Low',    label: 'Advisory',    items: sorted.filter(e => e.riskLevel === 'Low') },
+    ].filter(g => g.items.length > 0);
+
+    riskFeed.innerHTML = groups.map(group =>
+      `<div class="risk-group-header ${group.level.toLowerCase()}">${group.label} (${group.items.length})</div>` +
+      group.items.map(entry => {
+        const comp     = components.find(c => c.id === entry.componentId);
+        const compDesc = comp ? (comp.description.length > 50 ? comp.description.slice(0, 50) + '…' : comp.description) : '';
+        const isBlindSpot = entry.errorType === 'Blind_Spot';
+        const cssClass = riskItemClass(entry);
+        return `<div class="risk-item ${cssClass}" data-comp-id="${comp ? comp.id : ''}">
+          <div class="risk-type-label">${ERROR_LABELS[entry.errorType] || entry.errorType.replace(/_/g, ' ')}</div>
+          <div class="risk-message">${escHtml(entry.message)}</div>
+          ${compDesc ? `<div class="risk-component" style="cursor:pointer;" data-scroll-comp="${comp ? comp.id : ''}">↗ ${escHtml(compDesc)}</div>` : ''}
+          ${isBlindSpot && comp ? `<button class="btn-verify-suggest" data-comp-id="${comp.id}" data-comp-type="${comp.type}" data-comp-desc="${escHtml(comp.description)}">✨ Suggest verification sources</button><div class="verify-suggestions" id="vs-${entry.id}" style="display:none;"></div>` : ''}
+        </div>`;
+      }).join('')
+    ).join('');
+
+    riskFeed.querySelectorAll('.btn-verify-suggest').forEach(btn => {
+      btn.addEventListener('click', () => aiSuggestVerification(btn, btn.dataset.compId, btn.dataset.compType, btn.dataset.compDesc));
+    });
+
+    riskFeed.querySelectorAll('[data-scroll-comp]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.scrollComp;
+        if (!id) return;
+        const item = document.querySelector(`.component-item[data-id="${id}"]`);
+        if (!item) return;
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        item.classList.add('highlight');
+        setTimeout(() => item.classList.remove('highlight'), 2000);
+      });
+    });
+  }
+
+  updateCoverage(activeProjectId);
+  btnBriefing.disabled  = components.length < 2;
+  btnNarrative.disabled = components.length < 2;
+}
+
+function updateCoverage(projectId) {
+  const types = ['Input','Activity','Output','Outcome'];
+  const ids   = ['cov-input','cov-activity','cov-output','cov-outcome'];
+  const components = projectId ? getData('ks_components').filter(c => c.projectId === projectId) : [];
+  types.forEach((type, i) => {
+    const box = document.getElementById(ids[i]);
+    const count = components.filter(c => c.type === type).length;
+    box.querySelector('.coverage-count').textContent = projectId ? count : '—';
+    box.classList.toggle('warn', projectId !== null && count === 0);
+  });
+}
+
+function updateTimestamp() {
+  const el = document.getElementById('audit-timestamp');
+  if (!el) return;
+  const secs = Math.floor((Date.now() - auditLastChecked) / 1000);
+  el.textContent = secs < 5 ? 'Last checked: just now' : secs < 60 ? `Last checked: ${secs}s ago` : `Last checked: ${Math.floor(secs/60)}m ago`;
+}
+setInterval(updateTimestamp, 30000);
+</script>
+<script>
+/* ── Render Form Panel ── */
+function renderFormPanel() {
+  const notice    = document.getElementById('no-project-notice');
+  const stepForms = document.getElementById('step-forms');
+  const footer    = document.getElementById('form-panel-footer');
+  if (!activeProjectId) {
+    notice.style.display = 'flex'; stepForms.style.display = 'none'; footer.style.display = 'none';
+    renderAuditPanel(); return;
+  }
+  notice.style.display = 'none'; stepForms.style.display = 'block'; footer.style.display = 'flex';
+  renderStepIndicator(); renderComponentList(); renderAuditPanel();
+}
+
+function renderStepIndicator() {
+  document.querySelectorAll('.step-item').forEach((item, i) => {
+    item.classList.toggle('active', i === currentStep);
+    item.classList.toggle('completed', i < currentStep);
+  });
+  document.querySelectorAll('.step-content').forEach((c, i) => c.classList.toggle('active', i === currentStep));
+  document.getElementById('btn-prev').disabled = currentStep === 0;
+  document.getElementById('btn-next').disabled = currentStep === STEPS.length - 1;
+}
+
+function renderComponentList() {
+  const container = document.getElementById('component-list');
+  if (!activeProjectId) { container.innerHTML = ''; return; }
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  if (components.length === 0) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0;">No components added yet. Fill in the form above and click <strong>+ Add Component</strong>.</div>'; return;
+  }
+  let html = '';
+  STEPS.forEach(type => {
+    const group = components.filter(c => c.type === type);
+    if (!group.length) return;
+    html += `<div class="component-group"><div class="component-group-label">${type}s</div>`;
+    group.forEach(comp => {
+      const desc = comp.description.length > 60 ? comp.description.slice(0, 60) + '…' : comp.description;
+      html += `<div class="component-item" data-id="${comp.id}">
+        <span class="badge ${typeBadgeClass(type)}">${type}</span>
+        <span class="component-item-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
+        <button class="btn-improve" data-id="${comp.id}" title="AI: Improve this description">✨</button>
+        <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+
+  // Inline editing
+  container.querySelectorAll('.component-item-desc.editable').forEach(span => {
+    span.addEventListener('click', () => {
+      const compId = span.dataset.id;
+      const comp = getData('ks_components').find(c => c.id === compId);
+      if (!comp) return;
+      span.setAttribute('contenteditable', 'true');
+      span.textContent = comp.description;
+      span.focus();
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(span);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    });
+    span.addEventListener('blur', () => {
+      const compId = span.dataset.id;
+      const newDesc = span.textContent.trim();
+      span.removeAttribute('contenteditable');
+      if (!newDesc) { renderComponentList(); return; }
+      const comps = getData('ks_components');
+      const updated = comps.map(c => c.id === compId ? { ...c, description: newDesc } : c);
+      setData('ks_components', updated);
+      runAuditEngine(activeProjectId);
+      renderComponentList();
+    });
+    span.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
+      if (e.key === 'Escape') { span.removeAttribute('contenteditable'); renderComponentList(); }
+    });
+  });
+
+  container.querySelectorAll('.btn-delete-component').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const comp = getData('ks_components').find(c => c.id === btn.dataset.id);
+      const label = comp ? comp.description.slice(0, 60) : 'this component';
+      if (window.confirm(`Remove component: "${label}"?\n\nThis will re-run the logic audit.`)) {
+        setData('ks_components', getData('ks_components').filter(c => c.id !== btn.dataset.id));
+        runAuditEngine(activeProjectId); renderComponentList();
+      }
+    });
+  });
+
+  container.querySelectorAll('.btn-improve').forEach(btn => {
+    btn.addEventListener('click', () => aiImproveDescription(btn));
+  });
+}
+
+document.getElementById('btn-prev').addEventListener('click', () => { if (currentStep > 0) { currentStep--; renderStepIndicator(); } });
+document.getElementById('btn-next').addEventListener('click', () => { if (currentStep < STEPS.length - 1) { currentStep++; renderStepIndicator(); } });
+document.querySelectorAll('.step-item').forEach(item => item.addEventListener('click', () => { if (!activeProjectId) return; currentStep = parseInt(item.dataset.step); renderStepIndicator(); }));
+
+function addCurrentComponent() {
+  if (!activeProjectId) return;
+  const descEl  = document.getElementById(`desc-${currentStep}`);
+  const errEl   = document.getElementById(`err-${currentStep}`);
+  const benchEl = document.getElementById(`bench-${currentStep}`);
+  const srcEl   = document.getElementById(`source-${currentStep}`);
+  const desc = descEl.value.trim();
+  if (!desc) { descEl.classList.add('error'); errEl.classList.add('visible'); return; }
+  descEl.classList.remove('error'); errEl.classList.remove('visible');
+  setData('ks_components', [...getData('ks_components'), { id: generateId(), projectId: activeProjectId, type: STEPS[currentStep], description: desc, targetBenchmark: benchEl.value.trim(), verificationSource: srcEl.value.trim() }]);
+  descEl.value = ''; benchEl.value = ''; srcEl.value = '';
+  runAuditEngine(activeProjectId); renderComponentList();
+}
+
+document.getElementById('btn-add-component').addEventListener('click', addCurrentComponent);
+
+// Enter key in source field submits the component
+[0,1,2,3].forEach(i => {
+  const el = document.getElementById(`desc-${i}`);
+  if (el) el.addEventListener('input', () => { el.classList.remove('error'); document.getElementById(`err-${i}`).classList.remove('visible'); });
+  const src = document.getElementById(`source-${i}`);
+  if (src) src.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addCurrentComponent(); } });
+});
+</script>
+<script>
+/* ── Render Projects View ── */
+function renderProjects() {
+  const grid = document.getElementById('projects-grid');
+  const projects = getData('ks_projects');
+  if (projects.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="empty-state-icon">📁</div><div class="empty-state-title">No projects yet</div><div class="empty-state-text">Click "+ New Project" to create your first policy evaluation framework.</div></div>`;
+    return;
+  }
+  grid.innerHTML = projects.map(proj => {
+    const components = getData('ks_components').filter(c => c.projectId === proj.id);
+    const auditLog   = getData('ks_audit_log').filter(e => e.projectId === proj.id);
+    const highCount  = auditLog.filter(e => e.riskLevel === 'High').length;
+    const medCount   = auditLog.filter(e => e.riskLevel === 'Medium').length;
+    const riskFlags  = [highCount > 0 ? `<span class="risk-flag high">${highCount} High</span>` : '', medCount > 0 ? `<span class="risk-flag medium">${medCount} Medium</span>` : ''].filter(Boolean).join('');
+    return `<div class="project-card">
+      <div class="project-card-name">${escHtml(proj.name)}</div>
+      <div class="project-card-dept">${escHtml(proj.department)}</div>
+      <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}</div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
+  grid.querySelectorAll('.btn-delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
+}
+
+function openProject(id) { setActiveProject(id); showView('new-framework'); }
+
+function setActiveProject(id) {
+  activeProjectId = id;
+  const proj = getData('ks_projects').find(p => p.id === id);
+  const nameEl = document.getElementById('active-project-name');
+  if (proj) { nameEl.textContent = proj.name; nameEl.classList.remove('none'); }
+  else { nameEl.textContent = 'No project selected'; nameEl.classList.add('none'); }
+  // Reset AI narrative slot when switching projects
+  const slot = document.getElementById('ai-narrative-slot');
+  if (slot) slot.classList.remove('open');
+  runAuditEngine(id);
+}
+
+function deleteProject(id) {
+  const proj = getData('ks_projects').find(p => p.id === id);
+  if (!proj) return;
+  if (!window.confirm(`Delete project "${proj.name}"?\n\nThis will permanently remove all components and audit data for this project. This action cannot be undone.`)) return;
+  setData('ks_projects',   getData('ks_projects').filter(p => p.id !== id));
+  setData('ks_components', getData('ks_components').filter(c => c.projectId !== id));
+  setData('ks_audit_log',  getData('ks_audit_log').filter(e => e.projectId !== id));
+  if (activeProjectId === id) { activeProjectId = null; document.getElementById('active-project-name').textContent = 'No project selected'; document.getElementById('active-project-name').classList.add('none'); renderAuditPanel(); }
+  renderProjects();
+}
+</script>
+<script>
+/* ── New Project Modal ── */
+const modalOverlay = document.getElementById('modal-new-project');
+function openModal() {
+  ['modal-name','modal-dept','modal-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modal-mandate').value = 'DRIPA Alignment';
+  ['modal-err-name','modal-err-dept'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['modal-name','modal-dept'].forEach(id => document.getElementById(id).classList.remove('error'));
+  document.getElementById('ai-nl-input').value = '';
+  modalOverlay.classList.add('open');
+  setTimeout(() => document.getElementById('ai-nl-input').focus(), 50);
+}
+function closeModal() { modalOverlay.classList.remove('open'); }
+document.getElementById('btn-new-project').addEventListener('click', openModal);
+document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+document.getElementById('btn-modal-submit').addEventListener('click', () => {
+  const name = document.getElementById('modal-name').value.trim();
+  const dept = document.getElementById('modal-dept').value.trim();
+  let valid = true;
+  if (!name) { document.getElementById('modal-name').classList.add('error'); document.getElementById('modal-err-name').classList.add('visible'); valid = false; }
+  else { document.getElementById('modal-name').classList.remove('error'); document.getElementById('modal-err-name').classList.remove('visible'); }
+  if (!dept) { document.getElementById('modal-dept').classList.add('error'); document.getElementById('modal-err-dept').classList.add('visible'); valid = false; }
+  else { document.getElementById('modal-dept').classList.remove('error'); document.getElementById('modal-err-dept').classList.remove('visible'); }
+  if (!valid) return;
+  const project = { id: generateId(), name, department: dept, description: document.getElementById('modal-desc').value.trim(), mandate: document.getElementById('modal-mandate').value, createdAt: new Date().toISOString() };
+  setData('ks_projects', [...getData('ks_projects'), project]);
+  closeModal(); setActiveProject(project.id); currentStep = 0; showView('new-framework');
+});
+
+['modal-name','modal-dept'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('modal-err-' + id.replace('modal-','')).classList.remove('visible');
+  });
+});
+</script>
+<script>
+/* ═══════════════════════════════════════════════════
+   AI FEATURES — Gemini via FastAPI backend
+   ═══════════════════════════════════════════════════ */
+
+/* ── Feature 1: AI Component Suggester ── */
+document.getElementById('btn-ai-suggest').addEventListener('click', async () => {
+  if (!activeProjectId) { showToast('Please open a project first.', true); return; }
+  const input = document.getElementById('ai-suggest-input').value.trim();
+  if (!input) { showToast('Please describe your initiative first.', true); return; }
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  const existingProjectComps = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const btn = document.getElementById('btn-ai-suggest');
+  const loading = document.getElementById('ai-suggest-loading');
+  btn.disabled = true; loading.style.display = 'inline-flex';
+  try {
+    const res = await fetch(`${API_BASE}/api/ai/suggest-components`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        initiative_description: input,
+        mandate: proj ? proj.mandate : 'Service Delivery',
+        existing_components: existingProjectComps.map(c => ({ type: c.type, description: c.description }))
+      })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const d = data.data;
+    const otherComps = getData('ks_components').filter(c => c.projectId !== activeProjectId);
+    const newComps = [];
+    ['inputs','activities','outputs','outcomes'].forEach((key, i) => {
+      const type = STEPS[i];
+      (d[key] || []).forEach(item => newComps.push({ id: generateId(), projectId: activeProjectId, type, description: item.description || '', targetBenchmark: item.targetBenchmark || '', verificationSource: item.verificationSource || '' }));
+    });
+    setData('ks_components', [...otherComps, ...existingProjectComps, ...newComps]);
+    document.getElementById('ai-suggest-input').value = '';
+    runAuditEngine(activeProjectId); renderComponentList();
+    showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
+  } catch(e) {
+    showToast('AI suggestion failed. Please try again.', true);
+    console.error(e);
+  } finally { btn.disabled = false; loading.style.display = 'none'; }
+});
+
+/* ── Feature 2: AI Audit Narrative ── */
+document.getElementById('btn-ai-narrative').addEventListener('click', async () => {
+  if (!activeProjectId) return;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const entries = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  const score = calcHealthScore(activeProjectId);
+  const btn = document.getElementById('btn-ai-narrative');
+  const narrativeBox = document.getElementById('ai-narrative-box');
+  const narrativeText = document.getElementById('ai-narrative-text');
+  const narrativeSlot = document.getElementById('ai-narrative-slot');
+  btn.disabled = true; btn.textContent = '✨ Generating...';
+  try {
+    const findings = entries.map(e => {
+      const comp = components.find(c => c.id === e.componentId);
+      return { errorType: e.errorType, riskLevel: e.riskLevel, message: e.message, componentDescription: comp ? comp.description : '' };
+    });
+    const res = await fetch(`${API_BASE}/api/ai/audit-narrative`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_name: proj.name, department: proj.department, mandate: proj.mandate, health_score: score, audit_findings: findings, components: components.map(c => ({ type: c.type, description: c.description, targetBenchmark: c.targetBenchmark, verificationSource: c.verificationSource })) })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    narrativeText.textContent = data.narrative;
+    narrativeSlot.classList.add('open');
+    narrativeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    showToast('✨ AI diagnostic summary generated.');
+  } catch(e) {
+    showToast('Failed to generate narrative. Please try again.', true);
+    console.error(e);
+  } finally { btn.disabled = false; btn.textContent = '✨ Generate AI Diagnostic Summary'; }
+});
+</script>
+<script>
+/* ── Feature 3: Smart Verification Source Suggestions ── */
+async function aiSuggestVerification(btn, compId, compType, compDesc) {
+  if (!activeProjectId) return;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  const entryId = btn.closest('.risk-item').querySelector('.verify-suggestions').id.replace('vs-', '');
+  const suggestionsDiv = document.getElementById('vs-' + entryId);
+  btn.disabled = true; btn.textContent = '✨ Fetching suggestions...';
+  try {
+    const res = await fetch(`${API_BASE}/api/ai/verification-suggestions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ component_description: compDesc, component_type: compType, mandate: proj ? proj.mandate : 'Service Delivery', project_name: proj ? proj.name : '' })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    suggestionsDiv.innerHTML = data.suggestions.map(s =>
+      `<div class="verify-suggestion-item"><div class="verify-suggestion-source">${escHtml(s.source)}</div><div class="verify-suggestion-rationale">${escHtml(s.rationale)}</div></div>`
+    ).join('');
+    suggestionsDiv.style.display = 'block';
+    btn.textContent = '✨ Refresh suggestions';
+    btn.disabled = false;
+  } catch(e) {
+    showToast('Failed to fetch suggestions. Please try again.', true);
+    btn.textContent = '✨ Suggest verification sources';
+    btn.disabled = false;
+    console.error(e);
+  }
+}
+
+/* ── Feature 4: Component Description Improver ── */
+async function aiImproveDescription(btn) {
+  if (!activeProjectId) return;
+  const compId = btn.dataset.id;
+  const components = getData('ks_components');
+  const comp = components.find(c => c.id === compId);
+  if (!comp) return;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  btn.disabled = true; btn.textContent = '✨...';
+  try {
+    const res = await fetch(`${API_BASE}/api/ai/improve-description`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: comp.description, component_type: comp.type, mandate: proj ? proj.mandate : 'Service Delivery' })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const updated = components.map(c => c.id === compId ? { ...c, description: data.improved } : c);
+    setData('ks_components', updated);
+    runAuditEngine(activeProjectId); renderComponentList();
+    showToast('✨ Description improved.');
+  } catch(e) {
+    showToast('Failed to improve description. Please try again.', true);
+    btn.disabled = false; btn.textContent = '✨ Improve';
+    console.error(e);
+  }
+}
+
+/* ── Feature 5: Natural Language Project Creation ── */
+document.getElementById('btn-ai-nl-fill').addEventListener('click', async () => {
+  const input = document.getElementById('ai-nl-input').value.trim();
+  if (!input) { showToast('Please describe your initiative first.', true); return; }
+  const btn = document.getElementById('btn-ai-nl-fill');
+  const loading = document.getElementById('modal-ai-loading');
+  btn.disabled = true; loading.style.display = 'inline-flex';
+  try {
+    const res = await fetch(`${API_BASE}/api/ai/create-project`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_input: input })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    const p = data.project;
+    document.getElementById('modal-name').value = p.name || '';
+    document.getElementById('modal-dept').value = p.department || '';
+    document.getElementById('modal-desc').value = p.description || '';
+    document.getElementById('modal-mandate').value = p.mandate || 'DRIPA Alignment';
+    showToast('✨ Form filled by AI. Review and submit.');
+  } catch(e) {
+    showToast('AI fill failed. Please try again.', true);
+    console.error(e);
+  } finally { btn.disabled = false; loading.style.display = 'none'; }
+});
+</script>
+<script>
+/* ── Executive Briefing ── */
+document.getElementById('btn-briefing').addEventListener('click', () => {
+  if (!activeProjectId) return;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  if (!proj) return;
+  const components  = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const auditLog    = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  const score       = calcHealthScore(activeProjectId);
+  const highEntries = auditLog.filter(e => e.riskLevel === 'High');
+  const medEntries  = auditLog.filter(e => e.riskLevel === 'Medium');
+  const lowEntries  = auditLog.filter(e => e.riskLevel === 'Low');
+
+  const recs = [];
+  if (auditLog.some(e => e.errorType === 'Dead_End'))           recs.push('Ensure every activity produces at least one measurable output or outcome.');
+  if (auditLog.some(e => e.errorType === 'Miracle_Leap'))       recs.push('Review the sufficiency of planned activities relative to stated systemic outcomes. Add high-leverage activities such as legislative drafting or co-governance body establishment.');
+  if (auditLog.some(e => e.errorType === 'Blind_Spot'))         recs.push('Define a named data collection mechanism for each untracked benchmark before implementation.');
+  if (auditLog.some(e => e.errorType === 'Circular_Logic'))     recs.push('Revise outcomes that restate activities — each outcome should describe a systemic change caused by the activity, not repeat it.');
+  if (auditLog.some(e => e.errorType === 'Orphaned_Input'))     recs.push('Confirm all inputs are explicitly consumed by at least one activity, or remove unlinked inputs from the model.');
+  if (auditLog.some(e => e.errorType === 'Scale_Mismatch'))     recs.push('Add measurable benchmarks to activities so the scale of effort can be shown to match the quantified outcome targets.');
+  if (auditLog.some(e => e.errorType === 'Duplicate_Component')) recs.push('Consolidate or differentiate components that describe the same resource, action, or deliverable to avoid inflating apparent model coverage.');
+  if (!recs.length) recs.push('Logic model appears structurally sound. Proceed to stakeholder validation and peer review before submission.');
+
+  const ERROR_LABELS = { Dead_End:'Dead End', Miracle_Leap:'Miracle Leap', Blind_Spot:'Blind Spot', Circular_Logic:'Circular Logic', Orphaned_Input:'Orphaned Input', Scale_Mismatch:'Scale Mismatch', Duplicate_Component:'Duplicate Component' };
+  const SEVERITY_COLORS = { High: '#c41e3a', Medium: '#b8860b', Low: '#1d4ed8' };
+
+  function compRows(type) {
+    const items = components.filter(c => c.type === type);
+    if (!items.length) return `<p style="color:#6b7a99;font-style:italic;font-size:13px;">No ${type}s defined.</p>`;
+    return items.map(c => `<div style="padding:10px 0;border-bottom:1px solid #e8ecf4;">
+      <div style="font-weight:600;color:#0a0f1a;margin-bottom:4px;font-size:13.5px;">• ${escHtml(c.description)}</div>
+      ${c.targetBenchmark   ? `<div style="font-size:12px;color:#6b7a99;margin-top:2px;">Benchmark: ${escHtml(c.targetBenchmark)}</div>` : ''}
+      ${c.verificationSource ? `<div style="font-size:12px;color:#6b7a99;margin-top:2px;">Verification: ${escHtml(c.verificationSource)}</div>` : '<div style="font-size:12px;color:#c41e3a;margin-top:2px;">⚠ No verification source defined</div>'}
+    </div>`).join('');
+  }
+
+  function riskRows(entries) {
+    if (!entries.length) return '<p style="color:#10b981;font-size:13px;font-weight:600;">None</p>';
+    return entries.map(e => {
+      const col = SEVERITY_COLORS[e.riskLevel] || '#6b7a99';
+      return `<div style="padding:8px 12px;border-left:3px solid ${col};margin-bottom:8px;background:#f8f9fc;border-radius:0 4px 4px 0;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${col};margin-bottom:3px;">${ERROR_LABELS[e.errorType] || e.errorType.replace(/_/g,' ')}</div>
+        <div style="font-size:13px;color:#1a2740;">${escHtml(e.message)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const scoreColor = score >= 70 ? '#10b981' : score >= 40 ? '#b8860b' : '#c41e3a';
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+  <title>Keystone Diagnostic Report — ${escHtml(proj.name)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;color:#1a2740;background:#fff;padding:48px 52px;max-width:900px;margin:0 auto;-webkit-font-smoothing:antialiased;}
+    .report-eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#8a9bbf;margin-bottom:6px;}
+    h1{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#0a0f1a;margin-bottom:4px;letter-spacing:-0.01em;}
+    .meta{font-size:13px;color:#6b7a99;margin-bottom:4px;}
+    .divider{border:none;border-top:2px solid #0a0f1a;margin:28px 0 22px;}
+    .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:#0a0f1a;margin-bottom:16px;padding-bottom:7px;border-bottom:1px solid #e0e5ef;}
+    .type-heading{font-size:13px;font-weight:700;color:#0a0f1a;margin:18px 0 8px;text-transform:uppercase;letter-spacing:0.06em;}
+    .score-box{display:inline-flex;align-items:center;gap:12px;padding:12px 20px;border-radius:8px;border:2px solid ${scoreColor};margin-bottom:10px;}
+    .score-num{font-family:'DM Mono',monospace;font-size:32px;font-weight:700;color:${scoreColor};}
+    .score-meta{font-size:12px;color:#6b7a99;}
+    .severity-heading{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;margin-top:16px;}
+    .rec-item{padding:10px 14px;background:#f4f6fa;border-left:3px solid #0a0f1a;margin-bottom:8px;border-radius:0 4px 4px 0;font-size:13px;line-height:1.6;}
+    @media print{.page-break{page-break-before:always;}.no-break{page-break-inside:avoid;}}
+  </style></head><body>
+  <div class="report-eyebrow">Keystone — Policy Logic Diagnostic Report</div>
+  <h1>${escHtml(proj.name)}</h1>
+  <div class="meta" style="margin-top:6px;">${escHtml(proj.department)}</div>
+  <div class="meta">Generated: ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</div>
+  <div class="meta">Mandate Classification: <strong>${escHtml(proj.mandate)}</strong></div>
+  <hr class="divider">
+  <div class="section-title">Programme Logic Model</div>
+  ${['Input','Activity','Output','Outcome'].map(type=>`<div class="type-heading no-break">${type}s &nbsp;<span style="font-weight:400;color:#8a9bbf;">(${components.filter(c=>c.type===type).length})</span></div>${compRows(type)}`).join('')}
+  <div class="page-break"></div>
+  <hr class="divider">
+  <div class="section-title">Diagnostic Audit Findings</div>
+  <div class="score-box"><div class="score-num">${score}</div><div class="score-meta"><strong>Health Score</strong><br>${auditLog.length} risk flag${auditLog.length!==1?'s':''} detected<br>${highEntries.length}H · ${medEntries.length}M · ${lowEntries.length}L</div></div>
+  <div class="severity-heading" style="color:#c41e3a;">High Risk (${highEntries.length})</div>${riskRows(highEntries)}
+  <div class="severity-heading" style="color:#b8860b;">Medium Risk (${medEntries.length})</div>${riskRows(medEntries)}
+  <div class="severity-heading" style="color:#1d4ed8;">Advisory (${lowEntries.length})</div>${riskRows(lowEntries)}
+  <div class="page-break"></div>
+  <hr class="divider">
+  <div class="section-title">Recommendations</div>
+  ${recs.map((r,i)=>`<div class="rec-item"><strong>${i+1}.</strong> ${escHtml(r)}</div>`).join('')}
+  </body></html>`;
+
+  const win = window.open('', '_blank');
+  if (win) { win.document.write(html); win.document.close(); }
+});
+</script>
+<script>
+/* ── Demo Project Seed ── */
+function seedDemoProject() {
+  if (getData('ks_projects').length > 0) return;
+  const proj = { id: 'demo-001', name: 'DRIPA Section 7 Joint Decision-Making Agreement', department: 'BC Ministry of Indigenous Relations and Reconciliation', description: 'Implementation of a joint decision-making framework with the Ktunaxa Nation under DRIPA Section 7, covering land use planning in the Columbia Basin region.', mandate: 'DRIPA Alignment', createdAt: '2025-09-15T09:00:00Z' };
+  setData('ks_projects', [proj]);
+  const comps = [
+    { type:'Input',    description:'Federal-Provincial Reconciliation Fund allocation: $2.4M over 3 fiscal years', targetBenchmark:'$2.4M committed by Q1 FY2026', verificationSource:'Treasury Board Submission #2025-447' },
+    { type:'Input',    description:'3.0 FTE Policy Analysts assigned to Joint Secretariat', targetBenchmark:'Positions filled by October 2025', verificationSource:'HRMS workforce report' },
+    { type:'Activity', description:'Hosted 2 introductory webinars on DRIPA Section 7 obligations', targetBenchmark:'2 sessions completed', verificationSource:'' },
+    { type:'Activity', description:'Co-drafted joint decision-making agreement text through 14 formal negotiation sessions', targetBenchmark:'14 sessions, agreement initialled', verificationSource:'Negotiation session minutes, legal counsel sign-off' },
+    { type:'Output',   description:'Joint Decision-Making Agreement signed by Minister and Ktunaxa Nation Council', targetBenchmark:'1 agreement executed by March 2026', verificationSource:'BC Gazette publication, Ktunaxa Nation Council resolution' },
+    { type:'Output',   description:'Joint Oversight Committee established with co-chairs', targetBenchmark:'Committee constituted, Terms of Reference approved', verificationSource:'' },
+    { type:'Outcome',  description:'Recognized Ktunaxa Nation jurisdiction over land use decisions in 340,000 hectares of the Columbia Basin', targetBenchmark:'Legal recognition in place, 0 unilateral provincial decisions in scoped area', verificationSource:'Annual compliance audit, legal review' },
+    { type:'Outcome',  description:'Increased community data sovereignty: all land data collected in scoped area governed under OCAP principles', targetBenchmark:'Data governance protocol ratified', verificationSource:'Ktunaxa Nation data stewardship committee confirmation' }
+  ].map(c => ({ ...c, id: generateId(), projectId: 'demo-001' }));
+  setData('ks_components', comps);
+  // Mark demo as new so banner shows
+  sessionStorage.setItem('ks_demo_banner_shown', '0');
+}
+
+/* ── Collapsible AI Suggest Bar ── */
+(function() {
+  const bar = document.getElementById('ai-suggest-bar');
+  const header = document.getElementById('ai-suggest-bar-header');
+  const toggleLabel = document.getElementById('ai-suggest-toggle-label');
+  // Restore collapsed state
+  const isCollapsed = localStorage.getItem('ks_suggest_collapsed') === '1';
+  if (isCollapsed) { bar.classList.add('collapsed'); toggleLabel.textContent = 'expand'; }
+  header.addEventListener('click', () => {
+    const collapsed = bar.classList.toggle('collapsed');
+    toggleLabel.textContent = collapsed ? 'expand' : 'collapse';
+    localStorage.setItem('ks_suggest_collapsed', collapsed ? '1' : '0');
+  });
+})();
+
+/* ── Demo Banner ── */
+document.getElementById('demo-banner-close').addEventListener('click', () => {
+  document.getElementById('demo-banner').style.display = 'none';
+  sessionStorage.setItem('ks_demo_banner_shown', '1');
+});
+
+/* ── App Init ── */
+function init() {
+  seedDemoProject();
+  const projects = getData('ks_projects');
+  if (projects.length > 0) {
+    const demo = projects.find(p => p.id === 'demo-001') || projects[0];
+    setActiveProject(demo.id);
+  }
+  currentStep = 0;
+  showView('new-framework');
+}
+
+// Override setActiveProject to also reset narrative slot and show/hide demo banner
+const _origSetActive = setActiveProject;
+function setActiveProjectFull(id) {
+  _origSetActive(id);
+  // Reset narrative slot on project switch
+  const slot = document.getElementById('ai-narrative-slot');
+  if (slot) slot.classList.remove('open');
+  // Show demo banner only for demo project on first visit
+  const banner = document.getElementById('demo-banner');
+  if (banner) {
+    const isDemoProject = id === 'demo-001';
+    const alreadyShown = sessionStorage.getItem('ks_demo_banner_shown') === '1';
+    banner.style.display = (isDemoProject && !alreadyShown) ? 'flex' : 'none';
+  }
+}
+// Patch all callers
+const _origOpenProject = openProject;
+function openProject(id) { setActiveProjectFull(id); showView('new-framework'); }
+
+init();
+// Show banner after init if demo
+setTimeout(() => {
+  const banner = document.getElementById('demo-banner');
+  if (banner && activeProjectId === 'demo-001' && sessionStorage.getItem('ks_demo_banner_shown') !== '1') {
+    banner.style.display = 'flex';
+  }
+}, 0);
+
+</script>
+</body>
+</html>

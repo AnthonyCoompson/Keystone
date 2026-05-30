@@ -3,1737 +3,393 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keystone — Policy Logic Diagnostic</title>
+<title>Keystone — Policy Logic Diagnostic Tool</title>
+<meta name="description" content="Stress-test your policy logic models. Keystone audits Input → Activity → Output → Outcome chains for Dead Ends, Miracle Leaps, and Blind Spots.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ── CSS Custom Properties ── */
-:root {
-  --slate: #2d3f5e;
-  --slate-dark: #1a2740;
-  --slate-light: #3d5278;
-  --charcoal: #2c2c2c;
-  --white: #ffffff;
-  --bg: #f4f6f9;
-  --border: #dde3ed;
-  --text: #1a2740;
-  --muted: #6b7a99;
-  --amber: #f59e0b;
-  --red: #dc2626;
-  --green: #16a34a;
-  --cyan: #0ea5e9;
-  --purple: #7c3aed;
-  --font: 'IBM Plex Sans', sans-serif;
-}
-
-/* ── Reset & Base ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font); color: var(--text); background: var(--bg); }
-button { font-family: var(--font); cursor: pointer; border: none; outline: none; }
-input, textarea, select { font-family: var(--font); outline: none; }
-a { color: inherit; text-decoration: none; }
-</style>
-
-<style>
-/* ── App Shell Layout ── */
-#app-shell {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ── Sidebar ── */
-#sidebar {
-  background: var(--slate-dark);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid rgba(255,255,255,0.06);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 20px 18px 18px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.brand svg { flex-shrink: 0; }
-.brand-name {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--white);
-  letter-spacing: 0.02em;
-}
-
-#sidebar-nav {
-  flex: 1;
-  padding: 12px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
-  color: rgba(255,255,255,0.65);
-  font-size: 13.5px;
-  font-weight: 500;
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  user-select: none;
-}
-.nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-.nav-item.active {
-  border-left-color: var(--cyan);
-  background: rgba(14,165,233,0.12);
-  color: var(--white);
-}
-.nav-item svg { flex-shrink: 0; opacity: 0.8; }
-
-.active-project-indicator {
-  padding: 14px 18px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  font-size: 11.5px;
-}
-.active-project-indicator .label {
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 4px;
-}
-.active-project-indicator .project-name {
-  color: rgba(255,255,255,0.75);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.active-project-indicator .project-name.none { color: var(--muted); font-style: italic; }
-</style>
-
-<style>
-/* ── Main Area ── */
-#main-area {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-/* ── View Panels ── */
-.view-panel {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  overflow: hidden;
-}
-.view-panel.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
-/* ── Projects View ── */
-#view-projects {
-  padding: 28px 32px;
-  overflow-y: auto;
-}
-.view-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-.view-title { font-size: 22px; font-weight: 700; color: var(--slate-dark); }
-.btn-primary {
-  background: var(--slate);
-  color: var(--white);
-  padding: 9px 18px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.btn-primary:hover { background: var(--slate-light); }
-.btn-secondary {
-  background: var(--white);
-  color: var(--slate);
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  transition: background 0.15s;
-}
-.btn-secondary:hover { background: var(--bg); }
-.btn-danger {
-  background: transparent;
-  color: var(--red);
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid rgba(220,38,38,0.3);
-  transition: background 0.15s;
-}
-.btn-danger:hover { background: rgba(220,38,38,0.06); }
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-.project-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: box-shadow 0.15s;
-}
-.project-card:hover { box-shadow: 0 4px 16px rgba(45,63,94,0.1); }
-.project-card-name { font-size: 15px; font-weight: 700; color: var(--slate-dark); line-height: 1.3; }
-.project-card-dept { font-size: 12px; color: var(--muted); }
-.project-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.project-card-stats { font-size: 12px; color: var(--muted); }
-.risk-flag { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
-.risk-flag.high { background: rgba(220,38,38,0.1); color: var(--red); }
-.risk-flag.medium { background: rgba(245,158,11,0.12); color: #b45309; }
-.project-card-actions { display: flex; gap: 8px; margin-top: 4px; }
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
-.empty-state-icon { font-size: 40px; margin-bottom: 12px; }
-.empty-state-title { font-size: 16px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
-.empty-state-text { font-size: 13.5px; }
-</style>
-
-<style>
-/* ── Badges ── */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 9px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.badge-input    { background: rgba(45,63,94,0.12); color: var(--slate); }
-.badge-activity { background: rgba(14,165,233,0.12); color: #0369a1; }
-.badge-output   { background: rgba(22,163,74,0.12); color: var(--green); }
-.badge-outcome  { background: rgba(124,58,237,0.12); color: var(--purple); }
-.badge-dripa    { background: rgba(245,158,11,0.15); color: #92400e; }
-.badge-self-gov { background: rgba(124,58,237,0.12); color: var(--purple); }
-.badge-service  { background: rgba(45,63,94,0.12); color: var(--slate); }
-.badge-economic { background: rgba(22,163,74,0.12); color: var(--green); }
-
-/* ── New Evaluation Split Screen ── */
-#view-new-framework {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* ── Form Panel ── */
-#form-panel {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid var(--border);
-}
-
-.form-panel-header {
-  padding: 20px 24px 0;
-  flex-shrink: 0;
-}
-.form-panel-title { font-size: 18px; font-weight: 700; color: var(--slate-dark); margin-bottom: 16px; }
-
-/* Step Indicator */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-bottom: 20px;
-}
-.step-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 0.15s;
-  flex: 1;
-  justify-content: center;
-}
-.step-item:hover { background: rgba(45,63,94,0.06); }
-.step-dot {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700;
-  background: var(--border);
-  color: var(--muted);
-  flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
-}
-.step-item.active .step-dot { background: var(--slate); color: var(--white); }
-.step-item.completed .step-dot { background: var(--green); color: var(--white); }
-.step-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
-.step-item.active .step-label { color: var(--slate-dark); font-weight: 600; }
-.step-connector { width: 20px; height: 2px; background: var(--border); flex-shrink: 0; }
-
-/* Form Body */
-.form-panel-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 24px 16px;
-}
-.step-content { display: none; }
-.step-content.active { display: block; }
-
-.step-description {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-.form-group { margin-bottom: 14px; }
-.form-label {
-  display: block;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--slate);
-  margin-bottom: 5px;
-}
-.form-label .required { color: var(--red); margin-left: 2px; }
-.form-control {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 13.5px;
-  color: var(--text);
-  background: var(--white);
-  transition: border-color 0.15s;
-}
-.form-control:focus { border-color: var(--cyan); }
-.form-control.error { border-color: var(--red); }
-textarea.form-control { resize: vertical; min-height: 80px; }
-.form-hint {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 5px;
-  line-height: 1.4;
-}
-.form-error {
-  font-size: 12px;
-  color: var(--red);
-  margin-top: 4px;
-  display: none;
-}
-.form-error.visible { display: block; }
-</style>
-
-<style>
-/* Form Footer */
-.form-panel-footer {
-  padding: 12px 24px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  background: var(--white);
-}
-.btn-add-component {
-  background: var(--slate);
-  color: var(--white);
-  padding: 9px 20px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.btn-add-component:hover { background: var(--slate-light); }
-.step-nav { display: flex; gap: 8px; }
-.btn-step {
-  background: var(--white);
-  color: var(--slate);
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  transition: background 0.15s;
-}
-.btn-step:hover { background: var(--bg); }
-.btn-step:disabled { opacity: 0.4; cursor: not-allowed; }
-
-/* Component List */
-.component-list-section {
-  margin-top: 20px;
-  border-top: 1px solid var(--border);
-  padding-top: 16px;
-}
-.component-list-title {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-.component-group { margin-bottom: 14px; }
-.component-group-label {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-.component-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  margin-bottom: 5px;
-}
-.component-item-desc {
-  flex: 1;
-  font-size: 13px;
-  color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.btn-delete-component {
-  background: none;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1;
-  padding: 2px 5px;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
-  flex-shrink: 0;
-}
-.btn-delete-component:hover { color: var(--red); background: rgba(220,38,38,0.08); }
-
-/* No active project notice */
-.no-project-notice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 12px;
-  color: var(--muted);
-  text-align: center;
-  padding: 40px;
-}
-.no-project-notice .icon { font-size: 36px; }
-.no-project-notice p { font-size: 14px; line-height: 1.5; }
-</style>
-
-<style>
-/* ── Audit Panel ── */
-#audit-panel {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: var(--white);
-}
-.audit-header {
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.audit-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-.audit-title { font-size: 15px; font-weight: 700; color: var(--slate-dark); }
-.audit-timestamp { font-size: 11.5px; color: var(--muted); }
-
-/* Health Score */
-.health-score-section {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-}
-.score-gauge {
-  width: 64px; height: 64px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-}
-.score-gauge::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border-radius: 50%;
-  background: var(--white);
-}
-.score-gauge.green { background: conic-gradient(var(--green) var(--pct), var(--border) 0); }
-.score-gauge.amber { background: conic-gradient(var(--amber) var(--pct), var(--border) 0); }
-.score-gauge.red   { background: conic-gradient(var(--red) var(--pct), var(--border) 0); }
-.score-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--slate-dark);
-  position: relative;
-  z-index: 1;
-}
-.score-meta { flex: 1; }
-.score-label { font-size: 13px; font-weight: 600; color: var(--slate-dark); }
-.score-risks { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-/* Coverage Summary */
-.coverage-section {
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.coverage-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.coverage-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-.coverage-box {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 7px 6px;
-  text-align: center;
-}
-.coverage-box.warn { border-color: var(--amber); background: rgba(245,158,11,0.06); }
-.coverage-count { font-size: 18px; font-weight: 700; color: var(--slate-dark); line-height: 1; }
-.coverage-box.warn .coverage-count { color: #b45309; }
-.coverage-type { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 500; }
-
-/* Risk Feed */
-.risk-feed-section {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 20px;
-}
-.risk-feed-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-.risk-item {
-  border-left: 3px solid var(--border);
-  padding: 8px 10px;
-  margin-bottom: 8px;
-  border-radius: 0 6px 6px 0;
-  background: var(--bg);
-}
-.risk-item.high   { border-left-color: var(--red); }
-.risk-item.medium { border-left-color: var(--amber); }
-.risk-item.low    { border-left-color: var(--green); }
-.risk-type-label {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 3px;
-}
-.risk-item.high   .risk-type-label { color: var(--red); }
-.risk-item.medium .risk-type-label { color: #b45309; }
-.risk-item.low    .risk-type-label { color: var(--green); }
-.risk-message { font-size: 12.5px; color: var(--text); line-height: 1.4; margin-bottom: 3px; }
-.risk-component { font-size: 11.5px; color: var(--muted); font-style: italic; }
-.risk-empty {
-  text-align: center;
-  padding: 24px 12px;
-  color: var(--green);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-/* Audit Footer */
-.audit-footer {
-  padding: 12px 20px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.btn-briefing {
-  width: 100%;
-  background: var(--slate-dark);
-  color: var(--white);
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.btn-briefing:hover { background: var(--slate-light); }
-.btn-briefing:disabled { opacity: 0.4; cursor: not-allowed; }
-</style>
-
-<style>
-/* ── Methodology View ── */
-#view-methodology {
-  padding: 32px 40px;
-  overflow-y: auto;
-  max-width: 860px;
-}
-.methodology-title { font-size: 24px; font-weight: 700; color: var(--slate-dark); margin-bottom: 28px; }
-.methodology-section { margin-bottom: 32px; }
-.methodology-section-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--slate);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--border);
-}
-.methodology-section p {
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--text);
-  margin-bottom: 12px;
-}
-.methodology-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-}
-.methodology-table th {
-  background: var(--slate-dark);
-  color: var(--white);
-  padding: 10px 14px;
-  text-align: left;
-  font-weight: 600;
-}
-.methodology-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
-  line-height: 1.5;
-}
-.methodology-table tr:nth-child(even) td { background: var(--bg); }
-.error-type-cell { font-weight: 700; color: var(--slate); }
-
-/* ── Modal ── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(26,39,64,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-}
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal {
-  background: var(--white);
-  border-radius: 12px;
-  padding: 28px;
-  width: 480px;
-  max-width: 95vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(26,39,64,0.25);
-  transform: translateY(8px);
-  transition: transform 0.2s;
-}
-.modal-overlay.open .modal { transform: translateY(0); }
-.modal-title { font-size: 18px; font-weight: 700; color: var(--slate-dark); margin-bottom: 20px; }
-.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-.btn-modal-cancel {
-  background: var(--white);
-  color: var(--slate);
-  padding: 9px 18px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 500;
-  border: 1px solid var(--border);
-  transition: background 0.15s;
-}
-.btn-modal-cancel:hover { background: var(--bg); }
-.btn-modal-submit {
-  background: var(--slate);
-  color: var(--white);
-  padding: 9px 18px;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-.btn-modal-submit:hover { background: var(--slate-light); }
-
-/* ── Mobile Responsive ── */
-@media (max-width: 768px) {
-  #app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: 52px 1fr;
-  }
-  #sidebar {
-    flex-direction: row;
-    align-items: center;
-    height: 52px;
-    border-right: none;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    padding: 0 12px;
-  }
-  .brand { padding: 0 12px 0 0; border-bottom: none; border-right: 1px solid rgba(255,255,255,0.08); }
-  .brand-name { display: none; }
-  #sidebar-nav { flex-direction: row; padding: 0 8px; gap: 0; flex: 1; }
-  .nav-item { padding: 8px 12px; border-left: none; border-bottom: 3px solid transparent; flex-direction: column; gap: 2px; font-size: 0; }
-  .nav-item.active { border-left-color: transparent; border-bottom-color: var(--cyan); background: rgba(14,165,233,0.12); }
-  .nav-item svg { opacity: 1; }
-  .active-project-indicator { display: none; }
-  #view-new-framework { grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
-  #audit-panel { max-height: 280px; }
-  #view-methodology { padding: 20px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--ink:#0a0f1a;--ink2:#1a2540;--mist:#8a9bbf;--pale:#c8d4e8;--white:#ffffff;--gold:#b8860b;--cyan:#00c2ff;--blue:#1d4ed8;--blue2:#2563eb;--green:#10b981;--red:#c41e3a;--purple:#818cf8;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--white);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:rgba(10,15,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#00c2ff,#1d4ed8);display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(0,194,255,0.25);}
+.nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--white);letter-spacing:0.01em;}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+.nav-links a{color:var(--mist);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:0.02em;transition:color 0.2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{background:linear-gradient(135deg,#1d4ed8,#2563eb)!important;color:var(--white)!important;padding:9px 22px;border-radius:8px;font-weight:600!important;box-shadow:0 4px 16px rgba(37,99,235,0.35);transition:box-shadow 0.2s!important;}
+.nav-cta:hover{box-shadow:0 6px 24px rgba(37,99,235,0.55)!important;color:var(--white)!important;}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;padding:120px 48px 80px;}
+.hero-bg{position:absolute;inset:0;pointer-events:none;}
+.hero-orb{position:absolute;border-radius:50%;filter:blur(80px);animation:drift 20s ease-in-out infinite;}
+.hero-orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,194,255,0.07),transparent 70%);top:-200px;left:-100px;}
+.hero-orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(29,78,216,0.09),transparent 70%);bottom:-150px;right:-100px;animation-delay:-7s;}
+.hero-orb-3{width:300px;height:300px;background:radial-gradient(circle,rgba(184,134,11,0.05),transparent 70%);top:40%;left:50%;animation-delay:-14s;}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.05);}66%{transform:translate(-20px,30px) scale(0.95);}}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);}
+.hero-inner{position:relative;z-index:2;max-width:1100px;margin:0 auto;width:100%;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(0,194,255,0.08);border:1px solid rgba(0,194,255,0.2);border-radius:24px;padding:6px 16px;margin-bottom:28px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#00c2ff;animation:fadeUp 0.8s ease forwards;opacity:0;}
+.hero-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-live 2s infinite;}
+@keyframes pulse-live{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(52px,8vw,96px);font-weight:700;line-height:1.0;letter-spacing:-0.02em;color:var(--white);margin-bottom:10px;animation:fadeUp 0.8s 0.1s ease forwards;opacity:0;}
+.hero-headline em{font-style:italic;font-weight:300;color:rgba(255,255,255,0.5);}
+.hero-headline-accent{display:block;background:linear-gradient(90deg,#00c2ff 0%,#b8860b 60%,#00c2ff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer-text 4s linear infinite,fadeUp 0.8s 0.2s ease forwards;opacity:0;}
+@keyframes shimmer-text{to{background-position:200% center;}}
+.hero-sub{font-size:clamp(15px,2vw,19px);color:var(--mist);line-height:1.75;max-width:580px;margin-bottom:44px;font-weight:300;animation:fadeUp 0.8s 0.3s ease forwards;opacity:0;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp 0.8s 0.4s ease forwards;opacity:0;}
+.btn-primary-hero{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:var(--white);padding:15px 32px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;box-shadow:0 4px 24px rgba(37,99,235,0.45);transition:all 0.2s;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-primary-hero:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(37,99,235,0.6);}
+.btn-secondary-hero{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:var(--pale);padding:15px 28px;border-radius:10px;font-size:14px;font-weight:500;text-decoration:none;transition:all 0.2s;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-secondary-hero:hover{background:rgba(255,255,255,0.09);color:var(--white);border-color:rgba(255,255,255,0.2);}
+.hero-stats{display:flex;gap:40px;margin-top:72px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.06);flex-wrap:wrap;animation:fadeUp 0.8s 0.5s ease forwards;opacity:0;}
+.hero-stat-num{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--white);letter-spacing:-0.02em;}
+.hero-stat-num span{color:#00c2ff;}
+.hero-stat-label{font-size:11px;font-weight:500;color:var(--mist);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);}
+.section-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#00c2ff;margin-bottom:14px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,56px);font-weight:600;line-height:1.1;color:var(--white);letter-spacing:-0.01em;margin-bottom:18px;}
+.section-title em{font-style:italic;font-weight:300;color:rgba(255,255,255,0.45);}
+.section-body{font-size:16px;color:var(--mist);line-height:1.8;font-weight:300;max-width:560px;}
+/* Features */
+.features-header{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:end;margin-bottom:64px;max-width:1200px;margin-left:auto;margin-right:auto;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;max-width:1200px;margin:0 auto;}
+.feature-card{background:#0d1424;padding:36px 32px;transition:background 0.25s;position:relative;overflow:hidden;}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00c2ff,transparent);opacity:0;transition:opacity 0.25s;}
+.feature-card:hover{background:#111a2e;}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;}
+.fi-blue{background:rgba(29,78,216,0.15);border:1px solid rgba(29,78,216,0.2);}
+.fi-cyan{background:rgba(0,194,255,0.1);border:1px solid rgba(0,194,255,0.2);}
+.fi-gold{background:rgba(184,134,11,0.15);border:1px solid rgba(184,134,11,0.2);}
+.fi-green{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.18);}
+.fi-red{background:rgba(196,30,58,0.1);border:1px solid rgba(196,30,58,0.18);}
+.fi-purp{background:rgba(129,140,248,0.12);border:1px solid rgba(129,140,248,0.2);}
+.feature-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;letter-spacing:-0.01em;}
+.feature-desc{font-size:13px;color:var(--mist);line-height:1.7;font-weight:300;}
+.feature-tag{display:inline-flex;margin-top:14px;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(0,194,255,0.08);color:#00c2ff;border:1px solid rgba(0,194,255,0.15);}
+/* How */
+.how-steps{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;max-width:1200px;margin:0 auto;}
+.steps-list{display:flex;flex-direction:column;}
+.step-item{display:flex;gap:24px;padding:28px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.step-item:last-child{border-bottom:none;}
+.step-num-large{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--mist);letter-spacing:0.1em;width:28px;flex-shrink:0;margin-top:4px;}
+.step-title{font-size:16px;font-weight:600;color:var(--white);margin-bottom:6px;letter-spacing:-0.01em;}
+.step-desc{font-size:13px;color:var(--mist);line-height:1.7;font-weight:300;}
+.how-visual{background:linear-gradient(135deg,rgba(13,20,36,0.9),rgba(17,26,46,0.8));border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:36px;position:relative;overflow:hidden;}
+.how-visual::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#00c2ff,#b8860b,#00c2ff,transparent);opacity:0.6;}
+.how-visual-title{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#00c2ff;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse-live 2s infinite;}
+.mock-score-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.mock-gauge{width:52px;height:52px;border-radius:50%;background:conic-gradient(#10b981 302deg,rgba(255,255,255,0.06) 0);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;}
+.mock-gauge::before{content:'';position:absolute;inset:4px;border-radius:50%;background:#0d1424;}
+.mock-gauge-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--white);position:relative;z-index:1;}
+.mock-gauge-label{font-size:13px;font-weight:600;color:var(--white);}
+.mock-gauge-sub{font-size:11px;color:var(--mist);margin-top:2px;font-family:'DM Mono',monospace;}
+.mock-risk{border-left:3px solid #fbbf24;padding:8px 10px;margin-bottom:8px;border-radius:0 6px 6px 0;background:rgba(255,255,255,0.02);}
+.mock-risk.ok{border-left-color:var(--green);}
+.mock-risk-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#fbbf24;margin-bottom:3px;}
+.mock-risk.ok .mock-risk-label{color:var(--green);}
+.mock-risk-msg{font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.4;}
+.mock-cov{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:14px;}
+.mock-cov-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:5px;padding:6px 4px;text-align:center;}
+.mock-cov-n{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--white);}
+.mock-cov-t{font-size:9px;color:var(--mist);margin-top:1px;}
+/* Audit rules */
+.rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1200px;margin:48px auto 0;}
+.rule-card{background:linear-gradient(135deg,rgba(13,20,36,0.9),rgba(17,26,46,0.8));border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:28px 24px;position:relative;overflow:hidden;}
+.rule-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.rule-card.rule-high::before{background:linear-gradient(90deg,transparent,#fb7185,transparent);}
+.rule-card.rule-med::before{background:linear-gradient(90deg,transparent,#fbbf24,transparent);}
+.rule-card.rule-low::before{background:linear-gradient(90deg,transparent,#00c2ff,transparent);}
+.rule-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
+.rule-card.rule-high .rule-label{color:#fb7185;}
+.rule-card.rule-med .rule-label{color:#fbbf24;}
+.rule-card.rule-low .rule-label{color:#00c2ff;}
+.rule-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--white);margin-bottom:10px;}
+.rule-desc{font-size:13px;color:var(--mist);line-height:1.7;font-weight:300;}
+/* Mandates */
+.mandates-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:48px;}
+.mandate-pill{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:50px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);font-size:13px;color:var(--pale);font-weight:400;transition:all 0.2s;cursor:default;}
+.mandate-pill:hover{background:rgba(0,194,255,0.08);border-color:rgba(0,194,255,0.2);color:#00c2ff;}
+.mandate-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+/* About */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.about-card{background:linear-gradient(135deg,rgba(13,20,36,0.9),rgba(17,26,46,0.8));border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:48px 44px;position:relative;overflow:hidden;}
+.about-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#b8860b,transparent);}
+.about-name{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:var(--white);margin-bottom:6px;letter-spacing:-0.01em;}
+.about-role{font-size:11px;color:#b8860b;font-weight:600;letter-spacing:0.1em;margin-bottom:24px;text-transform:uppercase;}
+.about-bio{font-size:14px;color:var(--mist);line-height:1.85;font-weight:300;margin-bottom:28px;}
+.about-expertise{display:flex;flex-wrap:wrap;gap:8px;}
+.expertise-tag{font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--pale);letter-spacing:0.02em;}
+.about-content .section-body{margin-bottom:24px;}
+.about-content blockquote{border-left:3px solid #b8860b;padding-left:20px;margin:28px 0;font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;font-style:italic;color:rgba(255,255,255,0.7);line-height:1.6;}
+/* CTA */
+.cta-inner{max-width:700px;margin:0 auto;position:relative;z-index:2;}
+.cta-bg-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(29,78,216,0.12),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,6vw,64px);font-weight:700;color:var(--white);line-height:1.1;margin-bottom:16px;letter-spacing:-0.02em;}
+.cta-sub{font-size:16px;color:var(--mist);line-height:1.75;margin-bottom:40px;font-weight:300;}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+footer{border-top:1px solid rgba(255,255,255,0.06);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-left{display:flex;align-items:center;gap:10px;}
+.footer-logo-mark{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00c2ff,#1d4ed8);display:flex;align-items:center;justify-content:center;}
+.footer-name{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--white);}
+.footer-right{font-size:12px;color:var(--mist);}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@media(max-width:768px){
+  nav{padding:16px 20px;}.nav-links{display:none;}
+  #hero,section{padding-left:20px;padding-right:20px;}
+  .features-header,.how-steps,.about-grid{grid-template-columns:1fr;gap:40px;}
+  .features-grid,.rules-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:24px;}
+  footer{flex-direction:column;text-align:center;padding:28px 20px;}
 }
 </style>
-
 </head>
 <body>
 
-<div id="app-shell">
-
-  <!-- ── Sidebar ── -->
-  <aside id="sidebar">
-    <div class="brand">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="14,2 26,10 26,18 14,26 2,18 2,10" fill="none" stroke="#0ea5e9" stroke-width="2"/>
-        <polygon points="14,7 21,11.5 21,16.5 14,21 7,16.5 7,11.5" fill="#0ea5e9" opacity="0.3"/>
-        <polygon points="14,11 18,13.5 18,16.5 14,19 10,16.5 10,13.5" fill="#0ea5e9"/>
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 26,10 26,18 14,26 2,18 2,10" fill="none" stroke="#fff" stroke-width="1.5"/>
+        <polygon points="14,7 21,11.5 21,16.5 14,21 7,16.5 7,11.5" fill="rgba(255,255,255,0.25)"/>
+        <polygon points="14,11 18,13.5 18,16.5 14,19 10,16.5 10,13.5" fill="#fff"/>
       </svg>
-      <span class="brand-name">Keystone</span>
     </div>
+    <span class="nav-logo-text">Keystone</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#audit-rules">Audit Rules</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="app.html" class="nav-cta">Open App &rarr;</a></li>
+  </ul>
+</nav>
 
-    <nav id="sidebar-nav">
-      <div class="nav-item" data-view="projects" title="View all active projects">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-        </svg>
-        Active Projects
-      </div>
-      <div class="nav-item active" data-view="new-framework" title="Build or edit a logic framework">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-        </svg>
-        New Evaluation
-      </div>
-      <div class="nav-item" data-view="methodology" title="Programme theory and methodology reference">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
-        </svg>
-        Methodology
-      </div>
-    </nav>
-
-    <div class="active-project-indicator">
-      <div class="label">Active Project</div>
-      <div class="project-name none" id="active-project-name">No project selected</div>
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span class="hero-live-dot"></span>Policy Logic Diagnostic &bull; BC Government &amp; Indigenous Policy</div>
+    <h1 class="hero-headline">Policy logic, <em>rigorously</em><span class="hero-headline-accent">stress&#8209;tested.</span></h1>
+    <p class="hero-sub">Keystone audits your Input &rarr; Activity &rarr; Output &rarr; Outcome logic chains for structural failures &mdash; Dead Ends, Miracle Leaps, and Blind Spots &mdash; before they become accountability gaps in a Treasury Board submission.</p>
+    <div class="hero-actions">
+      <a href="app.html" class="btn-primary-hero">Open Keystone &rarr;</a>
+      <a href="#features" class="btn-secondary-hero">Explore Features</a>
     </div>
-  </aside>
-
-  <!-- ── Main Area ── -->
-  <main id="main-area">
-
-    <!-- ── View: Active Projects ── -->
-    <div id="view-projects" class="view-panel">
-      <div class="view-header">
-        <h1 class="view-title">Active Projects</h1>
-        <button class="btn-primary" id="btn-new-project">+ New Project</button>
-      </div>
-      <div id="projects-grid" class="projects-grid"></div>
-    </div>
-
-    <!-- ── View: New Evaluation Framework ── -->
-    <div id="view-new-framework" class="view-panel active">
-
-      <!-- Left: Form Panel -->
-      <div id="form-panel">
-        <div class="form-panel-header">
-          <div class="form-panel-title">Framework Builder</div>
-          <div class="step-indicator" id="step-indicator">
-            <div class="step-item active" data-step="0">
-              <div class="step-dot">1</div>
-              <span class="step-label">Input</span>
-            </div>
-            <div class="step-connector"></div>
-            <div class="step-item" data-step="1">
-              <div class="step-dot">2</div>
-              <span class="step-label">Activity</span>
-            </div>
-            <div class="step-connector"></div>
-            <div class="step-item" data-step="2">
-              <div class="step-dot">3</div>
-              <span class="step-label">Output</span>
-            </div>
-            <div class="step-connector"></div>
-            <div class="step-item" data-step="3">
-              <div class="step-dot">4</div>
-              <span class="step-label">Outcome</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-panel-body" id="form-panel-body">
-          <div id="no-project-notice" class="no-project-notice">
-            <div class="icon">📋</div>
-            <p>No project selected.<br>Open a project from <strong>Active Projects</strong> or create a new one to start building your logic framework.</p>
-            <button class="btn-primary" id="btn-go-projects">Go to Projects</button>
-          </div>
-
-          <div id="step-forms" style="display:none;">
-            <!-- Step 0: Input -->
-            <div class="step-content active" data-step-content="0">
-              <p class="step-description">Define the <strong>Inputs</strong> for this initiative. Inputs are the resources committed before any activities begin.</p>
-              <div class="form-group">
-                <label class="form-label" for="desc-0">Description <span class="required">*</span></label>
-                <textarea class="form-control" id="desc-0" rows="3" placeholder="Describe this input resource..."></textarea>
-                <div class="form-hint">Resources committed to this initiative. Include funding envelopes, FTEs, and legislative time.</div>
-                <div class="form-error" id="err-0">Description is required.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="bench-0">Target Benchmark</label>
-                <input type="text" class="form-control" id="bench-0" placeholder="e.g., $2.4M committed by Q1 FY2026">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="source-0">Verification / Data Source</label>
-                <input type="text" class="form-control" id="source-0" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
-              </div>
-            </div>
-
-            <!-- Step 1: Activity -->
-            <div class="step-content" data-step-content="1">
-              <p class="step-description">Define the <strong>Activities</strong> undertaken using these inputs. Activities are the concrete actions your team will take.</p>
-              <div class="form-group">
-                <label class="form-label" for="desc-1">Description <span class="required">*</span></label>
-                <textarea class="form-control" id="desc-1" rows="3" placeholder="Describe this activity..."></textarea>
-                <div class="form-hint">Actions taken using these inputs. Include engagement sessions, co-drafting processes, consultations.</div>
-                <div class="form-error" id="err-1">Description is required.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="bench-1">Target Benchmark</label>
-                <input type="text" class="form-control" id="bench-1" placeholder="e.g., 14 sessions completed by Q3">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="source-1">Verification / Data Source</label>
-                <input type="text" class="form-control" id="source-1" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
-              </div>
-            </div>
-
-            <!-- Step 2: Output -->
-            <div class="step-content" data-step-content="2">
-              <p class="step-description">Define the <strong>Outputs</strong> produced by your activities. Outputs are tangible, countable deliverables.</p>
-              <div class="form-group">
-                <label class="form-label" for="desc-2">Description <span class="required">*</span></label>
-                <textarea class="form-control" id="desc-2" rows="3" placeholder="Describe this output deliverable..."></textarea>
-                <div class="form-hint">Tangible deliverables produced. Include documents signed, sessions held, frameworks published.</div>
-                <div class="form-error" id="err-2">Description is required.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="bench-2">Target Benchmark</label>
-                <input type="text" class="form-control" id="bench-2" placeholder="e.g., 1 agreement executed by March 2026">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="source-2">Verification / Data Source</label>
-                <input type="text" class="form-control" id="source-2" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
-              </div>
-            </div>
-
-            <!-- Step 3: Outcome -->
-            <div class="step-content" data-step-content="3">
-              <p class="step-description">Define the <strong>Outcomes</strong> — the systemic changes your programme aims to achieve over time.</p>
-              <div class="form-group">
-                <label class="form-label" for="desc-3">Description <span class="required">*</span></label>
-                <textarea class="form-control" id="desc-3" rows="3" placeholder="Describe this systemic outcome..."></textarea>
-                <div class="form-hint">Systemic changes achieved. Include jurisdictional recognition, governance shifts, data sovereignty gains.</div>
-                <div class="form-error" id="err-3">Description is required.</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="bench-3">Target Benchmark</label>
-                <input type="text" class="form-control" id="bench-3" placeholder="e.g., Legal recognition in place by FY2027">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="source-3">Verification / Data Source</label>
-                <input type="text" class="form-control" id="source-3" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
-              </div>
-            </div>
-
-            <!-- Component List -->
-            <div class="component-list-section" id="component-list-section">
-              <div class="component-list-title">Framework Components</div>
-              <div id="component-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-panel-footer" id="form-panel-footer" style="display:none;">
-          <div class="step-nav">
-            <button class="btn-step" id="btn-prev" disabled>← Previous</button>
-            <button class="btn-step" id="btn-next">Next →</button>
-          </div>
-          <button class="btn-add-component" id="btn-add-component">+ Add Component</button>
-        </div>
-      </div>
-
-      <!-- Right: Audit Panel -->
-      <div id="audit-panel">
-        <div class="audit-header">
-          <div class="audit-header-row">
-            <span class="audit-title">Logic Audit</span>
-            <span class="audit-timestamp" id="audit-timestamp">Last checked: just now</span>
-          </div>
-        </div>
-
-        <div class="health-score-section">
-          <div class="score-gauge green" id="score-gauge" style="--pct: 360deg;">
-            <span class="score-value" id="score-value">—</span>
-          </div>
-          <div class="score-meta">
-            <div class="score-label" id="score-label">Health Score</div>
-            <div class="score-risks" id="score-risks">Select a project to begin</div>
-          </div>
-        </div>
-
-        <div class="coverage-section">
-          <div class="coverage-title">Component Coverage</div>
-          <div class="coverage-grid" id="coverage-grid">
-            <div class="coverage-box" id="cov-input"><div class="coverage-count">—</div><div class="coverage-type">Inputs</div></div>
-            <div class="coverage-box" id="cov-activity"><div class="coverage-count">—</div><div class="coverage-type">Activities</div></div>
-            <div class="coverage-box" id="cov-output"><div class="coverage-count">—</div><div class="coverage-type">Outputs</div></div>
-            <div class="coverage-box" id="cov-outcome"><div class="coverage-count">—</div><div class="coverage-type">Outcomes</div></div>
-          </div>
-        </div>
-
-        <div class="risk-feed-section">
-          <div class="risk-feed-title">Risk Feed</div>
-          <div id="risk-feed"><div class="risk-empty">Select a project to view audit results.</div></div>
-        </div>
-
-        <div class="audit-footer">
-          <button class="btn-briefing" id="btn-briefing" disabled>Generate Executive Briefing</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── View: Methodology ── -->
-    <div id="view-methodology" class="view-panel">
-      <h1 class="methodology-title">Programme Theory &amp; Logic Model Reference</h1>
-
-      <div class="methodology-section">
-        <h2 class="methodology-section-title">The Theory of Change</h2>
-        <p>A logic model is a structured representation of how a programme is expected to work. It maps the causal chain from resource allocation through to systemic impact, making the underlying theory of change explicit and testable. The four-stage model — Inputs, Activities, Outputs, and Outcomes — is the foundational framework used by the Treasury Board of Canada Secretariat, the BC Government's Core Policy and Procedures Manual, and international bodies including the OECD Development Assistance Committee for programme evaluation.</p>
-        <p><strong>Inputs</strong> are the resources committed before any work begins: funding envelopes, staff time, legislative authority, and partner capacity. <strong>Activities</strong> are the concrete actions taken using those inputs — engagement sessions, co-drafting processes, formal negotiations, and consultations. <strong>Outputs</strong> are the tangible, countable deliverables produced by those activities: agreements signed, committees established, frameworks published. <strong>Outcomes</strong> are the medium- to long-term systemic changes that the programme aims to achieve — shifts in jurisdiction, governance structures, or community wellbeing indicators.</p>
-        <p>The critical discipline of logic modelling is ensuring that each link in the chain is causally plausible. An activity must be substantively capable of producing its claimed outputs, and outputs must be structurally sufficient to drive the stated outcomes. When these links are weak or absent, the programme theory fails — not necessarily the programme itself, but the analyst's ability to evaluate, defend, or improve it. Keystone's audit engine is designed to surface these structural weaknesses before they become accountability gaps.</p>
-      </div>
-
-      <div class="methodology-section">
-        <h2 class="methodology-section-title">Common Logic Failures</h2>
-        <table class="methodology-table">
-          <thead>
-            <tr><th>Error Type</th><th>Description</th><th>How to Fix</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="error-type-cell">Dead End</td>
-              <td>An activity with no mapped outputs or outcomes. Resources are being allocated to actions that produce no documented deliverable or systemic impact, making the activity unaccountable and unevaluable.</td>
-              <td>Define at least one measurable output or outcome for every activity. If an activity genuinely produces nothing, it should be removed from the logic model.</td>
-            </tr>
-            <tr>
-              <td class="error-type-cell">Miracle Leap</td>
-              <td>A major systemic outcome — such as jurisdictional recognition or governance transformation — that is claimed to result from activities that are structurally insufficient to produce it (e.g., a webinar series claiming to achieve self-government).</td>
-              <td>Either reduce the ambition of the stated outcome to match the scale of activities, or add high-leverage activities such as legislative drafting, formal treaty negotiations, or co-governance body establishment.</td>
-            </tr>
-            <tr>
-              <td class="error-type-cell">Blind Spot</td>
-              <td>An output or outcome with no defined verification source or data collection mechanism. Without a named tracking method, the benchmark cannot be measured, reported on, or audited.</td>
-              <td>Name a specific data collection mechanism for every output and outcome: a reporting system, a legal registry, a community survey instrument, or a government submission process.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="methodology-section">
-        <h2 class="methodology-section-title">DRIPA Alignment Notes</h2>
-        <p>The <em>Declaration on the Rights of Indigenous Peoples Act</em> (DRIPA), enacted by the Province of British Columbia in 2019, requires the provincial government to take all measures necessary to ensure provincial laws are consistent with the UN Declaration on the Rights of Indigenous Peoples (UNDRIP). Section 7 of DRIPA specifically enables the Province and Indigenous governing bodies to enter into agreements for joint decision-making on matters affecting Indigenous peoples. Keystone's "DRIPA Alignment" mandate classification is designed to support analysts working on these Section 7 frameworks, where the causal logic between engagement activities and jurisdictional outcomes is particularly high-stakes and subject to legal scrutiny.</p>
-        <p>A critical evaluation consideration in DRIPA-aligned frameworks is <strong>Indigenous data sovereignty</strong> — the right of Indigenous peoples to govern the collection, ownership, and application of data about their communities, territories, and resources. The OCAP® principles (Ownership, Control, Access, and Possession), developed by the First Nations Information Governance Centre, provide the operational framework for data sovereignty in Canadian Indigenous policy contexts. When defining verification sources for outputs and outcomes in DRIPA-aligned frameworks, analysts should ensure that data collection mechanisms are consistent with OCAP principles: that data is owned by the Nation, that the Nation controls how it is collected and used, that access is governed by Nation-defined protocols, and that physical possession of data remains with the Nation where possible.</p>
-        <p>The Blind Spot audit rule is particularly relevant in DRIPA contexts. A verification source that relies solely on provincial government reporting systems — without Nation-controlled data governance — may satisfy a Treasury Board requirement while failing the substantive standard of Indigenous data sovereignty. Analysts are encouraged to name Nation-specific data stewardship bodies, community-controlled survey instruments, or jointly governed data repositories as verification sources wherever possible. This transforms a compliance exercise into a genuine expression of the co-governance principles that DRIPA Section 7 is designed to advance.</p>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<!-- ── New Project Modal ── -->
-<div class="modal-overlay" id="modal-new-project">
-  <div class="modal">
-    <div class="modal-title">New Evaluation Project</div>
-    <div class="form-group">
-      <label class="form-label" for="modal-name">Project Name <span class="required">*</span></label>
-      <input type="text" class="form-control" id="modal-name" placeholder="e.g., DRIPA Section 7 Joint Decision-Making Agreement">
-      <div class="form-error" id="modal-err-name">Project name is required.</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="modal-dept">Department <span class="required">*</span></label>
-      <input type="text" class="form-control" id="modal-dept" placeholder="e.g., BC Ministry of Indigenous Relations and Reconciliation">
-      <div class="form-error" id="modal-err-dept">Department is required.</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="modal-desc">Description</label>
-      <textarea class="form-control" id="modal-desc" rows="3" placeholder="Brief description of this policy initiative..."></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="modal-mandate">Mandate Classification</label>
-      <select class="form-control" id="modal-mandate">
-        <option value="DRIPA Alignment">DRIPA Alignment</option>
-        <option value="Self-Government Transition">Self-Government Transition</option>
-        <option value="Service Delivery">Service Delivery</option>
-        <option value="Economic Development">Economic Development</option>
-      </select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
-      <button class="btn-modal-submit" id="btn-modal-submit">Create Project</button>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">7<span>+</span></div><div class="hero-stat-label">Audit Rules</div></div>
+      <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Mandate Types</div></div>
+      <div><div class="hero-stat-num">0<span>&ndash;100</span></div><div class="hero-stat-label">Health Score</div></div>
+      <div><div class="hero-stat-num">0<span>$</span></div><div class="hero-stat-label">Cost to Run</div></div>
     </div>
   </div>
-</div>
-
-
-<script>
-/* ═══════════════════════════════════════════════════
-   KEYSTONE — Policy Logic Diagnostic Tool
-   ═══════════════════════════════════════════════════ */
-
-/* ── Storage Helpers ── */
-function getData(key) {
-  try { return JSON.parse(localStorage.getItem(key)) || []; }
-  catch(e) { return []; }
-}
-function setData(key, array) {
-  localStorage.setItem(key, JSON.stringify(array));
-}
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
-/* ── App State ── */
-let activeProjectId = null;
-let currentStep = 0;
-let auditLastChecked = Date.now();
-
-/* ── Step Config ── */
-const STEPS = ['Input', 'Activity', 'Output', 'Outcome'];
-
-/* ── Badge Helpers ── */
-function mandateBadgeClass(mandate) {
-  const map = {
-    'DRIPA Alignment': 'badge-dripa',
-    'Self-Government Transition': 'badge-self-gov',
-    'Service Delivery': 'badge-service',
-    'Economic Development': 'badge-economic'
-  };
-  return map[mandate] || 'badge-service';
-}
-function typeBadgeClass(type) {
-  const map = { Input: 'badge-input', Activity: 'badge-activity', Output: 'badge-output', Outcome: 'badge-outcome' };
-  return map[type] || 'badge-input';
-}
-
-/* ── Navigation ── */
-function showView(viewName) {
-  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const panel = document.getElementById('view-' + viewName);
-  if (panel) panel.classList.add('active');
-  const navItem = document.querySelector(`.nav-item[data-view="${viewName}"]`);
-  if (navItem) navItem.classList.add('active');
-  if (viewName === 'projects') renderProjects();
-  if (viewName === 'new-framework') renderFormPanel();
-}
-
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const view = item.dataset.view;
-    if (view === 'new-framework') {
-      showView('new-framework');
-    } else {
-      showView(view);
-    }
-  });
-});
-
-document.getElementById('btn-go-projects').addEventListener('click', () => showView('projects'));
-</script>
-
-<script>
-/* ── Audit Engine ── */
-const MIRACLE_KEYWORDS = ["jurisdiction","sovereignty","self-government","governance","treaty","title","rights","systemic","transformational","full authority"];
-const MINOR_KEYWORDS   = ["webinar","workshop","meeting","email","newsletter","survey","report drafted"];
-
-function runAuditEngine(projectId) {
-  if (!projectId) return;
-
-  // 1. Clear existing audit entries for this project
-  let log = getData('ks_audit_log').filter(e => e.projectId !== projectId);
-
-  // 2. Fetch components
-  const components = getData('ks_components').filter(c => c.projectId === projectId);
-  const newEntries = [];
-
-  const outputs   = components.filter(c => c.type === 'Output');
-  const outcomes  = components.filter(c => c.type === 'Outcome');
-  const activities = components.filter(c => c.type === 'Activity');
-
-  // Rule A — Dead End (HIGH)
-  if (outputs.length === 0 && outcomes.length === 0) {
-    activities.forEach(act => {
-      newEntries.push({
-        id: generateId(),
-        projectId,
-        riskLevel: 'High',
-        errorType: 'Dead_End',
-        message: 'Dead End: You are allocating resources to activities with no mapped deliverables or systemic impact. Add at least one Output or Outcome to complete the logic chain.',
-        componentId: act.id
-      });
-    });
-  }
-
-  // Rule B — Miracle Leap (MEDIUM)
-  outcomes.forEach(outcome => {
-    const outcomeText = outcome.description.toLowerCase();
-    const isMajor = MIRACLE_KEYWORDS.some(kw => outcomeText.includes(kw));
-    if (isMajor && activities.length > 0) {
-      const minorCount = activities.filter(a =>
-        MINOR_KEYWORDS.some(kw => a.description.toLowerCase().includes(kw))
-      ).length;
-      if (minorCount === activities.length) {
-        newEntries.push({
-          id: generateId(),
-          projectId,
-          riskLevel: 'Medium',
-          errorType: 'Miracle_Leap',
-          message: 'Miracle Leap: Your stated activities appear structurally insufficient to achieve this systemic outcome. Consider adding high-leverage activities such as legislative drafting, formal negotiations, or co-governance body establishment.',
-          componentId: outcome.id
-        });
-      }
-    }
-  });
-
-  // Rule C — Blind Spot (MEDIUM)
-  // Applies to Outputs and Outcomes (required to have verification sources)
-  // Also applies to Activities that have a targetBenchmark but no verificationSource
-  const blindSpotCandidates = [...outputs, ...outcomes,
-    ...activities.filter(a => a.targetBenchmark && a.targetBenchmark.trim())
-  ];
-  blindSpotCandidates.forEach(comp => {
-    if (!comp.verificationSource || !comp.verificationSource.trim()) {
-      const truncated = comp.description.length > 40
-        ? comp.description.slice(0, 40) + '…'
-        : comp.description;
-      newEntries.push({
-        id: generateId(),
-        projectId,
-        riskLevel: 'Medium',
-        errorType: 'Blind_Spot',
-        message: `Blind Spot: "${truncated}" has no defined data source. Without a tracking mechanism, this benchmark cannot be evaluated or reported on.`,
-        componentId: comp.id
-      });
-    }
-  });
-
-  // 4. Save
-  setData('ks_audit_log', [...log, ...newEntries]);
-  auditLastChecked = Date.now();
-
-  // 5. Re-render audit panel
-  renderAuditPanel();
-}
-
-function calcHealthScore(projectId) {
-  const entries = getData('ks_audit_log').filter(e => e.projectId === projectId);
-  const highCount   = entries.filter(e => e.riskLevel === 'High').length;
-  const mediumCount = entries.filter(e => e.riskLevel === 'Medium').length;
-  return Math.max(0, 100 - (highCount * 20) - (mediumCount * 8));
-}
-</script>
-
-<script>
-/* ── Render Audit Panel ── */
-function renderAuditPanel() {
-  const scoreGauge  = document.getElementById('score-gauge');
-  const scoreValue  = document.getElementById('score-value');
-  const scoreRisks  = document.getElementById('score-risks');
-  const riskFeed    = document.getElementById('risk-feed');
-  const btnBriefing = document.getElementById('btn-briefing');
-
-  if (!activeProjectId) {
-    scoreValue.textContent = '—';
-    scoreRisks.textContent = 'Select a project to begin';
-    riskFeed.innerHTML = '<div class="risk-empty">Select a project to view audit results.</div>';
-    updateCoverage(null);
-    btnBriefing.disabled = true;
-    return;
-  }
-
-  const entries    = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
-  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
-  const score      = calcHealthScore(activeProjectId);
-
-  // Score gauge
-  scoreValue.textContent = score;
-  const pct = (score / 100) * 360;
-  scoreGauge.style.setProperty('--pct', pct + 'deg');
-  scoreGauge.className = 'score-gauge ' + (score >= 70 ? 'green' : score >= 40 ? 'amber' : 'red');
-
-  const totalRisks = entries.length;
-  scoreRisks.textContent = totalRisks === 0 ? 'No risks detected' : `${totalRisks} risk${totalRisks !== 1 ? 's' : ''} detected`;
-
-  // Risk feed — sort High first
-  const sorted = [...entries].sort((a, b) => {
-    const order = { High: 0, Medium: 1, Low: 2 };
-    return (order[a.riskLevel] ?? 3) - (order[b.riskLevel] ?? 3);
-  });
-
-  if (sorted.length === 0) {
-    riskFeed.innerHTML = '<div class="risk-empty">✓ No logic gaps detected. Keep building your framework.</div>';
-  } else {
-    riskFeed.innerHTML = sorted.map(entry => {
-      const comp = components.find(c => c.id === entry.componentId);
-      const compDesc = comp ? (comp.description.length > 50 ? comp.description.slice(0, 50) + '…' : comp.description) : '';
-      const levelClass = entry.riskLevel.toLowerCase();
-      const typeLabel = entry.errorType.replace('_', ' ');
-      return `<div class="risk-item ${levelClass}">
-        <div class="risk-type-label">${typeLabel}</div>
-        <div class="risk-message">${escHtml(entry.message)}</div>
-        ${compDesc ? `<div class="risk-component">${escHtml(compDesc)}</div>` : ''}
-      </div>`;
-    }).join('');
-  }
-
-  // Coverage
-  updateCoverage(activeProjectId);
-
-  // Briefing button
-  btnBriefing.disabled = components.length < 2;
-}
-
-function updateCoverage(projectId) {
-  const types = ['Input', 'Activity', 'Output', 'Outcome'];
-  const ids   = ['cov-input', 'cov-activity', 'cov-output', 'cov-outcome'];
-  const components = projectId ? getData('ks_components').filter(c => c.projectId === projectId) : [];
-  types.forEach((type, i) => {
-    const box = document.getElementById(ids[i]);
-    const count = components.filter(c => c.type === type).length;
-    box.querySelector('.coverage-count').textContent = projectId ? count : '—';
-    box.classList.toggle('warn', projectId !== null && count === 0);
-  });
-}
-
-function updateTimestamp() {
-  const el = document.getElementById('audit-timestamp');
-  if (!el) return;
-  const secs = Math.floor((Date.now() - auditLastChecked) / 1000);
-  if (secs < 5) el.textContent = 'Last checked: just now';
-  else if (secs < 60) el.textContent = `Last checked: ${secs}s ago`;
-  else el.textContent = `Last checked: ${Math.floor(secs/60)}m ago`;
-}
-setInterval(updateTimestamp, 30000);
-
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-</script>
-
-<script>
-/* ── Render Form Panel ── */
-function renderFormPanel() {
-  const notice    = document.getElementById('no-project-notice');
-  const stepForms = document.getElementById('step-forms');
-  const footer    = document.getElementById('form-panel-footer');
-
-  if (!activeProjectId) {
-    notice.style.display = 'flex';
-    stepForms.style.display = 'none';
-    footer.style.display = 'none';
-    renderAuditPanel();
-    return;
-  }
-
-  notice.style.display = 'none';
-  stepForms.style.display = 'block';
-  footer.style.display = 'flex';
-
-  renderStepIndicator();
-  renderComponentList();
-  renderAuditPanel();
-}
-
-function renderStepIndicator() {
-  document.querySelectorAll('.step-item').forEach((item, i) => {
-    item.classList.toggle('active', i === currentStep);
-    item.classList.toggle('completed', i < currentStep);
-  });
-  document.querySelectorAll('.step-content').forEach((content, i) => {
-    content.classList.toggle('active', i === currentStep);
-  });
-  document.getElementById('btn-prev').disabled = currentStep === 0;
-  document.getElementById('btn-next').disabled = currentStep === STEPS.length - 1;
-}
-
-function renderComponentList() {
-  const container = document.getElementById('component-list');
-  if (!activeProjectId) { container.innerHTML = ''; return; }
-
-  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
-  if (components.length === 0) {
-    container.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0;">No components added yet.</div>';
-    return;
-  }
-
-  let html = '';
-  STEPS.forEach(type => {
-    const group = components.filter(c => c.type === type);
-    if (group.length === 0) return;
-    html += `<div class="component-group">
-      <div class="component-group-label">${type}s</div>`;
-    group.forEach(comp => {
-      const desc = comp.description.length > 60 ? comp.description.slice(0, 60) + '…' : comp.description;
-      html += `<div class="component-item">
-        <span class="badge ${typeBadgeClass(type)}">${type}</span>
-        <span class="component-item-desc" title="${escHtml(comp.description)}">${escHtml(desc)}</span>
-        <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
-      </div>`;
-    });
-    html += '</div>';
-  });
-  container.innerHTML = html;
-
-  container.querySelectorAll('.btn-delete-component').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const comp = getData('ks_components').find(c => c.id === id);
-      const label = comp ? comp.description.slice(0, 60) : 'this component';
-      if (window.confirm(`Remove component: "${label}"?\n\nThis will re-run the logic audit.`)) {
-        setData('ks_components', getData('ks_components').filter(c => c.id !== id));
-        runAuditEngine(activeProjectId);
-        renderComponentList();
-      }
-    });
-  });
-}
-
-/* ── Step Navigation ── */
-document.getElementById('btn-prev').addEventListener('click', () => {
-  if (currentStep > 0) { currentStep--; renderStepIndicator(); }
-});
-document.getElementById('btn-next').addEventListener('click', () => {
-  if (currentStep < STEPS.length - 1) { currentStep++; renderStepIndicator(); }
-});
-document.querySelectorAll('.step-item').forEach(item => {
-  item.addEventListener('click', () => {
-    if (!activeProjectId) return;
-    currentStep = parseInt(item.dataset.step);
-    renderStepIndicator();
-  });
-});
-
-/* ── Add Component ── */
-document.getElementById('btn-add-component').addEventListener('click', () => {
-  if (!activeProjectId) return;
-  const descEl  = document.getElementById(`desc-${currentStep}`);
-  const errEl   = document.getElementById(`err-${currentStep}`);
-  const benchEl = document.getElementById(`bench-${currentStep}`);
-  const srcEl   = document.getElementById(`source-${currentStep}`);
-
-  const desc = descEl.value.trim();
-  if (!desc) {
-    descEl.classList.add('error');
-    errEl.classList.add('visible');
-    return;
-  }
-  descEl.classList.remove('error');
-  errEl.classList.remove('visible');
-
-  const component = {
-    id: generateId(),
-    projectId: activeProjectId,
-    type: STEPS[currentStep],
-    description: desc,
-    targetBenchmark: benchEl.value.trim(),
-    verificationSource: srcEl.value.trim()
-  };
-
-  setData('ks_components', [...getData('ks_components'), component]);
-  descEl.value = '';
-  benchEl.value = '';
-  srcEl.value = '';
-
-  runAuditEngine(activeProjectId);
-  renderComponentList();
-});
-
-// Clear error on input
-[0,1,2,3].forEach(i => {
-  const el = document.getElementById(`desc-${i}`);
-  if (el) el.addEventListener('input', () => {
-    el.classList.remove('error');
-    document.getElementById(`err-${i}`).classList.remove('visible');
-  });
-});
-</script>
-
-<script>
-/* ── Render Projects View ── */
-function renderProjects() {
-  const grid = document.getElementById('projects-grid');
-  const projects = getData('ks_projects');
-
-  if (projects.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-      <div class="empty-state-icon">📁</div>
-      <div class="empty-state-title">No projects yet</div>
-      <div class="empty-state-text">Click "+ New Project" to create your first policy evaluation framework.</div>
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = projects.map(proj => {
-    const components = getData('ks_components').filter(c => c.projectId === proj.id);
-    const auditLog   = getData('ks_audit_log').filter(e => e.projectId === proj.id);
-    const highCount  = auditLog.filter(e => e.riskLevel === 'High').length;
-    const medCount   = auditLog.filter(e => e.riskLevel === 'Medium').length;
-    const badgeClass = mandateBadgeClass(proj.mandate);
-
-    const riskFlags = [
-      highCount > 0 ? `<span class="risk-flag high">${highCount} High</span>` : '',
-      medCount  > 0 ? `<span class="risk-flag medium">${medCount} Medium</span>` : ''
-    ].filter(Boolean).join('');
-
-    return `<div class="project-card">
-      <div class="project-card-name">${escHtml(proj.name)}</div>
-      <div class="project-card-dept">${escHtml(proj.department)}</div>
-      <div class="project-card-meta">
-        <span class="badge ${badgeClass}">${escHtml(proj.mandate)}</span>
-        <span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>
-        ${riskFlags}
-      </div>
-      <div class="project-card-actions">
-        <button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button>
-        <button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  grid.querySelectorAll('.btn-open-project').forEach(btn => {
-    btn.addEventListener('click', () => openProject(btn.dataset.id));
-  });
-  grid.querySelectorAll('.btn-delete-project').forEach(btn => {
-    btn.addEventListener('click', () => deleteProject(btn.dataset.id));
-  });
-}
-
-function openProject(id) {
-  setActiveProject(id);
-  showView('new-framework');
-}
-
-function setActiveProject(id) {
-  activeProjectId = id;
-  const projects = getData('ks_projects');
-  const proj = projects.find(p => p.id === id);
-  const nameEl = document.getElementById('active-project-name');
-  if (proj) {
-    nameEl.textContent = proj.name;
-    nameEl.classList.remove('none');
-  } else {
-    nameEl.textContent = 'No project selected';
-    nameEl.classList.add('none');
-  }
-  runAuditEngine(id);
-}
-
-function deleteProject(id) {
-  const projects = getData('ks_projects');
-  const proj = projects.find(p => p.id === id);
-  if (!proj) return;
-  if (!window.confirm(`Delete project "${proj.name}"?\n\nThis will permanently remove all components and audit data for this project. This action cannot be undone.`)) return;
-
-  setData('ks_projects',    getData('ks_projects').filter(p => p.id !== id));
-  setData('ks_components',  getData('ks_components').filter(c => c.projectId !== id));
-  setData('ks_audit_log',   getData('ks_audit_log').filter(e => e.projectId !== id));
-
-  if (activeProjectId === id) {
-    activeProjectId = null;
-    document.getElementById('active-project-name').textContent = 'No project selected';
-    document.getElementById('active-project-name').classList.add('none');
-    renderAuditPanel();
-  }
-  renderProjects();
-}
-</script>
-
-<script>
-/* ── New Project Modal ── */
-const modalOverlay = document.getElementById('modal-new-project');
-
-function openModal() {
-  document.getElementById('modal-name').value = '';
-  document.getElementById('modal-dept').value = '';
-  document.getElementById('modal-desc').value = '';
-  document.getElementById('modal-mandate').value = 'DRIPA Alignment';
-  document.getElementById('modal-err-name').classList.remove('visible');
-  document.getElementById('modal-err-dept').classList.remove('visible');
-  document.getElementById('modal-name').classList.remove('error');
-  document.getElementById('modal-dept').classList.remove('error');
-  modalOverlay.classList.add('open');
-  setTimeout(() => document.getElementById('modal-name').focus(), 50);
-}
-function closeModal() { modalOverlay.classList.remove('open'); }
-
-document.getElementById('btn-new-project').addEventListener('click', openModal);
-document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
-modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-
-document.getElementById('btn-modal-submit').addEventListener('click', () => {
-  const name    = document.getElementById('modal-name').value.trim();
-  const dept    = document.getElementById('modal-dept').value.trim();
-  const desc    = document.getElementById('modal-desc').value.trim();
-  const mandate = document.getElementById('modal-mandate').value;
-
-  let valid = true;
-  if (!name) {
-    document.getElementById('modal-name').classList.add('error');
-    document.getElementById('modal-err-name').classList.add('visible');
-    valid = false;
-  } else {
-    document.getElementById('modal-name').classList.remove('error');
-    document.getElementById('modal-err-name').classList.remove('visible');
-  }
-  if (!dept) {
-    document.getElementById('modal-dept').classList.add('error');
-    document.getElementById('modal-err-dept').classList.add('visible');
-    valid = false;
-  } else {
-    document.getElementById('modal-dept').classList.remove('error');
-    document.getElementById('modal-err-dept').classList.remove('visible');
-  }
-  if (!valid) return;
-
-  const project = {
-    id: generateId(),
-    name, department: dept, description: desc, mandate,
-    createdAt: new Date().toISOString()
-  };
-  setData('ks_projects', [...getData('ks_projects'), project]);
-  closeModal();
-  setActiveProject(project.id);
-  currentStep = 0;
-  showView('new-framework');
-});
-
-// Clear modal errors on input
-['modal-name','modal-dept'].forEach(id => {
-  document.getElementById(id).addEventListener('input', function() {
-    this.classList.remove('error');
-    document.getElementById('modal-err-' + id.replace('modal-','')).classList.remove('visible');
-  });
-});
-</script>
-
-<script>
-/* ── Executive Briefing ── */
-document.getElementById('btn-briefing').addEventListener('click', generateBriefing);
-
-function generateBriefing() {
-  if (!activeProjectId) return;
-  const projects   = getData('ks_projects');
-  const proj       = projects.find(p => p.id === activeProjectId);
-  if (!proj) return;
-
-  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
-  const auditLog   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
-  const score      = calcHealthScore(activeProjectId);
-
-  const highEntries   = auditLog.filter(e => e.riskLevel === 'High');
-  const medEntries    = auditLog.filter(e => e.riskLevel === 'Medium');
-  const hasDeadEnd    = auditLog.some(e => e.errorType === 'Dead_End');
-  const hasMiracle    = auditLog.some(e => e.errorType === 'Miracle_Leap');
-  const hasBlindSpot  = auditLog.some(e => e.errorType === 'Blind_Spot');
-
-  function compRows(type) {
-    const items = components.filter(c => c.type === type);
-    if (items.length === 0) return `<p style="color:#6b7a99;font-style:italic;">No ${type}s defined.</p>`;
-    return items.map(c => `
-      <div style="padding:10px 0;border-bottom:1px solid #dde3ed;">
-        <div style="font-weight:600;color:#1a2740;margin-bottom:4px;">• ${escHtml(c.description)}</div>
-        ${c.targetBenchmark ? `<div style="font-size:13px;color:#6b7a99;">Benchmark: ${escHtml(c.targetBenchmark)}</div>` : ''}
-        ${c.verificationSource ? `<div style="font-size:13px;color:#6b7a99;">Source: ${escHtml(c.verificationSource)}</div>` : ''}
-      </div>`).join('');
-  }
-
-  function riskRows(entries) {
-    if (entries.length === 0) return '<p style="color:#16a34a;">None</p>';
-    return entries.map(e => `
-      <div style="padding:8px 12px;border-left:3px solid ${e.riskLevel==='High'?'#dc2626':'#f59e0b'};margin-bottom:8px;background:#f4f6f9;border-radius:0 4px 4px 0;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${e.riskLevel==='High'?'#dc2626':'#b45309'};margin-bottom:3px;">${e.errorType.replace('_',' ')}</div>
-        <div style="font-size:13px;color:#1a2740;">${escHtml(e.message)}</div>
-      </div>`).join('');
-  }
-
-  const recommendations = [];
-  if (hasDeadEnd)   recommendations.push('Ensure every activity produces at least one measurable output.');
-  if (hasMiracle)   recommendations.push('Review the sufficiency of planned activities relative to stated systemic outcomes.');
-  if (hasBlindSpot) recommendations.push('Define a data collection mechanism for each untracked benchmark before implementation.');
-  if (recommendations.length === 0) recommendations.push('Logic model appears structurally sound. Proceed to stakeholder validation.');
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Keystone Diagnostic Report — ${escHtml(proj.name)}</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  body { font-family: 'IBM Plex Sans', sans-serif; color: #1a2740; background: #fff; margin: 0; padding: 40px; max-width: 860px; margin: 0 auto; }
-  h1 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #6b7a99; margin-bottom: 4px; }
-  h2 { font-size: 22px; font-weight: 700; color: #1a2740; margin-bottom: 4px; }
-  .meta { font-size: 13px; color: #6b7a99; margin-bottom: 6px; }
-  .divider { border: none; border-top: 2px solid #2d3f5e; margin: 24px 0 20px; }
-  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #2d3f5e; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #dde3ed; }
-  .type-heading { font-size: 14px; font-weight: 700; color: #2d3f5e; margin: 16px 0 8px; }
-  .score-box { display: inline-block; padding: 10px 20px; border-radius: 8px; font-size: 28px; font-weight: 700; color: #fff; background: ${score >= 70 ? '#16a34a' : score >= 40 ? '#f59e0b' : '#dc2626'}; margin-bottom: 8px; }
-  .rec-item { padding: 10px 14px; background: #f4f6f9; border-left: 3px solid #2d3f5e; margin-bottom: 8px; border-radius: 0 4px 4px 0; font-size: 13.5px; }
-  @media print { .page-break { page-break-before: always; } }
-</style>
-</head>
-<body>
-  <h1>Keystone Diagnostic Report</h1>
-  <h2>${escHtml(proj.name)}</h2>
-  <div class="meta">${escHtml(proj.department)}</div>
-  <div class="meta">Generated: ${new Date().toLocaleDateString('en-CA', {year:'numeric',month:'long',day:'numeric'})}</div>
-  <div class="meta">Mandate Classification: <strong>${escHtml(proj.mandate)}</strong></div>
-
-  <hr class="divider">
-  <div class="section-title">━━━ Programme Logic Model ━━━</div>
-  ${['Input','Activity','Output','Outcome'].map(type => `
-    <div class="type-heading">${type}s (${components.filter(c=>c.type===type).length})</div>
-    ${compRows(type)}`).join('')}
-
-  <div class="page-break"></div>
-  <hr class="divider">
-  <div class="section-title">━━━ Diagnostic Audit Findings ━━━</div>
-  <div class="score-box">${score}/100</div>
-  <div style="font-size:13px;color:#6b7a99;margin-bottom:16px;">${auditLog.length} risk${auditLog.length!==1?'s':''} detected</div>
-
-  <div style="margin-bottom:16px;">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#dc2626;margin-bottom:8px;">High Risk Flags (${highEntries.length})</div>
-    ${riskRows(highEntries)}
+</section>
+
+<div class="divider"></div>
+
+<section id="features" style="padding:100px 48px;max-width:100%">
+  <div class="features-header">
+    <div>
+      <div class="section-eyebrow">Platform Features</div>
+      <div class="section-title">Everything a policy analyst<br>needs to <em>defend</em> a framework</div>
+    </div>
+    <p class="section-body">Built for BC and Canadian government policy analysts. Every feature reflects the realities of logic model review &mdash; not generic project management.</p>
   </div>
-  <div style="margin-bottom:16px;">
-    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#b45309;margin-bottom:8px;">Medium Risk Flags (${medEntries.length})</div>
-    ${riskRows(medEntries)}
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-cyan">🔬</div>
+      <div class="feature-title">Live Logic Audit</div>
+      <div class="feature-desc">Seven rules check for structural gaps every time you add or edit a component. Dead Ends, Miracle Leaps, Blind Spots, Circular Logic, Orphaned Inputs, Scale Mismatches, and Duplicates &mdash; all caught automatically.</div>
+      <div class="feature-tag">Re-runs on Every Edit</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-blue">✨</div>
+      <div class="feature-title">AI Logic Model Generator</div>
+      <div class="feature-desc">Describe your initiative in plain language. The AI generates a full set of Inputs, Activities, Outputs, and Outcomes with benchmarks and verification sources &mdash; tailored to your mandate classification and existing components.</div>
+      <div class="feature-tag">Gemini AI &bull; Context-Aware</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-gold">📋</div>
+      <div class="feature-title">Executive Briefing</div>
+      <div class="feature-desc">Generate a print-ready diagnostic report: full logic model, Health Score, risk flags grouped by severity, and prioritised recommendations &mdash; formatted for a Deputy Minister or Treasury Board audience.</div>
+      <div class="feature-tag">Print-Ready PDF</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-green">💬</div>
+      <div class="feature-title">AI Diagnostic Narrative</div>
+      <div class="feature-desc">After the audit runs, generate a 2&ndash;3 paragraph plain-English briefing that translates each risk flag into context-specific language &mdash; written as if briefing a senior official with 90 seconds to read.</div>
+      <div class="feature-tag">Senior Official Tone</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-purp">🎯</div>
+      <div class="feature-title">Smart Verification Suggestions</div>
+      <div class="feature-desc">When a Blind Spot is flagged, the AI suggests three specific, named verification sources appropriate for that component type and mandate &mdash; including Nation-controlled data sources for DRIPA frameworks.</div>
+      <div class="feature-tag">OCAP-Aware</div>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon fi-red">📈</div>
+      <div class="feature-title">Score History Sparkline</div>
+      <div class="feature-desc">Every audit run records your Health Score. A micro trend chart shows whether your model is improving or degrading across edit sessions &mdash; keeping iteration visible at a glance.</div>
+      <div class="feature-tag">Per-Project Tracking</div>
+    </div>
   </div>
+</section>
 
-  <div class="page-break"></div>
-  <hr class="divider">
-  <div class="section-title">━━━ Recommendations ━━━</div>
-  ${recommendations.map(r => `<div class="rec-item">${escHtml(r)}</div>`).join('')}
-</body>
-</html>`;
+<div class="divider"></div>
 
-  const win = window.open('', '_blank');
-  if (win) { win.document.write(html); win.document.close(); }
-}
-</script>
+<section id="how" style="padding:100px 48px;max-width:100%;background:linear-gradient(180deg,transparent,rgba(29,78,216,0.04),transparent)">
+  <div class="how-steps">
+    <div>
+      <div class="section-eyebrow">How It Works</div>
+      <div class="section-title" style="margin-bottom:32px">From description<br>to <em>defensible</em> framework</div>
+      <p class="section-body" style="margin-bottom:40px">Keystone replaces days of manual logic model review with a structured, AI-assisted workflow that surfaces gaps before they reach a submission.</p>
+      <div class="steps-list">
+        <div class="step-item"><div class="step-num-large">01</div><div><div class="step-title">Create Your Project</div><div class="step-desc">Name your initiative and set the mandate classification. AI fills the form from a single plain-language sentence &mdash; or fill manually in under two minutes.</div></div></div>
+        <div class="step-item"><div class="step-num-large">02</div><div><div class="step-title">Build the Logic Model</div><div class="step-desc">Add Inputs, Activities, Outputs, and Outcomes manually &mdash; or use the AI Suggester to generate a full draft in seconds. Each component includes a description, benchmark, and verification source.</div></div></div>
+        <div class="step-item"><div class="step-num-large">03</div><div><div class="step-title">Read the Audit &amp; Fix Gaps</div><div class="step-desc">The live audit panel shows your Health Score and flags every structural weakness, grouped by severity. Click any flag to jump to the component. Use AI suggestions to fix Blind Spots instantly.</div></div></div>
+        <div class="step-item"><div class="step-num-large">04</div><div><div class="step-title">Generate the Briefing</div><div class="step-desc">Export an AI-written diagnostic narrative for your Director or DM, then generate a print-ready Executive Briefing to attach to a Treasury Board submission or programme review.</div></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="how-visual">
+        <div class="how-visual-title"><span class="pulse-dot"></span>Live Logic Audit Panel</div>
+        <div class="mock-score-row">
+          <div class="mock-gauge"><span class="mock-gauge-val">84</span></div>
+          <div><div class="mock-gauge-label">Health Score</div><div class="mock-gauge-sub">2M &middot; 0H detected</div></div>
+        </div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#fbbf24;margin-bottom:8px;">Medium Risk (2)</div>
+        <div class="mock-risk"><div class="mock-risk-label">Blind Spot</div><div class="mock-risk-msg">&ldquo;Joint Oversight Committee established&hellip;&rdquo; has no defined data source.</div></div>
+        <div class="mock-risk"><div class="mock-risk-label">Blind Spot</div><div class="mock-risk-msg">&ldquo;Hosted 2 introductory webinars&hellip;&rdquo; benchmark unverifiable.</div></div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#10b981;margin-bottom:8px;margin-top:10px;">No High Risk</div>
+        <div class="mock-risk ok"><div class="mock-risk-label">&#x2713; Logic Chain</div><div class="mock-risk-msg">Activities &rarr; Outputs &rarr; Outcomes chain structurally intact.</div></div>
+        <div class="mock-cov">
+          <div class="mock-cov-box"><div class="mock-cov-n">2</div><div class="mock-cov-t">Inputs</div></div>
+          <div class="mock-cov-box"><div class="mock-cov-n">2</div><div class="mock-cov-t">Activities</div></div>
+          <div class="mock-cov-box"><div class="mock-cov-n">2</div><div class="mock-cov-t">Outputs</div></div>
+          <div class="mock-cov-box"><div class="mock-cov-n">2</div><div class="mock-cov-t">Outcomes</div></div>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);font-size:9px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace">8 components &middot; Last checked: just now &middot; Score trend &#x25B2;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="audit-rules" style="padding:100px 48px;max-width:100%">
+  <div style="max-width:1200px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:8px">
+      <div class="section-eyebrow" style="justify-content:center;display:flex">Audit Engine</div>
+      <div class="section-title" style="font-size:clamp(36px,5vw,52px)">Seven rules. <em>Zero gaps.</em></div>
+      <p class="section-body" style="margin:0 auto;text-align:center;max-width:520px">The audit engine runs seven structural checks every time a component is added or edited. Each rule targets a distinct failure mode in policy logic.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card rule-high reveal"><div class="rule-label">High Risk</div><div class="rule-name">Dead End</div><div class="rule-desc">Activities with no mapped Outputs or Outcomes. Resources committed to actions that produce no documented deliverable &mdash; making the activity unaccountable and unevaluable.</div></div>
+      <div class="rule-card rule-med reveal"><div class="rule-label">Medium Risk</div><div class="rule-name">Miracle Leap</div><div class="rule-desc">A major systemic outcome claimed from activities structurally insufficient to produce it. Fires when 60%+ of activities are low-leverage (meetings, webinars, surveys). Severity scales with ratio.</div></div>
+      <div class="rule-card rule-med reveal"><div class="rule-label">Medium Risk</div><div class="rule-name">Blind Spot</div><div class="rule-desc">An Output or Outcome with no defined verification source. Without a named tracking mechanism, the benchmark cannot be measured, reported on, or audited by Treasury Board.</div></div>
+      <div class="rule-card rule-med reveal"><div class="rule-label">Medium Risk</div><div class="rule-name">Circular Logic</div><div class="rule-desc">An Outcome that semantically mirrors an Activity &mdash; the causal chain loops back rather than progressing. Detected via word overlap analysis across component descriptions.</div></div>
+      <div class="rule-card rule-low reveal"><div class="rule-label">Advisory</div><div class="rule-name">Orphaned Input</div><div class="rule-desc">An Input whose subject matter appears in no Activity. Resources committed but never consumed by the logic chain &mdash; a silent budget accountability gap that auditors will find.</div></div>
+      <div class="rule-card rule-low reveal"><div class="rule-label">Advisory</div><div class="rule-name">Scale Mismatch</div><div class="rule-desc">An Outcome sets a quantified target but no Activity has a benchmark. Without measurable activity-level commitments, scale of effort cannot be shown to match scale of ambition.</div></div>
+      <div class="rule-card rule-low reveal" style="grid-column:1/-1;max-width:380px;margin:0 auto;"><div class="rule-label">Advisory</div><div class="rule-name">Duplicate Component</div><div class="rule-desc">Two components of the same type with high semantic overlap &mdash; redundant entries that inflate the appearance of coverage without adding analytical value to the model.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="mandates" style="padding:80px 48px;max-width:100%;background:rgba(0,0,0,0.15)">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-title reveal" style="text-align:center;font-size:clamp(28px,4vw,42px);margin-bottom:8px">Mandate classifications supported</div>
+    <p class="section-body reveal" style="text-align:center;margin:0 auto;max-width:520px">Each mandate adapts AI prompts, verification source suggestions, and audit language to the specific context of the work.</p>
+    <div class="mandates-grid">
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#fbbf24"></span>DRIPA Alignment</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#a5b4fc"></span>Self-Government Transition</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#93c5fd"></span>Service Delivery</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#34d399"></span>Economic Development</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#00c2ff"></span>OCAP &bull; Data Sovereignty</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#fb7185"></span>Section 7 Joint Decision-Making</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#f97316"></span>Treasury Board Submissions</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#818cf8"></span>UNDRIP &bull; TRC Implementation</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#10b981"></span>Health &bull; Education &bull; Social Services</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#b8860b"></span>Land Use &bull; Resource Revenue</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#06b6d4"></span>Jurisdiction Transfer</div>
+      <div class="mandate-pill reveal"><span class="mandate-dot" style="background:#84cc16"></span>Nation-to-Nation Governance</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="about" style="padding:100px 48px;max-width:100%">
+  <div class="about-grid" style="max-width:1200px;margin:0 auto">
+    <div class="about-card reveal">
+      <div class="about-name">Anthony Coompson</div>
+      <div class="about-role">Policy &amp; Research Professional &bull; Vancouver, BC</div>
+      <div class="about-bio">With experience spanning Indigenous policy, government relations, health policy, international student services, and higher education, Anthony brings deep domain expertise to the intersection of technology and policy analysis.</div>
+      <div class="about-bio">Previous roles at the First Nations Health Authority, Midwives Association of BC, UBC, and the International Organization for Migration have shaped a uniquely cross-sector perspective on Canadian policy logic and evaluation.</div>
+      <div class="about-expertise">
+        <span class="expertise-tag">Indigenous Policy</span>
+        <span class="expertise-tag">Government Relations</span>
+        <span class="expertise-tag">Higher Education</span>
+        <span class="expertise-tag">Health Policy</span>
+        <span class="expertise-tag">UNDRIP &bull; DRIPA &bull; TRC</span>
+        <span class="expertise-tag">OCAP</span>
+        <span class="expertise-tag">Logic Models</span>
+        <span class="expertise-tag">Programme Evaluation</span>
+      </div>
+    </div>
+    <div class="about-content reveal">
+      <div class="section-eyebrow">About Keystone</div>
+      <div class="section-title" style="font-size:clamp(28px,3.5vw,42px)">Built from the<br><em>inside</em> of policy work</div>
+      <p class="section-body">Keystone was built out of a direct need &mdash; the gap between the rigour that Treasury Board and Deputy Ministers expect in policy logic, and the informal, undocumented way most logic models are actually assembled.</p>
+      <blockquote>Policy analysts shouldn&rsquo;t spend three days in Word trying to find the hole in a logic chain that an audit engine can flag in three seconds.</blockquote>
+      <p class="section-body">Every audit rule reflects a real accountability failure seen in government policy submissions: the activity that goes nowhere, the systemic outcome that no webinar series can deliver, the benchmark that no one knows how to track.</p>
+    </div>
+  </div>
+</section>
+
+<section id="cta" style="padding:100px 48px;max-width:100%;text-align:center;position:relative;overflow:hidden">
+  <div class="cta-bg-glow"></div>
+  <div class="cta-inner reveal">
+    <div class="section-eyebrow" style="justify-content:center;display:flex">Ready to begin</div>
+    <div class="cta-title">Logic model integrity<br>at your fingertips</div>
+    <p class="cta-sub">Open Keystone to build, audit, and defend your policy framework &mdash; free, local, and AI-powered. No login required. No data leaves your browser.</p>
+    <div class="cta-actions">
+      <a href="app.html" class="btn-primary-hero">Open Keystone &rarr;</a>
+      <a href="#features" class="btn-secondary-hero">&#x25B6; See Features</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">
+    <div class="footer-logo-mark">
+      <svg width="16" height="16" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,10 26,18 14,26 2,18 2,10" fill="none" stroke="#fff" stroke-width="1.5"/><polygon points="14,11 18,13.5 18,16.5 14,19 10,16.5 10,13.5" fill="#fff"/></svg>
+    </div>
+    <span class="footer-name">Keystone</span>
+  </div>
+  <div class="footer-right">Built by Anthony Coompson &bull; Vancouver, BC &bull; <a href="app.html" style="color:#00c2ff;text-decoration:none">Open App &rarr;</a></div>
+</footer>
 
 <script>
-/* ── Demo Project Seed ── */
-function seedDemoProject() {
-  const existing = getData('ks_projects');
-  if (existing.length > 0) return;
-
-  const proj = {
-    id: 'demo-001',
-    name: 'DRIPA Section 7 Joint Decision-Making Agreement',
-    department: 'BC Ministry of Indigenous Relations and Reconciliation',
-    description: 'Implementation of a joint decision-making framework with the Ktunaxa Nation under DRIPA Section 7, covering land use planning in the Columbia Basin region.',
-    mandate: 'DRIPA Alignment',
-    createdAt: '2025-09-15T09:00:00Z'
-  };
-  setData('ks_projects', [proj]);
-
-  const comps = [
-    { type: 'Input',    description: 'Federal-Provincial Reconciliation Fund allocation: $2.4M over 3 fiscal years',                                                targetBenchmark: '$2.4M committed by Q1 FY2026',                                    verificationSource: 'Treasury Board Submission #2025-447' },
-    { type: 'Input',    description: '3.0 FTE Policy Analysts assigned to Joint Secretariat',                                                                       targetBenchmark: 'Positions filled by October 2025',                                verificationSource: 'HRMS workforce report' },
-    { type: 'Activity', description: 'Hosted 2 introductory webinars on DRIPA Section 7 obligations',                                                               targetBenchmark: '2 sessions completed',                                            verificationSource: '' },
-    { type: 'Activity', description: 'Co-drafted joint decision-making agreement text through 14 formal negotiation sessions',                                       targetBenchmark: '14 sessions, agreement initialled',                               verificationSource: 'Negotiation session minutes, legal counsel sign-off' },
-    { type: 'Output',   description: 'Joint Decision-Making Agreement signed by Minister and Ktunaxa Nation Council',                                               targetBenchmark: '1 agreement executed by March 2026',                              verificationSource: 'BC Gazette publication, Ktunaxa Nation Council resolution' },
-    { type: 'Output',   description: 'Joint Oversight Committee established with co-chairs',                                                                        targetBenchmark: 'Committee constituted, Terms of Reference approved',              verificationSource: '' },
-    { type: 'Outcome',  description: 'Recognized Ktunaxa Nation jurisdiction over land use decisions in 340,000 hectares of the Columbia Basin',                    targetBenchmark: 'Legal recognition in place, 0 unilateral provincial decisions in scoped area', verificationSource: 'Annual compliance audit, legal review' },
-    { type: 'Outcome',  description: 'Increased community data sovereignty: all land data collected in scoped area governed under OCAP principles',                  targetBenchmark: 'Data governance protocol ratified',                               verificationSource: 'Ktunaxa Nation data stewardship committee confirmation' }
-  ].map(c => ({ ...c, id: generateId(), projectId: 'demo-001' }));
-
-  setData('ks_components', comps);
-}
-
-/* ── App Init ── */
-function init() {
-  seedDemoProject();
-
-  const projects = getData('ks_projects');
-  if (projects.length > 0) {
-    // Set demo-001 or first project as active
-    const demoProj = projects.find(p => p.id === 'demo-001') || projects[0];
-    setActiveProject(demoProj.id);
-  }
-
-  currentStep = 0;
-  showView('new-framework');
-}
-
-init();
+var revealEls=document.querySelectorAll('.reveal');
+var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.1});
+revealEls.forEach(function(el){obs.observe(el);});
+document.querySelectorAll('.feature-card').forEach(function(c,i){c.style.transitionDelay=(i*0.07)+'s';});
+document.querySelectorAll('.rule-card').forEach(function(c,i){c.style.transitionDelay=(i*0.06)+'s';});
+document.querySelectorAll('.mandate-pill').forEach(function(p,i){p.style.transitionDelay=(i*0.04)+'s';});
+window.addEventListener('scroll',function(){document.querySelector('nav').style.borderBottomColor=window.scrollY>60?'rgba(255,255,255,0.08)':'rgba(255,255,255,0.04)';});
 </script>
 </body>
 </html>

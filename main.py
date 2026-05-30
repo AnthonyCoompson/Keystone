@@ -38,6 +38,7 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 class SuggestComponentsRequest:
     initiative_description: str
     mandate: str = "Service Delivery"
+    existing_components: list = None  # list of {type, description} already in the model
 
 
 @dataclass
@@ -86,14 +87,25 @@ async def suggest_components(req: SuggestComponentsRequest):
     """
     Given a plain-text description of a policy initiative, generate a full
     set of Inputs, Activities, Outputs, and Outcomes.
+    Accepts optional existing_components to avoid duplication.
     """
+    existing_text = ""
+    if req.existing_components:
+        lines = [f"  - [{c.get('type','?')}] {c.get('description','')}" for c in req.existing_components]
+        existing_text = f"""
+The analyst's logic model already contains the following components — do NOT duplicate or closely restate any of these:
+{chr(10).join(lines)}
+
+Generate only NEW components that complement and extend the existing model without overlap.
+"""
+
     prompt = f"""You are an expert Canadian government policy analyst specialising in logic models and programme theory.
 
 A policy analyst has described their initiative as follows:
 "{req.initiative_description}"
 
 Mandate classification: {req.mandate}
-
+{existing_text}
 Generate a realistic, professional logic model for this initiative. Return ONLY a valid JSON object with this exact structure — no markdown, no explanation:
 
 {{
@@ -117,6 +129,8 @@ Rules:
 - Target benchmarks must be measurable (quantities, dates, percentages)
 - Verification sources must name real mechanisms (e.g., Treasury Board submission, FNHA quarterly report, BC Gazette, community survey instrument)
 - For DRIPA Alignment or Self-Government Transition mandates, reference Indigenous governance bodies, OCAP principles, and Nation-specific data stewardship where appropriate
+- Outcomes must describe systemic changes caused by the activities — not restate the activities themselves
+- Each component type must serve a distinct causal role: Inputs are resources, Activities are actions, Outputs are deliverables, Outcomes are systemic changes
 - Use formal Canadian government policy language
 - Return ONLY the JSON object, nothing else"""
 
@@ -160,6 +174,15 @@ Logic Model Components:
 Audit Findings:
 {findings_text}
 
+Error type reference (translate these into plain language — never use the technical names):
+- Dead_End: an activity with no deliverable or outcome attached — resources going nowhere
+- Miracle_Leap: a systemic outcome that the stated activities are too weak to produce
+- Blind_Spot: a benchmark or outcome with no named tracking mechanism
+- Circular_Logic: an outcome that essentially restates an activity rather than describing change caused by it
+- Orphaned_Input: a resource committed to the model that no activity actually uses
+- Scale_Mismatch: a quantified outcome target with no matching activity-level benchmarks to show the effort is proportionate
+- Duplicate_Component: two components of the same type that describe the same thing
+
 Write a 2–3 paragraph plain-English diagnostic narrative that:
 1. Opens with a one-sentence overall assessment of the logic model's structural integrity
 2. Explains what the specific risk flags mean in the context of THIS project (not generic definitions)
@@ -167,7 +190,7 @@ Write a 2–3 paragraph plain-English diagnostic narrative that:
 
 Tone: professional, direct, non-jargon where possible. Write as if briefing a senior official who has 90 seconds to read this.
 Do NOT use bullet points. Write in flowing paragraphs only.
-Do NOT repeat the flag names verbatim — translate them into plain language.
+Do NOT repeat the flag technical names verbatim — translate them into plain language.
 Return ONLY the narrative text, no headings, no markdown."""
 
     try:
