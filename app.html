@@ -1080,10 +1080,6 @@ async function aiFetch(endpoint, payload) {
   if (!getGeminiKey()) throw new Error('NO_KEY');
   return await geminiClientFallback(endpoint, payload);
 }
-  // Client-side Gemini direct API fallback
-  if (!getGeminiKey()) throw new Error('NO_KEY');
-  return await geminiClientFallback(endpoint, payload);
-}
 
 /* Build prompts and call Gemini directly for each endpoint */
 async function geminiClientFallback(endpoint, payload) {
