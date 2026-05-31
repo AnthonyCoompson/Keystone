@@ -172,6 +172,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .component-item-desc { flex: 1; font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btn-delete-component { background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 5px; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
 .btn-delete-component:hover { color: #fb7185; background: rgba(196,30,58,0.1); }
+.ai-example-chip { background: rgba(0,194,255,0.07); border: 1px solid rgba(0,194,255,0.2); color: var(--cyan); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; cursor: pointer; font-family: var(--font); transition: background 0.15s; white-space: nowrap; }
+.ai-example-chip:hover { background: rgba(0,194,255,0.15); }
 .btn-improve { background: none; border: 1px solid rgba(129,140,248,0.3); color: #a5b4fc; font-size: 11px; padding: 2px 7px; border-radius: 4px; cursor: pointer; transition: background 0.15s; flex-shrink: 0; white-space: nowrap; }
 .btn-improve:hover { background: rgba(129,140,248,0.1); }
 .btn-improve:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -292,6 +294,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ai-loading::before { content: ''; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .component-item-desc.editable { cursor: text; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.comp-edit-panel { display: none; margin-top: 8px; padding: 10px; background: var(--bg2); border-radius: 6px; border: 1px solid var(--border); }
+.comp-edit-panel.open { display: block; }
+.comp-edit-field { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 12px; color: var(--text); background: var(--input-bg); font-family: var(--font); margin-bottom: 6px; }
+.comp-edit-field:focus { border-color: var(--cyan); outline: none; }
+.comp-edit-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; display: block; }
+.comp-edit-save { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; border: none; padding: 5px 14px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.comp-edit-save:hover { opacity: 0.9; }
+.btn-expand-comp { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 11px; padding: 2px 6px; border-radius: 4px; cursor: pointer; flex-shrink: 0; transition: all 0.15s; line-height: 1.4; }
+.btn-expand-comp:hover { border-color: var(--cyan); color: var(--cyan); }
+.btn-expand-comp.open { border-color: var(--cyan); color: var(--cyan); background: rgba(0,194,255,0.07); }
 .component-item-desc.editable:hover { background: var(--hover-bg); }
 .component-item-desc[contenteditable="true"] { outline: 2px solid var(--cyan); background: var(--bg); border-radius: 3px; padding: 2px 5px; white-space: normal; overflow: visible; cursor: text; min-width: 60px; }
 .risk-group-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 0 6px; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
@@ -545,7 +557,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 </span>
               </div>
               <div class="ai-suggest-bar-body" id="ai-suggest-bar-body">
-                <textarea id="ai-suggest-input" placeholder="Describe your policy initiative in plain language... e.g. 'A joint decision-making agreement with the Nisga'a Nation on child welfare jurisdiction under DRIPA Section 7'" rows="2"></textarea>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;">
+                  <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);align-self:center;flex-shrink:0;">Try:</span>
+                  <button class="ai-example-chip" onclick="document.getElementById('ai-suggest-input').value=this.dataset.ex;document.getElementById('ai-suggest-input').focus();" data-ex="A DRIPA Section 7 joint decision-making agreement on child welfare jurisdiction with a First Nation">Child welfare jurisdiction</button>
+                  <button class="ai-example-chip" onclick="document.getElementById('ai-suggest-input').value=this.dataset.ex;document.getElementById('ai-suggest-input').focus();" data-ex="A self-government transition framework transferring land use planning authority to the Haida Nation">Land use authority transfer</button>
+                  <button class="ai-example-chip" onclick="document.getElementById('ai-suggest-input').value=this.dataset.ex;document.getElementById('ai-suggest-input').focus();" data-ex="An Indigenous health service delivery programme expanding First Nations Health Authority coverage to remote communities">Health service delivery</button>
+                </div>
+                <textarea id="ai-suggest-input" placeholder="Describe your policy initiative in plain language…" rows="2"></textarea>
                 <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
                   <button class="btn-ai-suggest-components" id="btn-ai-suggest">✨ Generate Full Logic Model</button>
                   <span id="ai-suggest-loading" style="display:none;" class="ai-loading">Generating...</span>
@@ -634,7 +652,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
               </div>
             </div>
             <div class="component-list-section" id="component-list-section">
-              <div class="component-list-title">Framework Components</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <div class="component-list-title" style="margin-bottom:0;">Framework Components</div>
+                <input type="text" id="component-filter" placeholder="Filter…" style="padding:4px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--input-bg);color:var(--text);width:130px;font-family:var(--font);" oninput="filterComponents(this.value)">
+              </div>
               <div id="component-list"></div>
             </div>
           </div>
@@ -799,7 +820,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="qs-demo-box">
             <strong>Try it:</strong> Click <strong>Active Projects</strong> in the sidebar, then <strong>+ New Project</strong>. Or use the <strong>✨ AI Fill</strong> button — describe your initiative in plain language and Keystone will fill the form automatically.
           </div>
-          <div class="qs-nav"><span></span><button class="btn-primary" id="qs-btn-next-0">Next →</button></div>
+          <div class="qs-nav">
+            <button class="btn-secondary" onclick="showView('projects');openModal();">→ Create a project now</button>
+            <button class="btn-primary" id="qs-btn-next-0">Next →</button>
+          </div>
         </div>
         <div class="qs-step-panel" data-qs-panel="1">
           <div class="qs-step-title">Step 2: Add Logic Model Components</div>
@@ -807,7 +831,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="qs-demo-box">
             <strong>Shortcut:</strong> Use the <strong>✨ AI Component Suggester</strong> in the Framework Builder — describe your initiative and Keystone generates a complete logic model in seconds. You can then edit, delete, or add to the suggestions.
           </div>
-          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-1">← Back</button><button class="btn-primary" id="qs-btn-next-1">Next →</button></div>
+          <div class="qs-nav">
+            <button class="btn-secondary" id="qs-btn-prev-1">← Back</button>
+            <button class="btn-secondary" onclick="showView('new-framework');">→ Open Framework Builder</button>
+            <button class="btn-primary" id="qs-btn-next-1">Next →</button>
+          </div>
         </div>
         <div class="qs-step-panel" data-qs-panel="2">
           <div class="qs-step-title">Step 3: Read the Logic Audit</div>
@@ -815,7 +843,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="qs-demo-box">
             <strong>Key rules:</strong> Dead End (activities with no outputs), Miracle Leap (weak activities claiming major outcomes), Blind Spot (no verification source), Circular Logic (outcome restates an activity), Orphaned Input, Scale Mismatch, Duplicate Component.
           </div>
-          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-2">← Back</button><button class="btn-primary" id="qs-btn-next-2">Next →</button></div>
+          <div class="qs-nav">
+            <button class="btn-secondary" id="qs-btn-prev-2">← Back</button>
+            <button class="btn-secondary" onclick="showView('reference');">→ View all audit rules</button>
+            <button class="btn-primary" id="qs-btn-next-2">Next →</button>
+          </div>
         </div>
         <div class="qs-step-panel" data-qs-panel="3">
           <div class="qs-step-title">Step 4: Use AI Features</div>
@@ -827,7 +859,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <strong>✨ Improve Description</strong> — rewrites vague component descriptions.<br>
             <strong>✨ AI Fill (New Project)</strong> — auto-fills the project form from plain language.
           </div>
-          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-3">← Back</button><button class="btn-primary" id="qs-btn-next-3">Next →</button></div>
+          <div class="qs-nav">
+            <button class="btn-secondary" id="qs-btn-prev-3">← Back</button>
+            <button class="btn-secondary" onclick="showView('new-framework');">→ Try AI features</button>
+            <button class="btn-primary" id="qs-btn-next-3">Next →</button>
+          </div>
         </div>
         <div class="qs-step-panel" data-qs-panel="4">
           <div class="qs-step-title">Step 5: Export &amp; Share</div>
@@ -836,7 +872,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <strong>Executive Briefing</strong> — generates a print-ready diagnostic report with the full logic model, audit findings, and recommendations. Open it from the audit panel.<br><br>
             <strong>JSON Export</strong> — exports the full project (components + audit log) as a JSON file for sharing with colleagues or importing into another Keystone instance. Find it on the project card in Active Projects.
           </div>
-          <div class="qs-nav"><button class="btn-secondary" id="qs-btn-prev-4">← Back</button><button class="btn-primary" onclick="showView('new-framework')">Start Building →</button></div>
+          <div class="qs-nav">
+            <button class="btn-secondary" id="qs-btn-prev-4">← Back</button>
+            <button class="btn-secondary" onclick="showView('document-analysis');">→ Try Document Analysis</button>
+            <button class="btn-primary" onclick="showView('new-framework')">Start Building →</button>
+          </div>
         </div>
       </div>
     </div>
@@ -932,17 +972,41 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     </div>
     <div class="form-group">
       <label class="form-label" for="modal-mandate">Mandate Classification</label>
-      <select class="form-control" id="modal-mandate">
-        <option value="DRIPA Alignment">DRIPA Alignment</option>
-        <option value="Self-Government Transition">Self-Government Transition</option>
-        <option value="Service Delivery">Service Delivery</option>
-        <option value="Economic Development">Economic Development</option>
-      </select>
+      <select class="form-control" id="modal-mandate" data-mandate-select="true"></select>
     </div>
     <div class="modal-footer">
       <span id="modal-ai-loading" style="display:none;" class="ai-loading">AI filling form...</span>
       <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
       <button class="btn-modal-submit" id="btn-modal-submit">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal-overlay" id="modal-edit-project">
+  <div class="modal">
+    <div class="modal-title">Edit Project</div>
+    <div class="form-group">
+      <label class="form-label" for="edit-modal-name">Project Name <span class="required">*</span></label>
+      <input type="text" class="form-control" id="edit-modal-name" placeholder="e.g., DRIPA Section 7 Joint Decision-Making Agreement">
+      <div class="form-error" id="edit-modal-err-name">Project name is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="edit-modal-dept">Department <span class="required">*</span></label>
+      <input type="text" class="form-control" id="edit-modal-dept" placeholder="e.g., BC Ministry of Indigenous Relations and Reconciliation">
+      <div class="form-error" id="edit-modal-err-dept">Department is required.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="edit-modal-desc">Description</label>
+      <textarea class="form-control" id="edit-modal-desc" rows="3"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="edit-modal-mandate">Mandate Classification</label>
+      <select class="form-control" id="edit-modal-mandate" data-mandate-select="true"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-edit-modal-cancel">Cancel</button>
+      <button class="btn-modal-submit" id="btn-edit-modal-submit">Save Changes</button>
     </div>
   </div>
 </div>
@@ -956,7 +1020,17 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* ── Storage Helpers ── */
 function getData(key) { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : []; } catch(e) { return []; } }
-function setData(key, array) { localStorage.setItem(key, JSON.stringify(array)); }
+function setData(key, array) {
+  try {
+    localStorage.setItem(key, JSON.stringify(array));
+  } catch(e) {
+    if (e.name === 'QuotaExceededError' || e.code === 22) {
+      showToast('Storage full — some data may not have saved. Export your projects to free up space.', true);
+    } else {
+      throw e;
+    }
+  }
+}
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
 /* ── App State ── */
@@ -964,6 +1038,7 @@ let activeProjectId = null;
 let currentStep = 0;
 let auditLastChecked = Date.now();
 const STEPS = ['Input', 'Activity', 'Output', 'Outcome'];
+const MANDATES = ['DRIPA Alignment', 'Self-Government Transition', 'Service Delivery', 'Economic Development'];
 
 /* ── AI API Base URL (auto-detects local vs deployed) ── */
 /* ── AI Backend URL ──────────────────────────────────────────────────────────
@@ -1014,10 +1089,20 @@ async function aiFetch(endpoint, payload) {
 /* ── Toast ── */
 function showToast(msg, isError = false) {
   const t = document.getElementById('ai-toast');
-  t.textContent = msg;
+  // Sanitise raw server/stack-trace errors — truncate and clean up
+  let display = msg;
+  if (isError && msg && msg.length > 140) {
+    display = msg.slice(0, 137) + '…';
+  }
+  // Don't show raw Python tracebacks
+  if (isError && msg && (msg.includes('Traceback') || msg.includes('File "/'))) {
+    display = 'Server error — check Render logs for details.';
+  }
+  t.textContent = display;
   t.className = 'ai-toast show' + (isError ? ' error' : '');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => { t.className = 'ai-toast'; }, 3500);
+  // Longer display time for errors
+  t._timer = setTimeout(() => { t.className = 'ai-toast'; }, isError ? 6000 : 3500);
 }
 
 /* ── Badge Helpers ── */
@@ -1058,8 +1143,9 @@ const PERCENT_PATTERN   = /(\d+)\s*%/;
 const NUMBER_PATTERN    = /\b(\d{2,})\b/;
 
 function wordOverlap(a, b) {
-  const wordsA = new Set(a.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 3));
-  const wordsB = b.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 3);
+  // threshold > 2 to capture short but meaningful policy terms (act, law, FTE, etc.)
+  const wordsA = new Set(a.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 2));
+  const wordsB = b.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 2);
   if (!wordsB.length) return 0;
   return wordsB.filter(w => wordsA.has(w)).length / wordsB.length;
 }
@@ -1193,19 +1279,21 @@ function runAuditEngine(projectId) {
 }
 
 function calcHealthScoreFromEntries(entries) {
+  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length);
   return Math.max(0, 100
     - (entries.filter(e => e.riskLevel === 'High').length * 20)
     - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
-    - (entries.filter(e => e.riskLevel === 'Low').length * 3)
+    - lowPenalty
   );
 }
 
 function calcHealthScore(projectId) {
   const entries = getData('ks_audit_log').filter(e => e.projectId === projectId);
+  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length);
   return Math.max(0, 100
     - (entries.filter(e => e.riskLevel === 'High').length * 20)
     - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
-    - (entries.filter(e => e.riskLevel === 'Low').length * 3)
+    - lowPenalty
   );
 }
 
@@ -1355,11 +1443,19 @@ function renderAuditPanel() {
       el.addEventListener('click', () => {
         const id = el.dataset.scrollComp;
         if (!id) return;
-        const item = document.querySelector(`.component-item[data-id="${id}"]`);
-        if (!item) return;
-        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        item.classList.add('highlight');
-        setTimeout(() => item.classList.remove('highlight'), 2000);
+        // Switch to builder view first if not already there
+        const builderPanel = document.getElementById('view-new-framework');
+        if (!builderPanel.classList.contains('active')) {
+          showView('new-framework');
+        }
+        // Wait for view transition then scroll
+        setTimeout(() => {
+          const item = document.querySelector(`.component-item[data-id="${id}"]`);
+          if (!item) return;
+          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          item.classList.add('highlight');
+          setTimeout(() => item.classList.remove('highlight'), 2000);
+        }, 250);
       });
     });
   }
@@ -1400,13 +1496,28 @@ function renderFormPanel() {
     renderAuditPanel(); return;
   }
   notice.style.display = 'none'; stepForms.style.display = 'block'; footer.style.display = 'flex';
+  // Re-apply AI suggest bar collapsed state (DOM is rebuilt on each view switch)
+  const suggestBar = document.getElementById('ai-suggest-bar');
+  const suggestLabel = document.getElementById('ai-suggest-toggle-label');
+  if (suggestBar && suggestLabel) {
+    const collapsed = localStorage.getItem('ks_suggest_collapsed') === '1';
+    suggestBar.classList.toggle('collapsed', collapsed);
+    suggestLabel.textContent = collapsed ? 'expand' : 'collapse';
+  }
   renderStepIndicator(); renderComponentList(); renderAuditPanel();
 }
 
 function renderStepIndicator() {
+  const comps = activeProjectId ? getData('ks_components').filter(c => c.projectId === activeProjectId) : [];
   document.querySelectorAll('.step-item').forEach((item, i) => {
     item.classList.toggle('active', i === currentStep);
     item.classList.toggle('completed', i < currentStep);
+    // Update count badge on each step label
+    const label = item.querySelector('.step-label');
+    if (label) {
+      const count = comps.filter(c => c.type === STEPS[i]).length;
+      label.textContent = count > 0 ? `${STEPS[i]} (${count})` : STEPS[i];
+    }
   });
   document.querySelectorAll('.step-content').forEach((c, i) => c.classList.toggle('active', i === currentStep));
   document.getElementById('btn-prev').disabled = currentStep === 0;
@@ -1430,12 +1541,23 @@ function renderComponentList() {
       const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
         ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe === 'short' ? '< 1yr' : comp.timeframe === 'medium' ? '1–3yr' : '3yr+'}</span>`
         : '';
-      html += `<div class="component-item" data-id="${comp.id}">
-        <span class="badge ${typeBadgeClass(type)}">${type}</span>
-        ${timeframeBadge}
-        <span class="component-item-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
-        <button class="btn-improve" data-id="${comp.id}" title="AI: Improve this description">✨</button>
-        <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
+      html += `<div class="component-item" data-id="${comp.id}" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge ${typeBadgeClass(type)}">${type}</span>
+          ${timeframeBadge}
+          <span class="component-item-desc editable" data-id="${comp.id}" title="Click to edit description">${escHtml(desc)}</span>
+          <button class="btn-expand-comp" data-id="${comp.id}" title="Edit benchmark &amp; verification source">⋯</button>
+          <button class="btn-improve" data-id="${comp.id}" title="AI: Improve this description">✨</button>
+          <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
+        </div>
+        <div class="comp-edit-panel" id="edit-panel-${comp.id}">
+          <label class="comp-edit-label">Target Benchmark</label>
+          <input class="comp-edit-field" id="edit-bench-${comp.id}" value="${escHtml(comp.targetBenchmark||'')}" placeholder="e.g. 2 sessions completed by Q3">
+          <label class="comp-edit-label">Verification / Data Source</label>
+          <input class="comp-edit-field" id="edit-src-${comp.id}" value="${escHtml(comp.verificationSource||'')}" placeholder="e.g. FNHA quarterly report, BC Gazette">
+          ${comp.type === 'Outcome' ? `<label class="comp-edit-label">Timeframe</label><select class="comp-edit-field" id="edit-tf-${comp.id}"><option value="short" ${comp.timeframe==='short'?'selected':''}>Short-term (&lt;1 year)</option><option value="medium" ${comp.timeframe==='medium'||!comp.timeframe?'selected':''}>Medium-term (1–3 years)</option><option value="long" ${comp.timeframe==='long'?'selected':''}>Long-term (3+ years)</option></select>` : ''}
+          <button class="comp-edit-save" data-id="${comp.id}">Save</button>
+        </div>
       </div>`;
     });
     html += '</div>';
@@ -1476,17 +1598,84 @@ function renderComponentList() {
 
   container.querySelectorAll('.btn-delete-component').forEach(btn => {
     btn.addEventListener('click', () => {
-      const comp = getData('ks_components').find(c => c.id === btn.dataset.id);
-      const label = comp ? comp.description.slice(0, 60) : 'this component';
-      if (window.confirm(`Remove component: "${label}"?\n\nThis will re-run the logic audit.`)) {
-        setData('ks_components', getData('ks_components').filter(c => c.id !== btn.dataset.id));
+      const allComps = getData('ks_components');
+      const comp = allComps.find(c => c.id === btn.dataset.id);
+      if (!comp) return;
+      // Remove immediately
+      setData('ks_components', allComps.filter(c => c.id !== btn.dataset.id));
+      runAuditEngine(activeProjectId); renderComponentList();
+      // Show undo toast for 5 seconds
+      let undone = false;
+      const toast = document.getElementById('ai-toast');
+      toast.innerHTML = `Removed "${comp.description.slice(0,40)}…" <button onclick="window.__undoDelete && window.__undoDelete()" style="margin-left:10px;background:rgba(255,255,255,0.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">Undo</button>`;
+      toast.className = 'ai-toast show';
+      clearTimeout(toast._timer);
+      window.__undoDelete = () => {
+        if (undone) return;
+        undone = true;
+        const current = getData('ks_components');
+        // Re-insert at original position
+        setData('ks_components', [...current, comp]);
         runAuditEngine(activeProjectId); renderComponentList();
-      }
+        toast.className = 'ai-toast';
+        showToast('Component restored.');
+        window.__undoDelete = null;
+      };
+      toast._timer = setTimeout(() => {
+        if (!undone) { toast.className = 'ai-toast'; window.__undoDelete = null; }
+      }, 5000);
     });
   });
 
   container.querySelectorAll('.btn-improve').forEach(btn => {
     btn.addEventListener('click', () => aiImproveDescription(btn));
+  });
+
+  // Expand/collapse inline edit panel
+  container.querySelectorAll('.btn-expand-comp').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById('edit-panel-' + btn.dataset.id);
+      if (!panel) return;
+      const isOpen = panel.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+    });
+  });
+
+  // Save inline edit (benchmark + verification + timeframe)
+  container.querySelectorAll('.comp-edit-save').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const bench = document.getElementById('edit-bench-' + id);
+      const src   = document.getElementById('edit-src-'   + id);
+      const tf    = document.getElementById('edit-tf-'    + id);
+      if (!bench || !src) return;
+      const comps = getData('ks_components');
+      const updated = comps.map(c => {
+        if (c.id !== id) return c;
+        const u = { ...c, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim() };
+        if (tf) u.timeframe = tf.value;
+        return u;
+      });
+      setData('ks_components', updated);
+      runAuditEngine(activeProjectId);
+      renderComponentList();
+      showToast('Component updated.');
+    });
+  });
+}
+
+function filterComponents(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.component-group').forEach(group => {
+    let groupHasVisible = false;
+    group.querySelectorAll('.component-item').forEach(item => {
+      const descEl = item.querySelector('.component-item-desc');
+      const text = (descEl ? descEl.textContent : '').toLowerCase();
+      const visible = !q || text.includes(q);
+      item.style.display = visible ? '' : 'none';
+      if (visible) groupHasVisible = true;
+    });
+    group.style.display = groupHasVisible ? '' : 'none';
   });
 }
 
@@ -1540,14 +1729,18 @@ function renderProjects() {
     const highCount  = auditLog.filter(e => e.riskLevel === 'High').length;
     const medCount   = auditLog.filter(e => e.riskLevel === 'Medium').length;
     const riskFlags  = [highCount > 0 ? `<span class="risk-flag high">${highCount} High</span>` : '', medCount > 0 ? `<span class="risk-flag medium">${medCount} Medium</span>` : ''].filter(Boolean).join('');
+    const lowPenalty = Math.min(5, auditLog.filter(e => e.riskLevel === 'Low').length);
+    const score      = Math.max(0, 100 - highCount*20 - medCount*8 - lowPenalty);
+    const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? '#fbbf24' : '#fb7185';
     return `<div class="project-card">
       <div class="project-card-name">${escHtml(proj.name)}</div>
       <div class="project-card-dept">${escHtml(proj.department)}</div>
-      <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}</div>
-      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+      <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}<span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;margin-left:auto;">${score}</span></div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
+  grid.querySelectorAll('.btn-edit-project').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
   grid.querySelectorAll('.btn-export-project').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); exportProject(btn.dataset.id); }));
   grid.querySelectorAll('.btn-delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
 }
@@ -1564,6 +1757,15 @@ function setActiveProject(id) {
   const slot = document.getElementById('ai-narrative-slot');
   if (slot) slot.classList.remove('open');
   runAuditEngine(id);
+  // Record a score history entry on open so sparkline has data immediately
+  const currentScore = calcHealthScore(id);
+  recordScoreHistory(id, currentScore);
+  // If timeline view is currently active, refresh its project name
+  const tlName = document.getElementById('tl-project-name');
+  if (tlName && document.getElementById('view-timeline')?.classList.contains('active')) {
+    const tlProj = getData('ks_projects').find(p => p.id === id);
+    if (tlProj) tlName.textContent = tlProj.name;
+  }
 }
 
 function deleteProject(id) {
@@ -1573,9 +1775,73 @@ function deleteProject(id) {
   setData('ks_projects',   getData('ks_projects').filter(p => p.id !== id));
   setData('ks_components', getData('ks_components').filter(c => c.projectId !== id));
   setData('ks_audit_log',  getData('ks_audit_log').filter(e => e.projectId !== id));
+  // Clean up score history to prevent storage leaks
+  try {
+    const hist = JSON.parse(localStorage.getItem('ks_score_history') || '{}');
+    delete hist[id];
+    localStorage.setItem('ks_score_history', JSON.stringify(hist));
+  } catch(_) {}
   if (activeProjectId === id) { activeProjectId = null; document.getElementById('active-project-name').textContent = 'No project selected'; document.getElementById('active-project-name').classList.add('none'); renderAuditPanel(); }
   renderProjects();
 }
+/* ── Edit Project Modal ── */
+let _editingProjectId = null;
+const editModalOverlay = document.getElementById('modal-edit-project');
+
+function openEditModal(id) {
+  const proj = getData('ks_projects').find(p => p.id === id);
+  if (!proj) return;
+  _editingProjectId = id;
+  document.getElementById('edit-modal-name').value    = proj.name       || '';
+  document.getElementById('edit-modal-dept').value    = proj.department || '';
+  document.getElementById('edit-modal-desc').value    = proj.description|| '';
+  document.getElementById('edit-modal-mandate').value = proj.mandate    || 'DRIPA Alignment';
+  ['edit-modal-err-name','edit-modal-err-dept'].forEach(eid => document.getElementById(eid).classList.remove('visible'));
+  ['edit-modal-name','edit-modal-dept'].forEach(eid => document.getElementById(eid).classList.remove('error'));
+  editModalOverlay.classList.add('open');
+  setTimeout(() => document.getElementById('edit-modal-name').focus(), 50);
+}
+
+function closeEditModal() { editModalOverlay.classList.remove('open'); _editingProjectId = null; }
+
+document.getElementById('btn-edit-modal-cancel').addEventListener('click', closeEditModal);
+editModalOverlay.addEventListener('click', e => { if (e.target === editModalOverlay) closeEditModal(); });
+
+document.getElementById('btn-edit-modal-submit').addEventListener('click', () => {
+  if (!_editingProjectId) return;
+  const name = document.getElementById('edit-modal-name').value.trim();
+  const dept = document.getElementById('edit-modal-dept').value.trim();
+  let valid = true;
+  if (!name) { document.getElementById('edit-modal-name').classList.add('error'); document.getElementById('edit-modal-err-name').classList.add('visible'); valid = false; }
+  else { document.getElementById('edit-modal-name').classList.remove('error'); document.getElementById('edit-modal-err-name').classList.remove('visible'); }
+  if (!dept) { document.getElementById('edit-modal-dept').classList.add('error'); document.getElementById('edit-modal-err-dept').classList.add('visible'); valid = false; }
+  else { document.getElementById('edit-modal-dept').classList.remove('error'); document.getElementById('edit-modal-err-dept').classList.remove('visible'); }
+  if (!valid) return;
+
+  const projects = getData('ks_projects');
+  const updated  = projects.map(p => p.id === _editingProjectId ? {
+    ...p,
+    name:        name,
+    department:  dept,
+    description: document.getElementById('edit-modal-desc').value.trim(),
+    mandate:     document.getElementById('edit-modal-mandate').value,
+  } : p);
+  setData('ks_projects', updated);
+
+  // Update sidebar active project name if this is the active project
+  if (activeProjectId === _editingProjectId) {
+    const nameEl = document.getElementById('active-project-name');
+    nameEl.textContent = name;
+    nameEl.classList.remove('none');
+    // Re-run audit in case mandate changed (affects AI context)
+    runAuditEngine(_editingProjectId);
+  }
+
+  closeEditModal();
+  renderProjects();
+  showToast('Project updated.');
+});
+
 </script>
 <script>
 /* ── New Project Modal ── */
@@ -1648,7 +1914,7 @@ document.getElementById('btn-ai-suggest').addEventListener('click', async () => 
     runAuditEngine(activeProjectId); renderComponentList();
     showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
   } catch(e) {
-    showToast('AI suggestion failed. Please try again.', true);
+    showToast('AI suggestion failed: ' + (e.message || 'Unknown error'), true);
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -1676,11 +1942,12 @@ document.getElementById('btn-ai-narrative').addEventListener('click', async () =
       components: components.map(c => ({ type: c.type, description: c.description, targetBenchmark: c.targetBenchmark, verificationSource: c.verificationSource }))
     });
     narrativeText.textContent = data.narrative;
+    _lastNarrativeByProject[activeProjectId] = data.narrative;
     narrativeSlot.classList.add('open');
     narrativeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('✨ AI diagnostic summary generated.');
   } catch(e) {
-    showToast('Failed to generate narrative. Please try again.', true);
+    showToast('Failed to generate narrative: ' + (e.message || 'Unknown error'), true);
     console.error(e);
   } finally { btn.disabled = false; btn.textContent = '✨ Generate AI Diagnostic Summary'; }
 });
@@ -1705,7 +1972,7 @@ async function aiSuggestVerification(btn, compId, compType, compDesc) {
     btn.textContent = '✨ Refresh suggestions';
     btn.disabled = false;
   } catch(e) {
-    showToast('Failed to fetch suggestions. Please try again.', true);
+    showToast('Failed to fetch suggestions: ' + (e.message || 'Unknown error'), true);
     btn.textContent = '✨ Suggest verification sources';
     btn.disabled = false;
     console.error(e);
@@ -1731,8 +1998,8 @@ async function aiImproveDescription(btn) {
     runAuditEngine(activeProjectId); renderComponentList();
     showToast('✨ Description improved.');
   } catch(e) {
-    showToast('Failed to improve description. Please try again.', true);
-    btn.disabled = false; btn.textContent = '✨ Improve';
+    showToast('AI: ' + (e.message || 'Failed to improve description'), true);
+    btn.disabled = false; btn.textContent = '✨';
     console.error(e);
   }
 }
@@ -1753,12 +2020,15 @@ document.getElementById('btn-ai-nl-fill').addEventListener('click', async () => 
     document.getElementById('modal-mandate').value = p.mandate || 'DRIPA Alignment';
     showToast('✨ Form filled by AI. Review and submit.');
   } catch(e) {
-    showToast('AI fill failed. Please try again.', true);
+    showToast('AI fill failed: ' + (e.message || 'Unknown error'), true);
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
 </script>
 <script>
+/* ── Store last AI narrative per project ── */
+let _lastNarrativeByProject = {};
+
 /* ── Executive Briefing ── */
 document.getElementById('btn-briefing').addEventListener('click', () => {
   if (!activeProjectId) return;
@@ -1829,7 +2099,7 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
   <div class="report-eyebrow">Keystone — Policy Logic Diagnostic Report</div>
   <h1>${escHtml(proj.name)}</h1>
   <div class="meta" style="margin-top:6px;">${escHtml(proj.department)}</div>
-  <div class="meta">Generated: ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</div>
+  <div class="meta">Generated: ${new Date().toLocaleString('en-CA',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
   <div class="meta">Mandate Classification: <strong>${escHtml(proj.mandate)}</strong></div>
   <hr class="divider">
   <div class="section-title">Programme Logic Model</div>
@@ -1845,6 +2115,12 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
   <hr class="divider">
   <div class="section-title">Recommendations</div>
   ${recs.map((r,i)=>`<div class="rec-item"><strong>${i+1}.</strong> ${escHtml(r)}</div>`).join('')}
+  ${(_lastNarrativeByProject[activeProjectId]) ? `
+  <div class="page-break"></div>
+  <hr class="divider">
+  <div class="section-title">AI Diagnostic Summary</div>
+  <p style="font-size:14px;line-height:1.75;color:#1a2740;">${escHtml(_lastNarrativeByProject[activeProjectId])}</p>
+  <p style="font-size:11px;color:#8a9bbf;margin-top:8px;">Generated by Keystone AI — for context only, not a substitute for peer review.</p>` : ''}
   </body></html>`;
 
   const win = window.open('', '_blank');
@@ -1903,6 +2179,13 @@ document.getElementById('demo-banner-close').addEventListener('click', () => {
   document.getElementById('demo-banner').style.display = 'none';
   sessionStorage.setItem('ks_demo_banner_shown', '1');
 });
+
+/* ── Populate mandate selects from MANDATES constant ── */
+(function() {
+  document.querySelectorAll('[data-mandate-select]').forEach(sel => {
+    sel.innerHTML = MANDATES.map(m => `<option value="${m}">${m}</option>`).join('');
+  });
+})();
 
 /* ── App Init ── */
 function init() {
@@ -2008,11 +2291,16 @@ document.querySelectorAll('.qs-pill').forEach(pill => pill.addEventListener('cli
 /* ── Document Analysis ── */
 let daExtractedComponents = [];
 function renderDocumentAnalysis() {
+  // Preserve extracted components across view switches — only reset if empty
   if (daExtractedComponents.length === 0) {
     document.getElementById('da-upload-area').style.display = 'block';
     document.getElementById('da-results-area').style.display = 'none';
     document.getElementById('da-btn-reset').style.display = 'none';
     document.getElementById('da-btn-import').style.display = 'none';
+  } else {
+    // Re-render results if we have components (navigated back to this view)
+    document.getElementById('da-upload-area').style.display = 'none';
+    renderDAResults();
   }
 }
 const daZone = document.getElementById('da-upload-zone');
@@ -2058,7 +2346,7 @@ async function processDAFile(file) {
   } catch(e) {
     document.getElementById('da-loading').style.display = 'none';
     document.getElementById('da-upload-area').style.display = 'block';
-    showToast('Failed to extract components. Please try again.', true); console.error(e);
+    showToast('Extract failed: ' + (e.message || 'Unknown error'), true); console.error(e);
   }
 }
 
@@ -2082,7 +2370,11 @@ document.getElementById('da-btn-reset').addEventListener('click', () => {
 });
 
 document.getElementById('da-btn-import').addEventListener('click', () => {
-  if (!activeProjectId) { showToast('Select a project first.', true); return; }
+  if (!activeProjectId) {
+    showToast('No project open — open or create a project first, then import.', true);
+    showView('projects');
+    return;
+  }
   const accepted = daExtractedComponents.filter(c=>c.accepted);
   if (!accepted.length) { showToast('No components accepted.', true); return; }
   const newComps = accepted.map(c => ({ id:generateId(), projectId:activeProjectId, type:c.componentType, description:c.description, targetBenchmark:c.targetBenchmark||'', verificationSource:c.verificationSource||'' }));
