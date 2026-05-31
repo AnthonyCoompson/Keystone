@@ -33,7 +33,7 @@ def _init():
     try:
         genai.configure(api_key=_GEMINI_API_KEY)
         _model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash-latest",
+            model_name="gemini-1.5-flash",
             generation_config=genai.GenerationConfig(
                 temperature=0.4,
                 max_output_tokens=2048,
@@ -141,15 +141,3 @@ def generate_json_with_file(prompt: str, mime_type: str, base64_data: str) -> di
     """Convenience: generate text with an inline file and parse the result as JSON."""
     text = generate_with_file(prompt, mime_type, base64_data)
     return parse_json(text)
-
-# Add this temporary function
-def list_available_models():
-    import google.generativeai as genai
-    for m in genai.list_models():
-        if 'generateContent' in m.supported_generation_methods:
-            print(f"AVAILABLE MODEL: {m.name}")
-
-# Call it inside your _init() function temporarily
-def _init():
-    # ... after genai.configure ...
-    list_available_models()
