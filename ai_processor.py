@@ -33,7 +33,7 @@ def _init():
     try:
         genai.configure(api_key=_GEMINI_API_KEY)
         _model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
+            model_name="gemini-1.5-flash-latest",
             generation_config=genai.GenerationConfig(
                 temperature=0.4,
                 max_output_tokens=2048,
