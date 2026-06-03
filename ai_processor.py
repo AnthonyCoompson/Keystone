@@ -4,37 +4,40 @@ Keystone — AI Processor
 
 Handles all Gemini API communication for the Keystone backend.
 Imported by main.py — never called directly.
+
+Uses the official google-genai SDK (v2+) which routes through the
+stable v1 API endpoint. The older google-generativeai SDK (0.8.x)
+was locked to v1beta where current model names are not available.
 """
 
 import os
 import json
 import re
+import base64
 import logging
 from fastapi import HTTPException
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 logger = logging.getLogger("keystone.ai")
 
 # ── Initialise Gemini ──────────────────────────────────────────────────────────
 _GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-_model = None
+_client = None
+_MODEL  = "gemini-1.5-flash"
+_CONFIG = types.GenerateContentConfig(
+    temperature=0.4,
+    max_output_tokens=2048,
+)
 
 def _init():
-    global _model
+    global _client
     if not _GEMINI_API_KEY:
         logger.warning("GEMINI_API_KEY is not set. All AI endpoints will return 503.")
         return
     try:
-        genai.configure(api_key=_GEMINI_API_KEY)
-        # gemini-1.5-flash-002 is the correct model name for google-generativeai==0.8.3
-        _model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash-002",
-            generation_config=genai.GenerationConfig(
-                temperature=0.4,
-                max_output_tokens=2048,
-            ),
-        )
-        logger.info("✓ Gemini model initialised (gemini-1.5-flash-002).")
+        _client = genai.Client(api_key=_GEMINI_API_KEY)
+        logger.info(f"✓ Gemini client initialised (model: {_MODEL}).")
     except Exception as exc:
         logger.error(f"Gemini init failed: {exc}")
 
@@ -44,11 +47,13 @@ _init()
 # ── Public helpers ─────────────────────────────────────────────────────────────
 
 def is_ready() -> bool:
-    return _model is not None
+    """Return True if the Gemini client is initialised and ready."""
+    return _client is not None
 
 
-def require_model():
-    if _model is None:
+def require_client():
+    """Return the client or raise a 503 with a clear message."""
+    if _client is None:
         raise HTTPException(
             status_code=503,
             detail=(
@@ -56,13 +61,18 @@ def require_model():
                 "Add GEMINI_API_KEY to your Render environment variables and redeploy."
             ),
         )
-    return _model
+    return _client
 
 
 def generate_text(prompt: str) -> str:
-    model = require_model()
+    """Send a plain-text prompt to Gemini and return the raw response string."""
+    client = require_client()
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model=_MODEL,
+            contents=prompt,
+            config=_CONFIG,
+        )
         text = response.text
         if not text:
             raise ValueError("Gemini returned an empty response.")
@@ -75,12 +85,19 @@ def generate_text(prompt: str) -> str:
 
 
 def generate_with_file(prompt: str, mime_type: str, base64_data: str) -> str:
-    model = require_model()
+    """
+    Send a prompt alongside an inline file (e.g. a PDF) to Gemini.
+    Used by the Document Analysis endpoint.
+    """
+    client = require_client()
     try:
-        response = model.generate_content([
-            {"inline_data": {"mime_type": mime_type, "data": base64_data}},
-            prompt,
-        ])
+        raw_bytes = base64.b64decode(base64_data)
+        file_part = types.Part.from_bytes(data=raw_bytes, mime_type=mime_type)
+        response = client.models.generate_content(
+            model=_MODEL,
+            contents=[file_part, prompt],
+            config=_CONFIG,
+        )
         text = response.text
         if not text:
             raise ValueError("Gemini returned an empty response.")
@@ -93,6 +110,10 @@ def generate_with_file(prompt: str, mime_type: str, base64_data: str) -> str:
 
 
 def parse_json(text: str) -> dict | list:
+    """
+    Strip markdown code fences from a Gemini response and parse JSON.
+    Raises HTTPException 502 if the text is not valid JSON after stripping.
+    """
     cleaned = text.strip()
     cleaned = re.sub(r"^```(?:json)?[ \t]*\n?", "", cleaned)
     cleaned = re.sub(r"\n?[ \t]*```\s*$", "", cleaned)
@@ -108,10 +129,12 @@ def parse_json(text: str) -> dict | list:
 
 
 def generate_json(prompt: str) -> dict | list:
+    """Convenience: generate text from a prompt and parse the result as JSON."""
     text = generate_text(prompt)
     return parse_json(text)
 
 
 def generate_json_with_file(prompt: str, mime_type: str, base64_data: str) -> dict | list:
+    """Convenience: generate text with an inline file and parse the result as JSON."""
     text = generate_with_file(prompt, mime_type, base64_data)
     return parse_json(text)
