@@ -1050,17 +1050,25 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
   ? 'http://localhost:8000'
   : '';
 
-async function aiFetch(endpoint, payload) {
+async function aiFetch(endpoint, payload, timeoutMs = 45000) {
   let res;
   try {
     res = await fetch(API_BASE + endpoint, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(payload),
-      signal:  AbortSignal.timeout(30000),
+      signal:  AbortSignal.timeout(timeoutMs),
     });
   } catch (networkErr) {
-    // Network failure (no server, timeout, CORS on wrong origin, etc.)
+    // Distinguish a client-side timeout from a genuine network/connection failure.
+    if (networkErr.name === 'TimeoutError' || networkErr.name === 'AbortError') {
+      throw new Error(
+        `The AI is taking longer than ${Math.round(timeoutMs/1000)}s to respond. ` +
+        'Large documents or a cold-started Render instance can take a while — try again ' +
+        '(a second attempt is often faster once the server is warm), or try a shorter document.'
+      );
+    }
+    // Genuine network failure (no server, CORS on wrong origin, DNS, etc.)
     throw new Error(
       'Could not reach the Keystone backend. ' +
       'Make sure the app is deployed on Render (or run the backend locally with: uvicorn main:app --reload). ' +
@@ -2336,7 +2344,7 @@ async function processDAFile(file) {
       document_text: docText, document_base64: docBase64,
       document_mime_type: mimeType, document_name: file.name,
       mandate: proj?.mandate || 'Service Delivery'
-    });
+    }, 120000);
     daExtractedComponents = [];
     ['inputs','activities','outputs','outcomes'].forEach((key,i) => {
       (data.data[key]||[]).forEach(item => daExtractedComponents.push({...item, componentType:['Input','Activity','Output','Outcome'][i], accepted:true}));
@@ -2418,7 +2426,7 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
     const data = await aiFetch('/api/ai/generate-timeline', {
       project_name: proj.name, mandate: proj.mandate,
       components: components.map(c => ({ type: c.type, description: c.description, targetBenchmark: c.targetBenchmark }))
-    });
+    }, 60000);
     tlTimelineData = { projectId:activeProjectId, timeline:data.timeline };
     document.getElementById('tl-loading').style.display='none';
     document.getElementById('tl-content').style.display='flex';
