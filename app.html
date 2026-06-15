@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 <style>
 :root {
   --font: 'DM Sans', sans-serif;
@@ -1069,10 +1075,11 @@ async function aiFetch(endpoint, payload, timeoutMs = 45000) {
       );
     }
     // Genuine network failure (no server, CORS on wrong origin, DNS, etc.)
+    // Lead with the raw browser error so it isn't cut off by toast truncation.
     throw new Error(
-      'Could not reach the Keystone backend. ' +
-      'Make sure the app is deployed on Render (or run the backend locally with: uvicorn main:app --reload). ' +
-      'Error: ' + networkErr.message
+      `Network error (${networkErr.name || 'unknown'}): ${networkErr.message}. ` +
+      'Could not reach the Keystone backend — make sure the app is deployed on Render ' +
+      '(or run the backend locally with: uvicorn main:app --reload).'
     );
   }
 
@@ -1099,8 +1106,8 @@ function showToast(msg, isError = false) {
   const t = document.getElementById('ai-toast');
   // Sanitise raw server/stack-trace errors — truncate and clean up
   let display = msg;
-  if (isError && msg && msg.length > 140) {
-    display = msg.slice(0, 137) + '…';
+  if (isError && msg && msg.length > 220) {
+    display = msg.slice(0, 217) + '…';
   }
   // Don't show raw Python tracebacks
   if (isError && msg && (msg.includes('Traceback') || msg.includes('File "/'))) {
@@ -2330,15 +2337,38 @@ async function processDAFile(file) {
       const result = await mammoth.extractRawText({ arrayBuffer: ab });
       docText = result.value;
     } else {
+      // PDFs: extract text client-side with pdf.js. This sends a small text
+      // payload instead of a multi-megabyte base64 blob, avoiding payload-size
+      // failures and large round-trip times for the AI call.
+      mimeType = 'application/pdf';
       const ab = await file.arrayBuffer();
-      const bytes = new Uint8Array(ab);
-      // Chunked encoding to avoid call-stack overflow on large PDFs
-      let binary = '';
-      const CHUNK = 8192;
-      for (let i = 0; i < bytes.length; i += CHUNK) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+      try {
+        const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+        let pages = [];
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          pages.push(content.items.map(item => item.str).join(' '));
+        }
+        docText = pages.join('\n\n');
+      } catch (pdfErr) {
+        console.error('pdf.js extraction failed:', pdfErr);
+        docText = '';
       }
-      docBase64 = btoa(binary); mimeType='application/pdf';
+      // Fallback: if the PDF has little/no extractable text (e.g. a scanned
+      // image-only document), fall back to sending the raw file so Gemini
+      // can read it directly. Most operational plans contain real text and
+      // will use the docText path above.
+      if (docText.trim().length < 50) {
+        const bytes = new Uint8Array(ab);
+        let binary = '';
+        const CHUNK = 8192;
+        for (let i = 0; i < bytes.length; i += CHUNK) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+        }
+        docBase64 = btoa(binary);
+        docText = '';
+      }
     }
     const data = await aiFetch('/api/ai/extract-components', {
       document_text: docText, document_base64: docBase64,
