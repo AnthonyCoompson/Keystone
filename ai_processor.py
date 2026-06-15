@@ -24,7 +24,7 @@ logger = logging.getLogger("keystone.ai")
 # ── Initialise Gemini ──────────────────────────────────────────────────────────
 _GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 _client = None
-_MODEL  = "gemini-1.5-flash"
+_MODEL  = "gemini-2.5-flash"
 _CONFIG = types.GenerateContentConfig(
     temperature=0.4,
     max_output_tokens=2048,
