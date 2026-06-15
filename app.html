@@ -276,6 +276,26 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-modal-cancel:hover { background: var(--hover-bg); }
 .btn-modal-submit { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
 .btn-modal-submit:hover { background: var(--slate-light); }
+/* ── Impact Preview ── */
+.impact-score-row { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 16px 0 20px; }
+.impact-score-box { text-align: center; }
+.impact-score-num { font-family: 'DM Mono', monospace; font-size: 36px; font-weight: 700; }
+.impact-score-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+.impact-arrow { font-size: 24px; color: var(--muted); }
+.impact-delta { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.impact-delta.positive { background: rgba(16,185,129,0.12); color: var(--green); }
+.impact-delta.negative { background: rgba(196,30,58,0.12); color: #fb7185; }
+.impact-delta.neutral { background: rgba(255,255,255,0.06); color: var(--muted); }
+.impact-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 16px 0 8px; }
+.impact-finding { padding: 8px 10px; border-radius: 0 6px 6px 0; border-left: 3px solid var(--border); background: rgba(255,255,255,0.03); font-size: 12.5px; line-height: 1.5; margin-bottom: 6px; }
+.impact-finding.resolved { border-left-color: var(--green); }
+.impact-finding.introduced { border-left-color: #fb7185; }
+.impact-finding-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.impact-finding.resolved .impact-finding-type { color: var(--green); }
+.impact-finding.introduced .impact-finding-type { color: #fb7185; }
+.impact-empty-note { font-size: 12.5px; color: var(--muted); font-style: italic; padding: 4px 0; }
+.btn-impact-preview { background: none; border: 1px solid rgba(0,194,255,0.3); color: var(--cyan); font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: background 0.15s; flex-shrink: 0; white-space: nowrap; }
+.btn-impact-preview:hover { background: rgba(0,194,255,0.08); }
 .ai-fill-row { display: flex; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
 .ai-fill-input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text); background: var(--input-bg); }
 .ai-fill-input:focus { border-color: var(--cyan); outline: none; }
@@ -332,6 +352,57 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ai-toast { position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 320px; }
 .ai-toast.show { opacity: 1; transform: translateY(0); }
 .ai-toast.error { background: var(--red); }
+/* ── AI Assistant Widget ── */
+#assistant-toggle {
+  position: fixed; bottom: 22px; right: 22px; z-index: 500;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #0ea5e9);
+  color: #ffffff; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 24px rgba(124,58,237,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+#assistant-toggle:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.55); }
+#assistant-toggle-badge { position: absolute; top: 2px; right: 2px; font-size: 14px; color: var(--cyan); line-height: 1; }
+#assistant-panel {
+  position: fixed; bottom: 86px; right: 22px; z-index: 500;
+  width: 380px; max-width: calc(100vw - 32px); height: 520px; max-height: calc(100vh - 120px);
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+  display: none; flex-direction: column; overflow: hidden;
+}
+#assistant-panel.open { display: flex; }
+#assistant-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+#assistant-header-title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: var(--white); }
+#assistant-header-title svg { color: var(--purple); flex-shrink: 0; }
+#assistant-clear, #assistant-close { background: none; color: var(--muted); font-size: 15px; padding: 3px 7px; border-radius: 5px; transition: color 0.15s, background 0.15s; line-height: 1; }
+#assistant-clear:hover, #assistant-close:hover { color: var(--white); background: var(--hover-bg); }
+#assistant-context-bar { padding: 8px 14px; font-size: 11px; color: var(--muted); border-bottom: 1px solid var(--border); flex-shrink: 0; display: none; }
+#assistant-context-bar.visible { display: block; }
+#assistant-context-bar strong { color: var(--cyan); font-weight: 600; }
+#assistant-messages { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.assistant-msg { font-size: 13px; line-height: 1.6; padding: 9px 12px; border-radius: 10px; max-width: 88%; white-space: pre-wrap; }
+.assistant-msg.user { align-self: flex-end; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; border-radius: 10px 10px 2px 10px; }
+.assistant-msg.assistant { align-self: flex-start; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 10px 10px 10px 2px; }
+.assistant-msg.error { align-self: flex-start; background: rgba(196,30,58,0.08); border: 1px solid rgba(196,30,58,0.25); color: #fb7185; border-radius: 10px; }
+.assistant-empty { text-align: center; color: var(--muted); font-size: 12.5px; padding: 24px 12px; line-height: 1.6; }
+.assistant-suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 4px; }
+.assistant-suggestion-chip { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.25); color: var(--purple); font-size: 11.5px; font-weight: 500; padding: 5px 10px; border-radius: 16px; cursor: pointer; transition: background 0.15s; text-align: left; }
+.assistant-suggestion-chip:hover { background: rgba(124,58,237,0.15); }
+#assistant-input-row { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--border); flex-shrink: 0; align-items: flex-end; }
+#assistant-input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--input-bg); resize: none; max-height: 100px; font-family: var(--font); line-height: 1.4; }
+#assistant-input:focus { border-color: var(--cyan); outline: none; }
+#assistant-send { background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: #ffffff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.15s; }
+#assistant-send:hover { opacity: 0.9; }
+#assistant-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.assistant-typing { display: inline-flex; gap: 3px; align-items: center; padding: 2px 0; }
+.assistant-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: assistant-typing-bounce 1.2s infinite ease-in-out; }
+.assistant-typing span:nth-child(2) { animation-delay: 0.15s; }
+.assistant-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes assistant-typing-bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-4px); opacity: 1; } }
+@media (max-width: 480px) {
+  #assistant-panel { right: 12px; left: 12px; width: auto; bottom: 78px; }
+  #assistant-toggle { right: 14px; bottom: 14px; }
+}
 @media (max-width: 768px) {
   #app-shell { grid-template-columns: 1fr; grid-template-rows: 52px 1fr; }
   #sidebar { flex-direction: row; align-items: center; height: 52px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 12px; }
@@ -403,6 +474,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-da-accept:hover { background: rgba(16,185,129,0.2); }
 .btn-da-reject { background: rgba(196,30,58,0.08); color: #fb7185; border: 1px solid rgba(196,30,58,0.2); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .btn-da-reject:hover { background: rgba(196,30,58,0.15); }
+/* ── Document Analysis History ── */
+.da-history-list { display: flex; flex-direction: column; gap: 8px; }
+.da-history-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+.da-history-item:hover { border-color: rgba(0,194,255,0.3); box-shadow: 0 4px 16px rgba(0,194,255,0.06); }
+.da-history-icon { font-size: 22px; flex-shrink: 0; }
+.da-history-meta { flex: 1; min-width: 0; }
+.da-history-name { font-size: 13.5px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.da-history-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.da-history-count { font-size: 11.5px; font-weight: 600; color: var(--cyan); flex-shrink: 0; white-space: nowrap; }
+.da-history-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.da-history-delete { background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+.da-history-delete:hover { color: #fb7185; background: rgba(196,30,58,0.1); }
 /* ── Timeline View ── */
 .tl-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
 .tl-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -657,6 +740,22 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 <input type="text" class="form-control" id="source-3" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
               </div>
             </div>
+            <!-- Logic Model Diagram -->
+            <div class="ai-suggest-bar" id="diagram-panel" style="margin-top:16px;">
+              <div class="ai-suggest-bar-header" id="diagram-panel-header">
+                <span class="ai-suggest-bar-label" style="color:var(--cyan);">🗺️ Logic Model Diagram</span>
+                <span class="ai-suggest-bar-toggle">
+                  <span id="diagram-toggle-label">collapse</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
+              <div class="ai-suggest-bar-body" id="diagram-panel-body">
+                <div id="logic-diagram-container" style="overflow-x:auto;"></div>
+                <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">
+                  Arrows show inferred causal links between components. <span style="color:#fb7185;">Red</span> dashed lines flag Circular Logic; a <span style="color:#fb7185;">red dot</span> marks components with active risk flags.
+                </div>
+              </div>
+            </div>
             <div class="component-list-section" id="component-list-section">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                 <div class="component-list-title" style="margin-bottom:0;">Framework Components</div>
@@ -671,7 +770,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <button class="btn-step" id="btn-prev" disabled>← Previous</button>
             <button class="btn-step" id="btn-next">Next →</button>
           </div>
-          <button class="btn-add-component" id="btn-add-component">+ Add Component</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn-impact-preview" id="btn-preview-impact" title="See how this change affects the Health Score before adding it">📊 Preview Impact</button>
+            <button class="btn-add-component" id="btn-add-component">+ Add Component</button>
+          </div>
         </div>
       </div>
       <!-- Right: Audit Panel -->
@@ -896,10 +998,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <p style="font-size:13px;color:var(--muted);">Upload a policy document (.docx or .pdf) and AI will extract logic model components for review.</p>
           </div>
           <div style="display:flex;gap:8px;">
+            <button class="btn-secondary" id="da-btn-history">🕘 History</button>
             <button class="btn-secondary" id="da-btn-reset" style="display:none;">Upload New Document</button>
-            <button class="btn-primary" id="da-btn-import" style="display:none;">⬇ Import Accepted Components</button>
+            <button class="btn-secondary" id="da-btn-import-new" style="display:none;">+ Import to New Project</button>
+            <button class="btn-primary" id="da-btn-import" style="display:none;">⬇ Import to Active Project</button>
           </div>
         </div>
+        <div id="da-history-area" style="display:none;"></div>
         <div id="da-upload-area">
           <div class="da-upload-zone" id="da-upload-zone">
             <div class="da-upload-icon">📄</div>
@@ -953,10 +1058,45 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     </div>
   </main>
 </div>
+
+<!-- AI Assistant Widget (persistent across all tabs) -->
+<button id="assistant-toggle" title="Keystone Assistant" aria-label="Open Keystone Assistant">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+  <span id="assistant-toggle-badge" style="display:none;">●</span>
+</button>
+<div id="assistant-panel">
+  <div id="assistant-header">
+    <div id="assistant-header-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Keystone Assistant
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <button id="assistant-clear" title="Clear conversation">🗑</button>
+      <button id="assistant-close" title="Close" aria-label="Close assistant">×</button>
+    </div>
+  </div>
+  <div id="assistant-context-bar"></div>
+  <div id="assistant-messages"></div>
+  <div id="assistant-input-row">
+    <textarea id="assistant-input" placeholder="Ask about your logic model, audit rules, or anything else…" rows="1"></textarea>
+    <button id="assistant-send" title="Send" aria-label="Send message">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
 <!-- New Project Modal -->
 <div class="modal-overlay" id="modal-new-project">
   <div class="modal">
     <div class="modal-title">New Evaluation Project</div>
+    <!-- Document Import -->
+    <div class="da-upload-zone" id="modal-doc-upload-zone" style="padding:16px;margin-bottom:14px;">
+      <div class="da-upload-icon" style="font-size:22px;margin-bottom:4px;">📄</div>
+      <div class="da-upload-text" style="font-size:12.5px;">Drop a <strong>.docx</strong> or <strong>.pdf</strong> here to auto-fill this form &amp; stage components</div>
+      <input type="file" id="modal-doc-file-input" accept=".docx,.pdf" style="display:none;">
+    </div>
+    <div id="modal-doc-loading" style="display:none;text-align:center;margin-bottom:14px;"><span class="ai-loading">Reading document...</span></div>
+    <div id="modal-doc-staged-note" style="display:none;font-size:12px;color:var(--cyan);background:rgba(0,194,255,0.06);border:1px solid rgba(0,194,255,0.2);border-radius:6px;padding:8px 10px;margin-bottom:14px;"></div>
     <!-- AI Natural Language Fill -->
     <div class="ai-fill-row">
       <input type="text" class="ai-fill-input" id="ai-nl-input" placeholder="✨ Describe your initiative in plain language and let AI fill the form...">
@@ -1017,6 +1157,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- Impact Preview Modal -->
+<div class="modal-overlay" id="modal-impact-preview">
+  <div class="modal" style="width:760px;">
+    <div class="modal-title">Impact Preview</div>
+    <div id="impact-preview-body"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-impact-cancel">Close</button>
+      <button class="btn-modal-submit" id="btn-impact-apply">Apply Change</button>
+    </div>
+  </div>
+</div>
+
 <!-- AI Toast -->
 <div class="ai-toast" id="ai-toast"></div>
 <script>
@@ -1045,6 +1197,11 @@ let currentStep = 0;
 let auditLastChecked = Date.now();
 const STEPS = ['Input', 'Activity', 'Output', 'Outcome'];
 const MANDATES = ['DRIPA Alignment', 'Self-Government Transition', 'Service Delivery', 'Economic Development'];
+
+/* Components staged from Document Analysis or document-to-project import,
+   to be attached to whatever project is created next via the New Project
+   modal. Cleared after use or when the modal is closed/cancelled. */
+let _pendingNewProjectComponents = null;
 
 /* ── AI API Base URL (auto-detects local vs deployed) ── */
 /* ── AI Backend URL ──────────────────────────────────────────────────────────
@@ -1165,6 +1322,18 @@ const MINOR_KEYWORDS    = ["webinar","workshop","meeting","email","newsletter","
 const PERCENT_PATTERN   = /(\d+)\s*%/;
 const NUMBER_PATTERN    = /\b(\d{2,})\b/;
 
+/* Shared human-readable labels for error types — used by audit panel, briefing, and impact preview */
+const ERROR_TYPE_LABELS = {
+  Dead_End: 'Dead End',
+  Miracle_Leap: 'Miracle Leap',
+  Blind_Spot: 'Blind Spot',
+  Circular_Logic: 'Circular Logic',
+  Orphaned_Input: 'Orphaned Input',
+  Scale_Mismatch: 'Scale Mismatch',
+  Duplicate_Component: 'Duplicate Component',
+  Timeframe_Mismatch: 'Timeframe Mismatch'
+};
+
 function wordOverlap(a, b) {
   // threshold > 2 to capture short but meaningful policy terms (act, law, FTE, etc.)
   const wordsA = new Set(a.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 2));
@@ -1173,10 +1342,15 @@ function wordOverlap(a, b) {
   return wordsB.filter(w => wordsA.has(w)).length / wordsB.length;
 }
 
-function runAuditEngine(projectId) {
-  if (!projectId) return;
-  let log = getData('ks_audit_log').filter(e => e.projectId !== projectId);
-  const components = getData('ks_components').filter(c => c.projectId === projectId);
+/* ── Pure audit computation ──────────────────────────────────────────────────
+   Takes a components array (and a projectId used only to tag entries) and
+   returns the array of audit findings WITHOUT touching localStorage or the
+   DOM. This is the single source of truth for both:
+     - runAuditEngine() — the live audit that persists results
+     - simulateAuditImpact() — a hypothetical "what if I added/changed this"
+       preview that never persists anything
+   ──────────────────────────────────────────────────────────────────────────── */
+function computeAuditFindings(components, projectId) {
   const newEntries = [];
   const inputs     = components.filter(c => c.type === 'Input');
   const outputs    = components.filter(c => c.type === 'Output');
@@ -1295,6 +1469,15 @@ function runAuditEngine(projectId) {
     }
   });
 
+  return newEntries;
+}
+
+function runAuditEngine(projectId) {
+  if (!projectId) return;
+  let log = getData('ks_audit_log').filter(e => e.projectId !== projectId);
+  const components = getData('ks_components').filter(c => c.projectId === projectId);
+  const newEntries = computeAuditFindings(components, projectId);
+
   setData('ks_audit_log', [...log, ...newEntries]);
   recordScoreHistory(projectId, calcHealthScoreFromEntries(newEntries));
   auditLastChecked = Date.now();
@@ -1318,6 +1501,58 @@ function calcHealthScore(projectId) {
     - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
     - lowPenalty
   );
+}
+
+/* ── Impact Preview ──────────────────────────────────────────────────────────
+   Given the project's CURRENT components plus an array of HYPOTHETICAL
+   component changes, returns a before/after comparison without writing
+   anything to storage. hypotheticalComponents can represent additions
+   (new objects with temporary ids), edits (objects whose id matches an
+   existing component — they replace it), or a mix.
+
+   Returns:
+   {
+     before: { score, findings },
+     after:  { score, findings },
+     scoreDelta,
+     resolved: [...findings present before but not after],
+     introduced: [...findings present after but not before],
+     unchanged: [...findings present in both]
+   }
+   ──────────────────────────────────────────────────────────────────────────── */
+function simulateAuditImpact(projectId, hypotheticalComponents) {
+  const currentComponents = getData('ks_components').filter(c => c.projectId === projectId);
+
+  // Build the "after" component set: replace any component whose id matches
+  // a hypothetical, and append any hypothetical with a new id.
+  const hypoIds = new Set(hypotheticalComponents.map(c => c.id).filter(Boolean));
+  const afterComponents = [
+    ...currentComponents.filter(c => !hypoIds.has(c.id)),
+    ...hypotheticalComponents
+  ];
+
+  const beforeFindings = computeAuditFindings(currentComponents, projectId);
+  const afterFindings  = computeAuditFindings(afterComponents, projectId);
+
+  const beforeScore = calcHealthScoreFromEntries(beforeFindings);
+  const afterScore  = calcHealthScoreFromEntries(afterFindings);
+
+  // Compare findings by a stable signature (errorType + componentId-independent
+  // message text), since generateId() gives every finding a fresh id each run.
+  const sig = f => `${f.errorType}::${f.message}`;
+  const beforeSigs = new Map(beforeFindings.map(f => [sig(f), f]));
+  const afterSigs  = new Map(afterFindings.map(f => [sig(f), f]));
+
+  const resolved    = beforeFindings.filter(f => !afterSigs.has(sig(f)));
+  const introduced  = afterFindings.filter(f => !beforeSigs.has(sig(f)));
+  const unchanged   = afterFindings.filter(f => beforeSigs.has(sig(f)));
+
+  return {
+    before: { score: beforeScore, findings: beforeFindings, components: currentComponents },
+    after:  { score: afterScore,  findings: afterFindings,  components: afterComponents },
+    scoreDelta: afterScore - beforeScore,
+    resolved, introduced, unchanged
+  };
 }
 
 /* ── Score History (sparkline) ── */
@@ -1347,6 +1582,351 @@ function renderSparkline(projectId) {
   }).join('');
   return `<div style="margin-top:6px;"><div class="sparkline-label">Score trend (last ${history.length} saves)</div><div class="score-sparkline">${bars}</div></div>`;
 }
+</script>
+<script>
+/* ── Impact Preview Modal ── */
+const impactModalOverlay = document.getElementById('modal-impact-preview');
+let _pendingImpactApply = null; // function to call if user clicks "Apply Change"
+
+function scoreColorFor(score) {
+  return score >= 70 ? 'var(--green)' : score >= 40 ? '#fbbf24' : '#fb7185';
+}
+
+function renderFindingRow(f, cssClass) {
+  return `<div class="impact-finding ${cssClass}">
+    <div class="impact-finding-type">${ERROR_TYPE_LABELS[f.errorType] || f.errorType.replace(/_/g,' ')}</div>
+    <div>${escHtml(f.message)}</div>
+  </div>`;
+}
+
+/**
+ * Open the Impact Preview modal.
+ * @param {string} projectId
+ * @param {Array}  hypotheticalComponents - components representing the proposed change
+ * @param {Function|null} onApply - called if the user confirms; should perform the actual save + runAuditEngine
+ */
+function openImpactPreview(projectId, hypotheticalComponents, onApply) {
+  const result = simulateAuditImpact(projectId, hypotheticalComponents);
+  const { before, after, scoreDelta, resolved, introduced } = result;
+
+  const deltaClass = scoreDelta > 0 ? 'positive' : scoreDelta < 0 ? 'negative' : 'neutral';
+  const deltaLabel = scoreDelta > 0 ? `+${scoreDelta}` : `${scoreDelta}`;
+
+  // Build component diff: split hypotheticals into edits (id matches an
+  // existing component) vs additions (brand new id).
+  const beforeById = new Map(before.components.map(c => [c.id, c]));
+  const edits = hypotheticalComponents.filter(c => beforeById.has(c.id));
+  const additions = hypotheticalComponents.filter(c => !beforeById.has(c.id));
+
+  let diffHtml = '';
+  edits.forEach(edited => {
+    const orig = beforeById.get(edited.id);
+    const fields = [];
+    if (orig.description !== edited.description) fields.push(['Description', orig.description, edited.description]);
+    if ((orig.targetBenchmark||'') !== (edited.targetBenchmark||'')) fields.push(['Benchmark', orig.targetBenchmark||'(none)', edited.targetBenchmark||'(none)']);
+    if ((orig.verificationSource||'') !== (edited.verificationSource||'')) fields.push(['Verification Source', orig.verificationSource||'(none)', edited.verificationSource||'(none)']);
+    if ((orig.timeframe||'') !== (edited.timeframe||'')) fields.push(['Timeframe', orig.timeframe||'(none)', edited.timeframe||'(none)']);
+    if (!fields.length) return;
+    diffHtml += `<div class="impact-finding" style="border-left-color:var(--cyan);">
+      <div class="impact-finding-type" style="color:var(--cyan);">Editing ${escHtml(orig.type)}</div>
+      ${fields.map(([label, fromV, toV]) => `
+        <div style="margin-bottom:6px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:2px;">${escHtml(label)}</div>
+          <div style="color:#fb7185;text-decoration:line-through;opacity:0.75;">${escHtml(fromV)}</div>
+          <div style="color:var(--green);">${escHtml(toV)}</div>
+        </div>`).join('')}
+    </div>`;
+  });
+  additions.forEach(comp => {
+    diffHtml += `<div class="impact-finding" style="border-left-color:var(--green);">
+      <div class="impact-finding-type" style="color:var(--green);">New ${escHtml(comp.type)}</div>
+      <div>${escHtml(comp.description)}</div>
+      ${comp.targetBenchmark ? `<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Benchmark: ${escHtml(comp.targetBenchmark)}</div>` : ''}
+      ${comp.verificationSource ? `<div style="font-size:11.5px;color:var(--muted);margin-top:2px;">Verification: ${escHtml(comp.verificationSource)}</div>` : '<div style="font-size:11.5px;color:#fb7185;margin-top:2px;">⚠ No verification source</div>'}
+    </div>`;
+  });
+
+  const highlightIds = new Set(hypotheticalComponents.map(c => c.id));
+  const diagramHtml = renderLogicModelDiagram(after.components, after.findings, { width: 700, highlightIds });
+
+  const body = document.getElementById('impact-preview-body');
+  body.innerHTML = `
+    <div class="impact-score-row">
+      <div class="impact-score-box">
+        <div class="impact-score-num" style="color:${scoreColorFor(before.score)}">${before.score}</div>
+        <div class="impact-score-label">Before</div>
+      </div>
+      <div class="impact-arrow">→</div>
+      <div class="impact-score-box">
+        <div class="impact-score-num" style="color:${scoreColorFor(after.score)}">${after.score}</div>
+        <div class="impact-score-label">After</div>
+      </div>
+      <div class="impact-delta ${deltaClass}">${deltaLabel} pts</div>
+    </div>
+    ${diffHtml ? `<div class="impact-section-title">What's Changing</div>${diffHtml}` : ''}
+    <div class="impact-section-title">Risks Resolved (${resolved.length})</div>
+    ${resolved.length ? resolved.map(f => renderFindingRow(f, 'resolved')).join('') : '<div class="impact-empty-note">No existing risk flags are resolved by this change.</div>'}
+    <div class="impact-section-title">New Risks Introduced (${introduced.length})</div>
+    ${introduced.length ? introduced.map(f => renderFindingRow(f, 'introduced')).join('') : '<div class="impact-empty-note">This change introduces no new risk flags.</div>'}
+    <div class="impact-section-title">Logic Model — After This Change</div>
+    <div style="overflow-x:auto;background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;">${diagramHtml}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;">Components outlined in <span style="color:var(--cyan);">cyan</span> with "NEW" are part of this change.</div>
+    <div class="impact-section-title">Summary</div>
+    <div class="impact-empty-note" style="font-style:normal;color:var(--text);">
+      ${scoreDelta > 0
+        ? `This change improves the Health Score by ${scoreDelta} point${scoreDelta!==1?'s':''} — a net positive for this logic model.`
+        : scoreDelta < 0
+          ? `This change reduces the Health Score by ${Math.abs(scoreDelta)} point${Math.abs(scoreDelta)!==1?'s':''}. Review the new risks above before proceeding — you can still apply the change if it's intentional (e.g. adding a component now and refining its benchmark/verification source afterward).`
+          : `This change does not affect the Health Score.`}
+    </div>
+  `;
+
+  _pendingImpactApply = onApply;
+  impactModalOverlay.classList.add('open');
+}
+
+function closeImpactPreview() {
+  impactModalOverlay.classList.remove('open');
+  _pendingImpactApply = null;
+}
+
+document.getElementById('btn-impact-cancel').addEventListener('click', closeImpactPreview);
+impactModalOverlay.addEventListener('click', e => { if (e.target === impactModalOverlay) closeImpactPreview(); });
+document.getElementById('btn-impact-apply').addEventListener('click', () => {
+  if (_pendingImpactApply) _pendingImpactApply();
+  closeImpactPreview();
+});
+</script>
+<script>
+/* ── Logic Model Diagram ──────────────────────────────────────────────────────
+   Builds a graph of the four component columns (Input → Activity → Output →
+   Outcome) plus edges inferred from the same keyword/overlap heuristics the
+   audit engine already uses for Orphaned Input and Circular Logic. Renders
+   as inline SVG. No external libraries — keeps it usable in the briefing too.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+const DIAGRAM_TYPE_COLORS = {
+  Input:    '#1d4ed8',
+  Activity: '#0ea5e9',
+  Output:   '#10b981',
+  Outcome:  '#7c3aed'
+};
+
+/**
+ * Build node/edge data for a logic model diagram.
+ * @param {Array} components - full component list for the project
+ * @param {Array} findings   - audit findings (used to flag risky nodes)
+ * @returns {{columns: Object, edges: Array, flaggedIds: Set}}
+ */
+function buildLogicModelGraph(components, findings) {
+  const columns = { Input: [], Activity: [], Output: [], Outcome: [] };
+  components.forEach(c => { if (columns[c.type]) columns[c.type].push(c); });
+
+  const edges = [];
+
+  // Input → Activity: input's keywords (len > 4) appear in activity description
+  columns.Input.forEach(input => {
+    const inputWords = input.description.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 4);
+    columns.Activity.forEach(act => {
+      const matched = inputWords.some(w => act.description.toLowerCase().includes(w));
+      if (matched) edges.push({ from: input.id, to: act.id, type: 'consumes' });
+    });
+  });
+
+  // Activity → Output / Outcome: simple sequential linkage when both exist —
+  // every activity links to every output (rough but matches the Dead End
+  // rule's "activities need SOME output/outcome" logic) when overlap-based
+  // matching finds nothing more specific.
+  columns.Activity.forEach(act => {
+    let linked = false;
+    columns.Output.forEach(out => {
+      if (wordOverlap(act.description, out.description) > 0.15 || wordOverlap(out.description, act.description) > 0.15) {
+        edges.push({ from: act.id, to: out.id, type: 'produces' });
+        linked = true;
+      }
+    });
+    if (!linked && columns.Output.length > 0 && columns.Outcome.length === 0 && columns.Output.length <= 4) {
+      // fallback: if nothing matched semantically, still show activity feeding outputs
+      // (keeps Dead-End-free models from looking disconnected)
+      columns.Output.forEach(out => edges.push({ from: act.id, to: out.id, type: 'produces-weak' }));
+    }
+  });
+
+  // Output → Outcome: same overlap heuristic
+  columns.Output.forEach(out => {
+    columns.Outcome.forEach(oc => {
+      if (wordOverlap(out.description, oc.description) > 0.1 || wordOverlap(oc.description, out.description) > 0.1) {
+        edges.push({ from: out.id, to: oc.id, type: 'drives' });
+      }
+    });
+  });
+
+  // Activity → Outcome direct (Circular Logic relationship — shown as a dashed warning edge)
+  columns.Activity.forEach(act => {
+    columns.Outcome.forEach(oc => {
+      if (wordOverlap(act.description, oc.description) > 0.65) {
+        edges.push({ from: act.id, to: oc.id, type: 'circular' });
+      }
+    });
+  });
+
+  // Fallback: if Output→Outcome found nothing but both columns are non-empty,
+  // link every output to every outcome so the diagram isn't disconnected.
+  if (columns.Output.length && columns.Outcome.length && !edges.some(e => e.type === 'drives')) {
+    columns.Output.forEach(out => columns.Outcome.forEach(oc => edges.push({ from: out.id, to: oc.id, type: 'drives-weak' })));
+  }
+
+  const flaggedIds = new Set((findings || []).map(f => f.componentId).filter(Boolean));
+
+  return { columns, edges, flaggedIds };
+}
+
+/**
+ * Render the logic model graph as an SVG string.
+ * @param {Array} components
+ * @param {Array} findings
+ * @param {Object} opts - { width, highlightIds: Set of component ids to highlight as "new" }
+ */
+function renderLogicModelDiagram(components, findings, opts = {}) {
+  const { columns, edges, flaggedIds } = buildLogicModelGraph(components, findings);
+  const highlightIds = opts.highlightIds || new Set();
+  const colTypes = ['Input', 'Activity', 'Output', 'Outcome'];
+  const light = !!opts.light;
+
+  const textColor   = light ? '#1a2740' : '#c8d4e8';
+  const dimColor    = light ? '#6b7a99' : '#8a9bbf';
+  const edgeColor   = light ? 'rgba(26,39,64,0.18)' : 'rgba(255,255,255,0.18)';
+  const edgeWeak    = light ? 'rgba(26,39,64,0.08)' : 'rgba(255,255,255,0.08)';
+  const nodeFill    = light ? '#f4f6fa' : 'rgba(255,255,255,0.03)';
+
+  const width = opts.width || 880;
+  const colWidth = width / 4;
+  const nodeW = colWidth - 36;
+  const nodeH = 56;
+  const nodeGapY = 16;
+  const topPad = 56;
+
+  // Compute node positions
+  const positions = {}; // id -> {x, y, w, h}
+  let maxNodes = 1;
+  colTypes.forEach((type, ci) => {
+    const items = columns[type];
+    maxNodes = Math.max(maxNodes, items.length);
+    items.forEach((comp, ri) => {
+      positions[comp.id] = {
+        x: ci * colWidth + 18,
+        y: topPad + ri * (nodeH + nodeGapY),
+        w: nodeW,
+        h: nodeH,
+        type
+      };
+    });
+  });
+  const height = topPad + maxNodes * (nodeH + nodeGapY) + 20;
+
+  // Column headers
+  let svg = '';
+  colTypes.forEach((type, ci) => {
+    const x = ci * colWidth + 18;
+    svg += `<text x="${x}" y="28" font-family="DM Sans, sans-serif" font-size="12" font-weight="700"
+      letter-spacing="0.08em" fill="${DIAGRAM_TYPE_COLORS[type]}">${type.toUpperCase()}S (${columns[type].length})</text>`;
+    svg += `<line x1="${x}" y1="38" x2="${x + nodeW}" y2="38" stroke="${DIAGRAM_TYPE_COLORS[type]}" stroke-width="2" opacity="0.4"/>`;
+  });
+
+  // Edges (drawn first so nodes sit on top)
+  edges.forEach(edge => {
+    const a = positions[edge.from];
+    const b = positions[edge.to];
+    if (!a || !b) return;
+    const x1 = a.x + a.w, y1 = a.y + a.h / 2;
+    const x2 = b.x, y2 = b.y + b.h / 2;
+    const midX = (x1 + x2) / 2;
+    let stroke = edgeColor;
+    let dash = '';
+    let width_ = 1.5;
+    if (edge.type === 'produces-weak' || edge.type === 'drives-weak') { stroke = edgeWeak; dash = '4,4'; }
+    if (edge.type === 'circular') { stroke = '#fb7185'; dash = '3,3'; width_ = 2; }
+    svg += `<path d="M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}"
+      fill="none" stroke="${stroke}" stroke-width="${width_}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+  });
+
+  // Nodes
+  Object.entries(positions).forEach(([id, pos]) => {
+    const comp = components.find(c => c.id === id);
+    if (!comp) return;
+    const color = DIAGRAM_TYPE_COLORS[pos.type];
+    const isFlagged = flaggedIds.has(id);
+    const isNew = highlightIds.has(id);
+    const desc = comp.description.length > 70 ? comp.description.slice(0, 70) + '…' : comp.description;
+    // word-wrap into up to 3 lines
+    const words = desc.split(' ');
+    const lines = [];
+    let line = '';
+    words.forEach(w => {
+      if ((line + ' ' + w).trim().length > 26 && line) { lines.push(line.trim()); line = w; }
+      else line = (line + ' ' + w).trim();
+    });
+    if (line) lines.push(line);
+    const shownLines = lines.slice(0, 3);
+
+    const strokeColor = isNew ? '#00c2ff' : (isFlagged ? '#fb7185' : color);
+    const strokeWidth = isNew ? 2.5 : (isFlagged ? 2 : 1);
+    const strokeDash = isNew ? '' : '';
+
+    svg += `<g>
+      <rect x="${pos.x}" y="${pos.y}" width="${pos.w}" height="${pos.h}" rx="6"
+        fill="${nodeFill}" stroke="${strokeColor}" stroke-width="${strokeWidth}" ${strokeDash} />
+      <rect x="${pos.x}" y="${pos.y}" width="4" height="${pos.h}" fill="${color}" rx="2"/>`;
+    shownLines.forEach((l, i) => {
+      svg += `<text x="${pos.x + 10}" y="${pos.y + 16 + i * 13}" font-family="DM Sans, sans-serif"
+        font-size="10.5" fill="${textColor}">${escHtml(l)}</text>`;
+    });
+    if (isFlagged) {
+      svg += `<circle cx="${pos.x + pos.w - 10}" cy="${pos.y + 10}" r="5" fill="#fb7185"/>
+        <text x="${pos.x + pos.w - 10}" y="${pos.y + 13}" font-family="DM Sans, sans-serif" font-size="9"
+          font-weight="700" fill="#0a0f1a" text-anchor="middle">!</text>`;
+    }
+    if (isNew) {
+      svg += `<text x="${pos.x + pos.w - 8}" y="${pos.y + pos.h - 6}" font-family="DM Sans, sans-serif"
+        font-size="9" font-weight="700" fill="#00c2ff" text-anchor="end">NEW</text>`;
+    }
+    svg += `</g>`;
+  });
+
+  if (!components.length) {
+    return `<svg viewBox="0 0 ${width} 120" xmlns="http://www.w3.org/2000/svg" width="100%">
+      <text x="${width/2}" y="60" font-family="DM Sans, sans-serif" font-size="13" fill="${dimColor}" text-anchor="middle">
+        Add components to see the logic model diagram.
+      </text></svg>`;
+  }
+
+  return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" width="100%" style="display:block;">${svg}</svg>`;
+}
+
+/* ── Diagram panel in the Framework Builder ── */
+function renderDiagramPanel() {
+  const container = document.getElementById('logic-diagram-container');
+  if (!container) return;
+  if (!activeProjectId) { container.innerHTML = ''; return; }
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  container.innerHTML = renderLogicModelDiagram(components, findings, { width: 760 });
+}
+
+(function() {
+  const bar = document.getElementById('diagram-panel');
+  const header = document.getElementById('diagram-panel-header');
+  const toggleLabel = document.getElementById('diagram-toggle-label');
+  if (!bar || !header) return;
+  const collapsed = localStorage.getItem('ks_diagram_collapsed') === '1';
+  if (collapsed) { bar.classList.add('collapsed'); toggleLabel.textContent = 'expand'; }
+  header.addEventListener('click', () => {
+    const isCollapsed = bar.classList.toggle('collapsed');
+    toggleLabel.textContent = isCollapsed ? 'expand' : 'collapse';
+    localStorage.setItem('ks_diagram_collapsed', isCollapsed ? '1' : '0');
+    if (!isCollapsed) renderDiagramPanel();
+  });
+})();
 </script>
 <script>
 /* ── Render Audit Panel ── */
@@ -1382,6 +1962,7 @@ function renderAuditPanel() {
     updateCoverage(null);
     btnBriefing.disabled = true;
     btnNarrative.disabled = true;
+    renderDiagramPanel();
     return;
   }
 
@@ -1486,6 +2067,7 @@ function renderAuditPanel() {
   updateCoverage(activeProjectId);
   btnBriefing.disabled  = components.length < 2;
   btnNarrative.disabled = components.length < 2;
+  renderDiagramPanel();
 }
 
 function updateCoverage(projectId) {
@@ -1527,7 +2109,15 @@ function renderFormPanel() {
     suggestBar.classList.toggle('collapsed', collapsed);
     suggestLabel.textContent = collapsed ? 'expand' : 'collapse';
   }
-  renderStepIndicator(); renderComponentList(); renderAuditPanel();
+  // Re-apply diagram panel collapsed state (DOM is rebuilt on each view switch)
+  const diagramBar = document.getElementById('diagram-panel');
+  const diagramLabel = document.getElementById('diagram-toggle-label');
+  if (diagramBar && diagramLabel) {
+    const diagramCollapsed = localStorage.getItem('ks_diagram_collapsed') === '1';
+    diagramBar.classList.toggle('collapsed', diagramCollapsed);
+    diagramLabel.textContent = diagramCollapsed ? 'expand' : 'collapse';
+  }
+  renderStepIndicator(); renderComponentList(); renderAuditPanel(); renderDiagramPanel();
 }
 
 function renderStepIndicator() {
@@ -1579,7 +2169,10 @@ function renderComponentList() {
           <label class="comp-edit-label">Verification / Data Source</label>
           <input class="comp-edit-field" id="edit-src-${comp.id}" value="${escHtml(comp.verificationSource||'')}" placeholder="e.g. FNHA quarterly report, BC Gazette">
           ${comp.type === 'Outcome' ? `<label class="comp-edit-label">Timeframe</label><select class="comp-edit-field" id="edit-tf-${comp.id}"><option value="short" ${comp.timeframe==='short'?'selected':''}>Short-term (&lt;1 year)</option><option value="medium" ${comp.timeframe==='medium'||!comp.timeframe?'selected':''}>Medium-term (1–3 years)</option><option value="long" ${comp.timeframe==='long'?'selected':''}>Long-term (3+ years)</option></select>` : ''}
-          <button class="comp-edit-save" data-id="${comp.id}">Save</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn-impact-preview" data-id="${comp.id}" data-preview-edit="true" title="See how this edit affects the Health Score">📊 Preview Impact</button>
+            <button class="comp-edit-save" data-id="${comp.id}">Save</button>
+          </div>
         </div>
       </div>`;
     });
@@ -1665,24 +2258,41 @@ function renderComponentList() {
   });
 
   // Save inline edit (benchmark + verification + timeframe)
+  function buildEditedComponent(id) {
+    const bench = document.getElementById('edit-bench-' + id);
+    const src   = document.getElementById('edit-src-'   + id);
+    const tf    = document.getElementById('edit-tf-'    + id);
+    if (!bench || !src) return null;
+    const comp = getData('ks_components').find(c => c.id === id);
+    if (!comp) return null;
+    const u = { ...comp, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim() };
+    if (tf) u.timeframe = tf.value;
+    return u;
+  }
+
+  function commitEditedComponent(updatedComp) {
+    const comps = getData('ks_components');
+    setData('ks_components', comps.map(c => c.id === updatedComp.id ? updatedComp : c));
+    runAuditEngine(activeProjectId);
+    renderComponentList();
+    showToast('Component updated.');
+  }
+
   container.querySelectorAll('.comp-edit-save').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
-      const bench = document.getElementById('edit-bench-' + id);
-      const src   = document.getElementById('edit-src-'   + id);
-      const tf    = document.getElementById('edit-tf-'    + id);
-      if (!bench || !src) return;
-      const comps = getData('ks_components');
-      const updated = comps.map(c => {
-        if (c.id !== id) return c;
-        const u = { ...c, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim() };
-        if (tf) u.timeframe = tf.value;
-        return u;
-      });
-      setData('ks_components', updated);
-      runAuditEngine(activeProjectId);
-      renderComponentList();
-      showToast('Component updated.');
+      const updated = buildEditedComponent(id);
+      if (!updated) return;
+      commitEditedComponent(updated);
+    });
+  });
+
+  container.querySelectorAll('[data-preview-edit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const updated = buildEditedComponent(id);
+      if (!updated) return;
+      openImpactPreview(activeProjectId, [updated], () => commitEditedComponent(updated));
     });
   });
 }
@@ -1706,28 +2316,50 @@ document.getElementById('btn-prev').addEventListener('click', () => { if (curren
 document.getElementById('btn-next').addEventListener('click', () => { if (currentStep < STEPS.length - 1) { currentStep++; renderStepIndicator(); } });
 document.querySelectorAll('.step-item').forEach(item => item.addEventListener('click', () => { if (!activeProjectId) return; currentStep = parseInt(item.dataset.step); renderStepIndicator(); }));
 
-function addCurrentComponent() {
-  if (!activeProjectId) return;
+function buildPendingComponentFromForm() {
+  if (!activeProjectId) return null;
   const descEl  = document.getElementById(`desc-${currentStep}`);
   const errEl   = document.getElementById(`err-${currentStep}`);
   const benchEl = document.getElementById(`bench-${currentStep}`);
   const srcEl   = document.getElementById(`source-${currentStep}`);
   const desc = descEl.value.trim();
-  if (!desc) { descEl.classList.add('error'); errEl.classList.add('visible'); return; }
+  if (!desc) { descEl.classList.add('error'); errEl.classList.add('visible'); return null; }
   descEl.classList.remove('error'); errEl.classList.remove('visible');
   const newComp = { id: generateId(), projectId: activeProjectId, type: STEPS[currentStep], description: desc, targetBenchmark: benchEl.value.trim(), verificationSource: srcEl.value.trim() };
   if (STEPS[currentStep] === 'Outcome') {
     newComp.timeframe = document.getElementById('outcome-timeframe-select')?.value || 'medium';
   }
+  return newComp;
+}
+
+function commitNewComponent(newComp) {
   setData('ks_components', [...getData('ks_components'), newComp]);
+  const descEl  = document.getElementById(`desc-${currentStep}`);
+  const benchEl = document.getElementById(`bench-${currentStep}`);
+  const srcEl   = document.getElementById(`source-${currentStep}`);
   descEl.value = ''; benchEl.value = ''; srcEl.value = '';
   // Reset timeframe to default after adding an outcome
   const tfSelect = document.getElementById('outcome-timeframe-select');
-  if (tfSelect && STEPS[currentStep] === 'Outcome') tfSelect.value = 'medium';
+  if (tfSelect && newComp.type === 'Outcome') tfSelect.value = 'medium';
   runAuditEngine(activeProjectId); renderComponentList();
 }
 
+function addCurrentComponent() {
+  if (!activeProjectId) return;
+  const newComp = buildPendingComponentFromForm();
+  if (!newComp) return;
+  commitNewComponent(newComp);
+}
+
+function previewCurrentComponent() {
+  if (!activeProjectId) { showToast('Open a project first.', true); return; }
+  const newComp = buildPendingComponentFromForm();
+  if (!newComp) return;
+  openImpactPreview(activeProjectId, [newComp], () => commitNewComponent(newComp));
+}
+
 document.getElementById('btn-add-component').addEventListener('click', addCurrentComponent);
+document.getElementById('btn-preview-impact').addEventListener('click', previewCurrentComponent);
 
 // Enter key in source field submits the component
 [0,1,2,3].forEach(i => {
@@ -1788,6 +2420,13 @@ function setActiveProject(id) {
   if (tlName && document.getElementById('view-timeline')?.classList.contains('active')) {
     const tlProj = getData('ks_projects').find(p => p.id === id);
     if (tlProj) tlName.textContent = tlProj.name;
+  }
+  // If the AI Assistant panel is open, refresh its context bar and thread
+  // for the newly active project.
+  const assistantPanel = document.getElementById('assistant-panel');
+  if (assistantPanel && assistantPanel.classList.contains('open') && typeof renderAssistantContextBar === 'function') {
+    renderAssistantContextBar();
+    renderAssistantMessages();
   }
 }
 
@@ -1875,13 +2514,29 @@ function openModal() {
   ['modal-err-name','modal-err-dept'].forEach(id => document.getElementById(id).classList.remove('visible'));
   ['modal-name','modal-dept'].forEach(id => document.getElementById(id).classList.remove('error'));
   document.getElementById('ai-nl-input').value = '';
+  document.getElementById('modal-doc-loading').style.display = 'none';
+  renderModalStagedNote();
   modalOverlay.classList.add('open');
   setTimeout(() => document.getElementById('ai-nl-input').focus(), 50);
 }
-function closeModal() { modalOverlay.classList.remove('open'); }
+function closeModal() {
+  modalOverlay.classList.remove('open');
+  _pendingNewProjectComponents = null;
+  renderModalStagedNote();
+}
 document.getElementById('btn-new-project').addEventListener('click', openModal);
 document.getElementById('btn-modal-cancel').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+
+function renderModalStagedNote() {
+  const note = document.getElementById('modal-doc-staged-note');
+  if (_pendingNewProjectComponents && _pendingNewProjectComponents.length) {
+    note.style.display = 'block';
+    note.textContent = `✓ ${_pendingNewProjectComponents.length} component${_pendingNewProjectComponents.length!==1?'s':''} from Document Analysis will be added to this project once created.`;
+  } else {
+    note.style.display = 'none';
+  }
+}
 
 document.getElementById('btn-modal-submit').addEventListener('click', () => {
   const name = document.getElementById('modal-name').value.trim();
@@ -1894,6 +2549,16 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
   if (!valid) return;
   const project = { id: generateId(), name, department: dept, description: document.getElementById('modal-desc').value.trim(), mandate: document.getElementById('modal-mandate').value, createdAt: new Date().toISOString() };
   setData('ks_projects', [...getData('ks_projects'), project]);
+  // Attach any staged components (from Document Analysis "Import to New
+  // Project" or the document-upload zone in this modal).
+  if (_pendingNewProjectComponents && _pendingNewProjectComponents.length) {
+    const newComps = _pendingNewProjectComponents.map(c => ({
+      id: generateId(), projectId: project.id, type: c.type,
+      description: c.description, targetBenchmark: c.targetBenchmark || '', verificationSource: c.verificationSource || ''
+    }));
+    setData('ks_components', [...getData('ks_components'), ...newComps]);
+    _pendingNewProjectComponents = null;
+  }
   closeModal(); setActiveProject(project.id); currentStep = 0; showView('new-framework');
 });
 
@@ -1903,6 +2568,47 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
     document.getElementById('modal-err-' + id.replace('modal-','')).classList.remove('visible');
   });
 });
+
+/* ── Document-to-Project Import (in New Project modal) ── */
+const modalDocZone = document.getElementById('modal-doc-upload-zone');
+const modalDocFileInput = document.getElementById('modal-doc-file-input');
+modalDocZone.addEventListener('click', () => modalDocFileInput.click());
+modalDocZone.addEventListener('dragover', e => { e.preventDefault(); modalDocZone.classList.add('drag-over'); });
+modalDocZone.addEventListener('dragleave', () => modalDocZone.classList.remove('drag-over'));
+modalDocZone.addEventListener('drop', e => { e.preventDefault(); modalDocZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processModalDocFile(e.dataTransfer.files[0]); });
+modalDocFileInput.addEventListener('change', e => { if (e.target.files[0]) processModalDocFile(e.target.files[0]); e.target.value=''; });
+
+async function processModalDocFile(file) {
+  const loading = document.getElementById('modal-doc-loading');
+  loading.style.display = 'block';
+  try {
+    const { docText, docBase64, mimeType } = await extractDocumentPayload(file);
+    const data = await aiFetch('/api/ai/create-project-from-document', {
+      document_text: docText, document_base64: docBase64,
+      document_mime_type: mimeType, document_name: file.name
+    }, 120000);
+    const p = data.project || {};
+    document.getElementById('modal-name').value = p.name || '';
+    document.getElementById('modal-dept').value = p.department || '';
+    document.getElementById('modal-desc').value = p.description || '';
+    document.getElementById('modal-mandate').value = p.mandate || 'DRIPA Alignment';
+
+    const comps = data.components || {};
+    const staged = [];
+    ['inputs','activities','outputs','outcomes'].forEach((key, i) => {
+      const type = STEPS[i];
+      (comps[key] || []).forEach(item => staged.push({ type, description: item.description || '', targetBenchmark: item.targetBenchmark || '', verificationSource: item.verificationSource || '' }));
+    });
+    _pendingNewProjectComponents = staged;
+    renderModalStagedNote();
+    showToast(`✨ Form filled and ${staged.length} component${staged.length!==1?'s':''} staged from "${file.name}". Review and create the project.`);
+  } catch(e) {
+    showToast('Document import failed: ' + (e.message || 'Unknown error'), true);
+    console.error(e);
+  } finally {
+    loading.style.display = 'none';
+  }
+}
 </script>
 <script>
 /* ═══════════════════════════════════════════════════
@@ -1926,16 +2632,22 @@ document.getElementById('btn-ai-suggest').addEventListener('click', async () => 
       existing_components: existingProjectComps.map(c => ({ type: c.type, description: c.description }))
     });
     const d = data.data;
-    const otherComps = getData('ks_components').filter(c => c.projectId !== activeProjectId);
     const newComps = [];
     ['inputs','activities','outputs','outcomes'].forEach((key, i) => {
       const type = STEPS[i];
       (d[key] || []).forEach(item => newComps.push({ id: generateId(), projectId: activeProjectId, type, description: item.description || '', targetBenchmark: item.targetBenchmark || '', verificationSource: item.verificationSource || '' }));
     });
-    setData('ks_components', [...otherComps, ...existingProjectComps, ...newComps]);
-    document.getElementById('ai-suggest-input').value = '';
-    runAuditEngine(activeProjectId); renderComponentList();
-    showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
+    if (!newComps.length) { showToast('AI returned no components.', true); return; }
+    const otherComps = getData('ks_components').filter(c => c.projectId !== activeProjectId);
+    const commit = () => {
+      setData('ks_components', [...otherComps, ...existingProjectComps, ...newComps]);
+      document.getElementById('ai-suggest-input').value = '';
+      runAuditEngine(activeProjectId); renderComponentList();
+      showToast(`✨ Generated ${newComps.length} components. Review and refine them below.`);
+    };
+    // Combined set for preview: existing + new (existing are unchanged so they
+    // pass through simulateAuditImpact's "currentComponents" path automatically)
+    openImpactPreview(activeProjectId, newComps, commit);
   } catch(e) {
     showToast('AI suggestion failed: ' + (e.message || 'Unknown error'), true);
     console.error(e);
@@ -2016,10 +2728,14 @@ async function aiImproveDescription(btn) {
       description: comp.description, component_type: comp.type,
       mandate: proj ? proj.mandate : 'Service Delivery'
     });
-    const updated = components.map(c => c.id === compId ? { ...c, description: data.improved } : c);
-    setData('ks_components', updated);
-    runAuditEngine(activeProjectId); renderComponentList();
-    showToast('✨ Description improved.');
+    const updatedComp = { ...comp, description: data.improved };
+    const commit = () => {
+      setData('ks_components', components.map(c => c.id === compId ? updatedComp : c));
+      runAuditEngine(activeProjectId); renderComponentList();
+      showToast('✨ Description improved.');
+    };
+    btn.disabled = false; btn.textContent = '✨';
+    openImpactPreview(activeProjectId, [updatedComp], commit);
   } catch(e) {
     showToast('AI: ' + (e.message || 'Failed to improve description'), true);
     btn.disabled = false; btn.textContent = '✨';
@@ -2074,7 +2790,7 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
   if (auditLog.some(e => e.errorType === 'Duplicate_Component')) recs.push('Consolidate or differentiate components that describe the same resource, action, or deliverable to avoid inflating apparent model coverage.');
   if (!recs.length) recs.push('Logic model appears structurally sound. Proceed to stakeholder validation and peer review before submission.');
 
-  const ERROR_LABELS = { Dead_End:'Dead End', Miracle_Leap:'Miracle Leap', Blind_Spot:'Blind Spot', Circular_Logic:'Circular Logic', Orphaned_Input:'Orphaned Input', Scale_Mismatch:'Scale Mismatch', Duplicate_Component:'Duplicate Component' };
+  const ERROR_LABELS = ERROR_TYPE_LABELS;
   const SEVERITY_COLORS = { High: '#c41e3a', Medium: '#b8860b', Low: '#1d4ed8' };
 
   function compRows(type) {
@@ -2127,6 +2843,12 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
   <hr class="divider">
   <div class="section-title">Programme Logic Model</div>
   ${['Input','Activity','Output','Outcome'].map(type=>`<div class="type-heading no-break">${type}s &nbsp;<span style="font-weight:400;color:#8a9bbf;">(${components.filter(c=>c.type===type).length})</span></div>${compRows(type)}`).join('')}
+  <div class="page-break"></div>
+  <hr class="divider">
+  <div class="section-title">Logic Model Diagram</div>
+  <div style="border:1px solid #e0e5ef;border-radius:8px;padding:12px;margin-bottom:10px;">
+    ${renderLogicModelDiagram(components, auditLog, { width: 760, light: true })}
+  </div>
   <div class="page-break"></div>
   <hr class="divider">
   <div class="section-title">Diagnostic Audit Findings</div>
@@ -2313,7 +3035,10 @@ document.querySelectorAll('.qs-pill').forEach(pill => pill.addEventListener('cli
 
 /* ── Document Analysis ── */
 let daExtractedComponents = [];
+let daActiveHistoryId = null; // set when viewing a past analysis from history
+
 function renderDocumentAnalysis() {
+  document.getElementById('da-history-area').style.display = 'none';
   // Preserve extracted components across view switches — only reset if empty
   if (daExtractedComponents.length === 0) {
     document.getElementById('da-upload-area').style.display = 'block';
@@ -2326,6 +3051,111 @@ function renderDocumentAnalysis() {
     renderDAResults();
   }
 }
+
+/* ── History storage ── */
+function getDocAnalysisHistory() {
+  try { return getData('ks_doc_analysis_history'); } catch(e) { return []; }
+}
+
+function saveDocAnalysisHistory(fileName, mandate, components) {
+  const entry = {
+    id: generateId(),
+    fileName,
+    mandate,
+    timestamp: Date.now(),
+    components: components.map(c => ({ ...c })) // snapshot — accepted/rejected state included
+  };
+  const history = getDocAnalysisHistory();
+  history.unshift(entry);
+  // Keep the most recent 25 analyses to avoid unbounded storage growth
+  setData('ks_doc_analysis_history', history.slice(0, 25));
+  daActiveHistoryId = entry.id;
+  return entry;
+}
+
+function updateActiveHistoryEntry() {
+  if (!daActiveHistoryId) return;
+  const history = getDocAnalysisHistory();
+  const updated = history.map(h => h.id === daActiveHistoryId
+    ? { ...h, components: daExtractedComponents.map(c => ({ ...c })) }
+    : h);
+  setData('ks_doc_analysis_history', updated);
+}
+
+function deleteDocAnalysisHistory(id) {
+  setData('ks_doc_analysis_history', getDocAnalysisHistory().filter(h => h.id !== id));
+  renderDAHistory();
+}
+
+function formatHistoryTimestamp(ts) {
+  const diffMs = Date.now() - ts;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return new Date(ts).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function renderDAHistory() {
+  const area = document.getElementById('da-history-area');
+  const history = getDocAnalysisHistory();
+  if (!history.length) {
+    area.innerHTML = '<div class="da-history-empty">No past analyses yet. Upload a document to get started.</div>';
+    return;
+  }
+  area.innerHTML = `<div class="da-history-list">${history.map(h => {
+    const total = h.components.length;
+    const accepted = h.components.filter(c => c.accepted).length;
+    return `<div class="da-history-item" data-history-id="${h.id}">
+      <div class="da-history-icon">📄</div>
+      <div class="da-history-meta">
+        <div class="da-history-name">${escHtml(h.fileName)}</div>
+        <div class="da-history-sub">${escHtml(h.mandate)} · ${formatHistoryTimestamp(h.timestamp)}</div>
+      </div>
+      <div class="da-history-count">${accepted}/${total} accepted</div>
+      <button class="da-history-delete" data-delete-id="${h.id}" title="Delete this analysis">×</button>
+    </div>`;
+  }).join('')}</div>`;
+
+  area.querySelectorAll('.da-history-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.da-history-delete')) return;
+      loadDocAnalysisFromHistory(item.dataset.historyId);
+    });
+  });
+  area.querySelectorAll('.da-history-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!window.confirm('Delete this analysis from history?')) return;
+      deleteDocAnalysisHistory(btn.dataset.deleteId);
+    });
+  });
+}
+
+function loadDocAnalysisFromHistory(id) {
+  const entry = getDocAnalysisHistory().find(h => h.id === id);
+  if (!entry) return;
+  daExtractedComponents = entry.components.map(c => ({ ...c }));
+  daActiveHistoryId = entry.id;
+  document.getElementById('da-history-area').style.display = 'none';
+  document.getElementById('da-upload-area').style.display = 'none';
+  renderDAResults();
+  showToast(`Loaded analysis of "${entry.fileName}".`);
+}
+
+document.getElementById('da-btn-history').addEventListener('click', () => {
+  const area = document.getElementById('da-history-area');
+  const showing = area.style.display !== 'none';
+  if (showing) { area.style.display = 'none'; return; }
+  document.getElementById('da-upload-area').style.display = 'none';
+  document.getElementById('da-results-area').style.display = 'none';
+  document.getElementById('da-btn-reset').style.display = 'none';
+  document.getElementById('da-btn-import').style.display = 'none';
+  area.style.display = 'block';
+  renderDAHistory();
+});
+
 const daZone = document.getElementById('da-upload-zone');
 const daFileInput = document.getElementById('da-file-input');
 daZone.addEventListener('click', () => daFileInput.click());
@@ -2334,50 +3164,60 @@ daZone.addEventListener('dragleave', () => daZone.classList.remove('drag-over'))
 daZone.addEventListener('drop', e => { e.preventDefault(); daZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processDAFile(e.dataTransfer.files[0]); });
 daFileInput.addEventListener('change', e => { if (e.target.files[0]) processDAFile(e.target.files[0]); e.target.value=''; });
 
+/* ── Shared document extraction helper ──────────────────────────────────────
+   Converts a .docx or .pdf File into { docText, docBase64, mimeType } for
+   sending to the backend. Used by both the Document Analysis tab and the
+   New Project modal's document-upload zone.
+   ──────────────────────────────────────────────────────────────────────────── */
+async function extractDocumentPayload(file) {
+  let docText='', docBase64='', mimeType=file.type||'application/octet-stream';
+  if (file.name.endsWith('.docx')) {
+    const ab = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: ab });
+    docText = result.value;
+  } else {
+    // PDFs: extract text client-side with pdf.js. This sends a small text
+    // payload instead of a multi-megabyte base64 blob, avoiding payload-size
+    // failures and large round-trip times for the AI call.
+    mimeType = 'application/pdf';
+    const ab = await file.arrayBuffer();
+    try {
+      const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+      let pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(item => item.str).join(' '));
+      }
+      docText = pages.join('\n\n');
+    } catch (pdfErr) {
+      console.error('pdf.js extraction failed:', pdfErr);
+      docText = '';
+    }
+    // Fallback: if the PDF has little/no extractable text (e.g. a scanned
+    // image-only document), fall back to sending the raw file so Gemini
+    // can read it directly. Most operational plans contain real text and
+    // will use the docText path above.
+    if (docText.trim().length < 50) {
+      const bytes = new Uint8Array(ab);
+      let binary = '';
+      const CHUNK = 8192;
+      for (let i = 0; i < bytes.length; i += CHUNK) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+      }
+      docBase64 = btoa(binary);
+      docText = '';
+    }
+  }
+  return { docText, docBase64, mimeType };
+}
+
 async function processDAFile(file) {
   const proj = activeProjectId ? getData('ks_projects').find(p=>p.id===activeProjectId) : null;
   document.getElementById('da-upload-area').style.display = 'none';
   document.getElementById('da-loading').style.display = 'block';
   try {
-    let docText='', docBase64='', mimeType=file.type||'application/octet-stream';
-    if (file.name.endsWith('.docx')) {
-      const ab = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer: ab });
-      docText = result.value;
-    } else {
-      // PDFs: extract text client-side with pdf.js. This sends a small text
-      // payload instead of a multi-megabyte base64 blob, avoiding payload-size
-      // failures and large round-trip times for the AI call.
-      mimeType = 'application/pdf';
-      const ab = await file.arrayBuffer();
-      try {
-        const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
-        let pages = [];
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          pages.push(content.items.map(item => item.str).join(' '));
-        }
-        docText = pages.join('\n\n');
-      } catch (pdfErr) {
-        console.error('pdf.js extraction failed:', pdfErr);
-        docText = '';
-      }
-      // Fallback: if the PDF has little/no extractable text (e.g. a scanned
-      // image-only document), fall back to sending the raw file so Gemini
-      // can read it directly. Most operational plans contain real text and
-      // will use the docText path above.
-      if (docText.trim().length < 50) {
-        const bytes = new Uint8Array(ab);
-        let binary = '';
-        const CHUNK = 8192;
-        for (let i = 0; i < bytes.length; i += CHUNK) {
-          binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
-        }
-        docBase64 = btoa(binary);
-        docText = '';
-      }
-    }
+    const { docText, docBase64, mimeType } = await extractDocumentPayload(file);
     const data = await aiFetch('/api/ai/extract-components', {
       document_text: docText, document_base64: docBase64,
       document_mime_type: mimeType, document_name: file.name,
@@ -2387,6 +3227,7 @@ async function processDAFile(file) {
     ['inputs','activities','outputs','outcomes'].forEach((key,i) => {
       (data.data[key]||[]).forEach(item => daExtractedComponents.push({...item, componentType:['Input','Activity','Output','Outcome'][i], accepted:true}));
     });
+    saveDocAnalysisHistory(file.name, proj?.mandate || 'Service Delivery', daExtractedComponents);
     document.getElementById('da-loading').style.display = 'none';
     renderDAResults();
   } catch(e) {
@@ -2400,19 +3241,22 @@ function renderDAResults() {
   document.getElementById('da-results-area').style.display = 'block';
   document.getElementById('da-btn-reset').style.display = 'inline-block';
   document.getElementById('da-btn-import').style.display = 'inline-block';
+  document.getElementById('da-btn-import-new').style.display = 'inline-block';
   const list = document.getElementById('da-results-list');
   list.innerHTML = daExtractedComponents.map((comp,idx) => `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button></div></div>`).join('');
-  list.querySelectorAll('.btn-da-accept').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=true; renderDAResults(); }));
-  list.querySelectorAll('.btn-da-reject').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=false; renderDAResults(); }));
+  list.querySelectorAll('.btn-da-accept').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=true; updateActiveHistoryEntry(); renderDAResults(); }));
+  list.querySelectorAll('.btn-da-reject').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=false; updateActiveHistoryEntry(); renderDAResults(); }));
   document.getElementById('da-accept-count').textContent = `${daExtractedComponents.filter(c=>c.accepted).length} accepted`;
 }
 
 document.getElementById('da-btn-reset').addEventListener('click', () => {
   daExtractedComponents=[];
+  daActiveHistoryId=null;
   document.getElementById('da-upload-area').style.display='block';
   document.getElementById('da-results-area').style.display='none';
   document.getElementById('da-btn-reset').style.display='none';
   document.getElementById('da-btn-import').style.display='none';
+  document.getElementById('da-btn-import-new').style.display='none';
 });
 
 document.getElementById('da-btn-import').addEventListener('click', () => {
@@ -2424,12 +3268,31 @@ document.getElementById('da-btn-import').addEventListener('click', () => {
   const accepted = daExtractedComponents.filter(c=>c.accepted);
   if (!accepted.length) { showToast('No components accepted.', true); return; }
   const newComps = accepted.map(c => ({ id:generateId(), projectId:activeProjectId, type:c.componentType, description:c.description, targetBenchmark:c.targetBenchmark||'', verificationSource:c.verificationSource||'' }));
-  setData('ks_components', [...getData('ks_components'), ...newComps]);
-  runAuditEngine(activeProjectId);
-  showToast(`✓ Imported ${newComps.length} components.`);
-  daExtractedComponents=[];
-  showView('new-framework');
+  const commit = () => {
+    setData('ks_components', [...getData('ks_components'), ...newComps]);
+    runAuditEngine(activeProjectId);
+    showToast(`✓ Imported ${newComps.length} components.`);
+    daExtractedComponents=[];
+    daActiveHistoryId=null;
+    showView('new-framework');
+  };
+  openImpactPreview(activeProjectId, newComps, commit);
 });
+
+/* Import accepted components into a brand-new project (skips the Impact
+   Preview, since there's no "before" project state to compare against —
+   the new project starts at whatever score these components produce). */
+document.getElementById('da-btn-import-new').addEventListener('click', () => {
+  const accepted = daExtractedComponents.filter(c=>c.accepted);
+  if (!accepted.length) { showToast('No components accepted.', true); return; }
+  // Stage the accepted components so the New Project modal can attach them
+  // to whatever project gets created.
+  _pendingNewProjectComponents = accepted.map(c => ({ type:c.componentType, description:c.description, targetBenchmark:c.targetBenchmark||'', verificationSource:c.verificationSource||'' }));
+  showView('projects');
+  openModal();
+  showToast(`${accepted.length} component${accepted.length!==1?'s':''} staged — fill in the project details to create it.`);
+});
+
 
 /* ── Timeline View ── */
 let tlTimelineData = null;
@@ -2578,4 +3441,179 @@ document.getElementById('import-file-input').addEventListener('change', async (e
   }
   checkAIStatus();
 })();
+</script>
+<script>
+/* ═══════════════════════════════════════════════════
+   AI ASSISTANT CHAT — embedded across all tabs
+   ═══════════════════════════════════════════════════ */
+
+/* History is stored per project (and a "general" thread when no project is
+   open) so switching projects doesn't mix unrelated conversations. */
+function assistantHistoryKey(projectId) {
+  return `ks_assistant_history_${projectId || 'general'}`;
+}
+
+function getAssistantHistory(projectId) {
+  try {
+    const raw = localStorage.getItem(assistantHistoryKey(projectId));
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e) { return []; }
+}
+
+function setAssistantHistory(projectId, history) {
+  try { localStorage.setItem(assistantHistoryKey(projectId), JSON.stringify(history)); } catch(e) {}
+}
+
+const ASSISTANT_SUGGESTIONS = [
+  "What should I fix first in this project?",
+  "Why is my Health Score what it is?",
+  "Explain the Blind Spot rule",
+  "How do I write a good Outcome?"
+];
+
+let _assistantCurrentProjectId = undefined; // tracks which project's thread is loaded
+
+function assistantContextLabel() {
+  if (!activeProjectId) return null;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  return proj ? proj.name : null;
+}
+
+function renderAssistantContextBar() {
+  const bar = document.getElementById('assistant-context-bar');
+  const label = assistantContextLabel();
+  if (label) {
+    bar.innerHTML = `Context: <strong>${escHtml(label)}</strong> — I can see this project's components, mandate, and current audit findings.`;
+    bar.classList.add('visible');
+  } else {
+    bar.innerHTML = `No project open — I can still help with general Keystone or policy logic questions.`;
+    bar.classList.add('visible');
+  }
+}
+
+function renderAssistantMessages() {
+  const container = document.getElementById('assistant-messages');
+  const history = getAssistantHistory(activeProjectId);
+  if (!history.length) {
+    container.innerHTML = `<div class="assistant-empty">
+      Ask me anything about this project's logic model, audit findings, or Keystone's audit rules.
+    </div>
+    <div class="assistant-suggestion-chips" id="assistant-chips">
+      ${ASSISTANT_SUGGESTIONS.map(s => `<button class="assistant-suggestion-chip" data-suggestion="${escHtml(s)}">${escHtml(s)}</button>`).join('')}
+    </div>`;
+    container.querySelectorAll('.assistant-suggestion-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.getElementById('assistant-input').value = chip.dataset.suggestion;
+        sendAssistantMessage();
+      });
+    });
+    return;
+  }
+  container.innerHTML = history.map(m =>
+    `<div class="assistant-msg ${m.role === 'user' ? 'user' : (m.error ? 'error' : 'assistant')}">${escHtml(m.content)}</div>`
+  ).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function openAssistantPanel() {
+  const panel = document.getElementById('assistant-panel');
+  // Reload the thread if the active project changed since the panel was last opened
+  if (_assistantCurrentProjectId !== activeProjectId) {
+    _assistantCurrentProjectId = activeProjectId;
+  }
+  panel.classList.add('open');
+  document.getElementById('assistant-toggle-badge').style.display = 'none';
+  renderAssistantContextBar();
+  renderAssistantMessages();
+  setTimeout(() => document.getElementById('assistant-input').focus(), 50);
+}
+
+function closeAssistantPanel() {
+  document.getElementById('assistant-panel').classList.remove('open');
+}
+
+document.getElementById('assistant-toggle').addEventListener('click', () => {
+  const panel = document.getElementById('assistant-panel');
+  if (panel.classList.contains('open')) closeAssistantPanel();
+  else openAssistantPanel();
+});
+document.getElementById('assistant-close').addEventListener('click', closeAssistantPanel);
+
+document.getElementById('assistant-clear').addEventListener('click', () => {
+  if (!window.confirm('Clear this conversation?')) return;
+  setAssistantHistory(activeProjectId, []);
+  renderAssistantMessages();
+});
+
+/* Auto-resize the textarea up to max-height (handled by CSS) */
+const assistantInputEl = document.getElementById('assistant-input');
+assistantInputEl.addEventListener('input', () => {
+  assistantInputEl.style.height = 'auto';
+  assistantInputEl.style.height = Math.min(assistantInputEl.scrollHeight, 100) + 'px';
+});
+assistantInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAssistantMessage(); }
+});
+document.getElementById('assistant-send').addEventListener('click', sendAssistantMessage);
+
+function buildAssistantProjectContext() {
+  if (!activeProjectId) return null;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  if (!proj) return null;
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  return {
+    name: proj.name,
+    department: proj.department,
+    mandate: proj.mandate,
+    health_score: calcHealthScore(activeProjectId),
+    components: components.map(c => ({ type: c.type, description: c.description, targetBenchmark: c.targetBenchmark || '', verificationSource: c.verificationSource || '' })),
+    audit_findings: findings.map(f => ({ errorType: f.errorType, riskLevel: f.riskLevel, message: f.message, componentDescription: (components.find(c => c.id === f.componentId) || {}).description || '' }))
+  };
+}
+
+async function sendAssistantMessage() {
+  const input = document.getElementById('assistant-input');
+  const sendBtn = document.getElementById('assistant-send');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const history = getAssistantHistory(activeProjectId);
+  history.push({ role: 'user', content: message });
+  setAssistantHistory(activeProjectId, history);
+  input.value = '';
+  input.style.height = 'auto';
+  renderAssistantMessages();
+
+  // Show a typing indicator
+  const container = document.getElementById('assistant-messages');
+  const typingEl = document.createElement('div');
+  typingEl.className = 'assistant-msg assistant';
+  typingEl.innerHTML = '<div class="assistant-typing"><span></span><span></span><span></span></div>';
+  container.appendChild(typingEl);
+  container.scrollTop = container.scrollHeight;
+
+  input.disabled = true; sendBtn.disabled = true;
+  try {
+    const payload = {
+      message,
+      history: history.slice(0, -1).map(m => ({ role: m.role, content: m.content })),
+      project: buildAssistantProjectContext()
+    };
+    const data = await aiFetch('/api/ai/assistant-chat', payload, 45000);
+    const updated = getAssistantHistory(activeProjectId);
+    updated.push({ role: 'assistant', content: data.reply });
+    setAssistantHistory(activeProjectId, updated);
+  } catch(e) {
+    const updated = getAssistantHistory(activeProjectId);
+    updated.push({ role: 'assistant', content: e.message || 'Something went wrong. Please try again.', error: true });
+    setAssistantHistory(activeProjectId, updated);
+  } finally {
+    typingEl.remove();
+    input.disabled = false; sendBtn.disabled = false;
+    renderAssistantMessages();
+    input.focus();
+  }
+}
 </script>

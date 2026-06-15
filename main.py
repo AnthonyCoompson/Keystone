@@ -90,6 +90,29 @@ class GenerateTimelineRequest(BaseModel):
     mandate: str
     components: List[TimelineComponent] = []
 
+class CreateProjectFromDocumentRequest(BaseModel):
+    document_text: str = ""
+    document_base64: str = ""
+    document_mime_type: str = "application/pdf"
+    document_name: str = ""
+
+class AssistantChatMessage(BaseModel):
+    role: str = "user"   # "user" | "assistant"
+    content: str = ""
+
+class AssistantProjectContext(BaseModel):
+    name: str = ""
+    department: str = ""
+    mandate: str = ""
+    health_score: int = 0
+    components: List[ComponentDetail] = []
+    audit_findings: List[AuditFinding] = []
+
+class AssistantChatRequest(BaseModel):
+    message: str
+    history: List[AssistantChatMessage] = []
+    project: AssistantProjectContext | None = None
+
 
 # ── Endpoint 1: AI Component Suggester ────────────────────────────────────────
 @app.post("/api/ai/suggest-components")
@@ -355,6 +378,134 @@ Rules:
 
     data = ai.generate_json(prompt)
     return {"success": True, "timeline": data}
+
+
+# ── Endpoint 8: Create Project From Document ──────────────────────────────────
+# Combines project-field extraction (name/department/description/mandate) and
+# logic model component extraction into a single Gemini call, so a user can
+# drop a briefing note / operational plan into "New Project" and get both the
+# project shell AND its starting components in one round trip.
+@app.post("/api/ai/create-project-from-document")
+async def create_project_from_document(req: CreateProjectFromDocumentRequest):
+    prompt = f"""You are an expert Canadian government policy analyst specialising in logic models.
+
+A policy document has been provided (e.g. a briefing note, operational plan, or agreement).
+Document name: {req.document_name or "Untitled"}
+
+From this document, do TWO things:
+
+1. Extract structured PROJECT fields describing the overall initiative.
+2. Extract a logic model: Inputs, Activities, Outputs, and Outcomes explicitly stated or strongly implied.
+
+Return ONLY a valid JSON object — no markdown, no explanation:
+{{
+  "project": {{
+    "name":        "...",
+    "department":  "...",
+    "description": "...",
+    "mandate":     "..."
+  }},
+  "components": {{
+    "inputs":    [{{"description":"...","targetBenchmark":"...","verificationSource":"...","sourceQuote":"..."}}],
+    "activities":[{{"description":"...","targetBenchmark":"...","verificationSource":"...","sourceQuote":"..."}}],
+    "outputs":   [{{"description":"...","targetBenchmark":"...","verificationSource":"...","sourceQuote":"..."}}],
+    "outcomes":  [{{"description":"...","targetBenchmark":"...","verificationSource":"...","sourceQuote":"..."}}]
+  }}
+}}
+
+Rules:
+- project.name: formal title-case project name
+- project.department: the most likely BC or federal government department responsible
+- project.description: 1-2 sentences in formal policy language
+- project.mandate: MUST be exactly one of:
+    "DRIPA Alignment" | "Self-Government Transition" | "Service Delivery" | "Economic Development"
+  Use "DRIPA Alignment" for joint decision-making or UNDRIP implementation.
+  Use "Self-Government Transition" for jurisdiction or governance transfer.
+  Use "Service Delivery" for health, education, or social programmes.
+  Use "Economic Development" for economic opportunities or land-use revenue.
+- Extract only components explicitly stated or strongly implied in the document
+- sourceQuote: a short PARAPHRASE (max 80 chars) of the supporting passage in your own words — do not copy text verbatim from the document
+- Leave targetBenchmark and verificationSource as "" if not found in the document
+- All string values must be valid JSON: escape any double quotes, backslashes, or line breaks within text
+- Return ONLY the JSON object"""
+
+    if req.document_base64:
+        data = ai.generate_json_with_file(prompt, req.document_mime_type, req.document_base64)
+    else:
+        full_prompt = prompt + f"\n\nDocument text:\n{req.document_text}"
+        data = ai.generate_json(full_prompt)
+
+    project = data.get("project", {}) if isinstance(data, dict) else {}
+    components = data.get("components", {}) if isinstance(data, dict) else {}
+
+    valid_mandates = ["DRIPA Alignment", "Self-Government Transition", "Service Delivery", "Economic Development"]
+    if project.get("mandate") not in valid_mandates:
+        project["mandate"] = "DRIPA Alignment"
+
+    return {"success": True, "project": project, "components": components}
+
+
+# ── Endpoint 9: AI Assistant Chat ──────────────────────────────────────────────
+# Embedded assistant available across every tab. When a project is active, its
+# components, mandate, health score, and current audit findings are passed in
+# as context so the assistant can answer project-specific questions
+# ("why is my score low?", "what should I fix first?") as well as general
+# Keystone / policy logic questions.
+@app.post("/api/ai/assistant-chat")
+async def assistant_chat(req: AssistantChatRequest):
+    context_text = "No project is currently open."
+    if req.project and (req.project.name or req.project.components):
+        p = req.project
+        comp_lines = "\n".join(
+            f"  - [{c.type}] {c.description}"
+            + (f" (benchmark: {c.targetBenchmark})" if c.targetBenchmark else "")
+            + (f" (verification: {c.verificationSource})" if c.verificationSource else " (NO verification source)")
+            for c in p.components
+        ) or "  (no components yet)"
+        finding_lines = "\n".join(
+            f"  - [{f.riskLevel} / {f.errorType}] {f.message}"
+            for f in p.audit_findings
+        ) or "  (no risk flags)"
+        context_text = f"""The analyst currently has this project open:
+Project: {p.name}
+Department: {p.department}
+Mandate: {p.mandate}
+Health Score: {p.health_score}/100
+
+Logic Model Components:
+{comp_lines}
+
+Current Audit Findings:
+{finding_lines}"""
+
+    history_text = "\n".join(
+        f"{'Analyst' if m.role == 'user' else 'Keystone Assistant'}: {m.content}"
+        for m in req.history[-10:]  # cap context window
+    )
+
+    prompt = f"""You are the Keystone Assistant — an embedded helper inside Keystone, a policy logic
+diagnostic tool for Canadian government policy analysts (BC and federal). You help analysts
+build, audit, and improve programme logic models (Input → Activity → Output → Outcome) and
+understand Keystone's audit rules: Dead End, Miracle Leap, Blind Spot, Circular Logic,
+Orphaned Input, Scale Mismatch, Duplicate Component, and Timeframe Mismatch.
+
+{context_text}
+
+Conversation so far:
+{history_text}
+
+Analyst's new message: "{req.message}"
+
+Respond directly and helpfully in 1-3 short paragraphs (or a brief list if listing concrete
+steps). If the analyst asks about their current project, refer to the specific components and
+findings above by name — do not give generic advice when specific context is available. If no
+project is open and the question requires one, say so and suggest opening or creating a
+project. Keep a professional, direct tone. Do not use technical error-type names verbatim
+(e.g. say "Blind Spot" only if explaining what it means) — but DO use them when the analyst
+has used them first. Return ONLY the response text — no markdown headers, no preamble."""
+
+    text = ai.generate_text(prompt)
+    return {"success": True, "reply": text.strip()}
 
 
 # ── Health check ───────────────────────────────────────────────────────────────
