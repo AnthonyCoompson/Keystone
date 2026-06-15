@@ -289,8 +289,9 @@ Return ONLY a valid JSON object — no markdown, no explanation:
 
 Rules:
 - Extract only components explicitly stated or strongly implied in the document
-- sourceQuote: a short verbatim excerpt (max 80 chars) supporting this component
+- sourceQuote: a short PARAPHRASE (max 80 chars) of the supporting passage in your own words — do not copy text verbatim from the document
 - Leave targetBenchmark and verificationSource as "" if not found in the document
+- All string values must be valid JSON: escape any double quotes, backslashes, or line breaks within text
 - Return ONLY the JSON object"""
 
     if req.document_base64:
