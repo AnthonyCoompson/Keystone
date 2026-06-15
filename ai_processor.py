@@ -13,11 +13,12 @@ was locked to v1beta where current model names are not available.
 import os
 import json
 import re
+import time
 import base64
 import logging
 from fastapi import HTTPException
 from google import genai
-from google.genai import types
+from google.genai import types, errors
 
 logger = logging.getLogger("keystone.ai")
 
@@ -109,14 +110,45 @@ def _log_response_diagnostics(response, context: str):
         logger.debug(f"[{context}] Could not read response diagnostics: {diag_exc}")
 
 
+# Gemini occasionally returns 503 UNAVAILABLE ("model is currently
+# experiencing high demand") or other 5xx errors during traffic spikes.
+# These are transient and typically clear within a few seconds, so retry
+# with exponential backoff before giving up.
+_MAX_RETRIES = 3
+_RETRY_BASE_DELAY = 2  # seconds
+
+
+def _call_with_retry(fn, context: str):
+    """Call fn() with retries on transient Gemini ServerError (5xx)."""
+    last_exc = None
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return fn()
+        except errors.ServerError as exc:
+            last_exc = exc
+            if attempt < _MAX_RETRIES - 1:
+                delay = _RETRY_BASE_DELAY * (2 ** attempt)
+                logger.warning(
+                    f"[{context}] Gemini server error (attempt {attempt + 1}/{_MAX_RETRIES}): "
+                    f"{exc}. Retrying in {delay}s…"
+                )
+                time.sleep(delay)
+            else:
+                logger.error(f"[{context}] Gemini server error after {_MAX_RETRIES} attempts: {exc}")
+    raise last_exc
+
+
 def generate_text(prompt: str) -> str:
     """Send a plain-text prompt to Gemini and return the raw response string."""
     client = require_client()
     try:
-        response = client.models.generate_content(
-            model=_MODEL,
-            contents=prompt,
-            config=_CONFIG,
+        response = _call_with_retry(
+            lambda: client.models.generate_content(
+                model=_MODEL,
+                contents=prompt,
+                config=_CONFIG,
+            ),
+            "generate_text",
         )
         _log_response_diagnostics(response, "generate_text")
         text = response.text
@@ -125,6 +157,12 @@ def generate_text(prompt: str) -> str:
         return text
     except HTTPException:
         raise
+    except errors.ServerError as exc:
+        logger.error(f"Gemini generate_text failed after retries: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail="Gemini's servers are currently overloaded (high demand). Please try again in a moment.",
+        )
     except Exception as exc:
         logger.error(f"Gemini generate_text failed: {exc}")
         raise HTTPException(status_code=502, detail=f"Gemini error: {str(exc)}")
@@ -139,10 +177,13 @@ def generate_with_file(prompt: str, mime_type: str, base64_data: str) -> str:
     try:
         raw_bytes = base64.b64decode(base64_data)
         file_part = types.Part.from_bytes(data=raw_bytes, mime_type=mime_type)
-        response = client.models.generate_content(
-            model=_MODEL,
-            contents=[file_part, prompt],
-            config=_CONFIG,
+        response = _call_with_retry(
+            lambda: client.models.generate_content(
+                model=_MODEL,
+                contents=[file_part, prompt],
+                config=_CONFIG,
+            ),
+            "generate_with_file",
         )
         _log_response_diagnostics(response, "generate_with_file")
         text = response.text
@@ -151,6 +192,12 @@ def generate_with_file(prompt: str, mime_type: str, base64_data: str) -> str:
         return text
     except HTTPException:
         raise
+    except errors.ServerError as exc:
+        logger.error(f"Gemini generate_with_file failed after retries: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail="Gemini's servers are currently overloaded (high demand). Please try again in a moment.",
+        )
     except Exception as exc:
         logger.error(f"Gemini generate_with_file failed: {exc}")
         raise HTTPException(status_code=502, detail=f"Gemini error: {str(exc)}")

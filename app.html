@@ -1093,6 +1093,14 @@ async function aiFetch(endpoint, payload, timeoutMs = 45000) {
   } catch (_) { /* body not JSON */ }
 
   if (res.status === 503) {
+    // ai_processor.py returns 503 for two distinct situations — use the
+    // detail text to tell them apart rather than assuming misconfiguration.
+    if (detail && detail.toLowerCase().includes('overloaded')) {
+      throw new Error(
+        'Gemini is currently overloaded with requests (this is on Google\'s end, not yours). ' +
+        'The server already retried automatically — please wait a moment and try again.'
+      );
+    }
     throw new Error(
       'The AI is not configured on the server. ' +
       'Add your GEMINI_API_KEY to your Render environment variables and redeploy.'
