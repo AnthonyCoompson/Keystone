@@ -368,12 +368,19 @@ async def health():
 
 
 # ── Serve static frontend ──────────────────────────────────────────────────────
+# Cache-Control: no-cache on the HTML shell ensures browsers always revalidate
+# with the server after a deploy, instead of serving a stale cached copy of
+# app.html (which embeds all of Keystone's JS inline). Without this, deployed
+# frontend fixes can silently fail to take effect for users with an open tab
+# or a cached page.
+_NO_CACHE_HEADERS = {"Cache-Control": "no-cache, must-revalidate"}
+
 @app.get("/")
 async def serve_index():
-    return FileResponse("index.html")
+    return FileResponse("index.html", headers=_NO_CACHE_HEADERS)
 
 @app.get("/app.html")
 async def serve_app():
-    return FileResponse("app.html")
+    return FileResponse("app.html", headers=_NO_CACHE_HEADERS)
 
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
