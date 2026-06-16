@@ -236,6 +236,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .risk-item.low    .risk-type-label { color: var(--green); }
 .risk-message { font-size: 12.5px; color: var(--text); line-height: 1.4; margin-bottom: 3px; }
 .risk-component { font-size: 11.5px; color: var(--muted); font-style: italic; }
+.risk-info-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 10px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all 0.15s; margin-left: 4px; padding: 0; line-height: 1; }
+.risk-info-btn:hover, .risk-info-btn.open { border-color: var(--cyan); color: var(--cyan); background: rgba(0,194,255,0.07); }
+.risk-type-row { display: flex; align-items: center; gap: 4px; }
+.risk-explainer { display: none; margin-top: 8px; padding: 10px 11px; background: rgba(0,194,255,0.04); border: 1px solid rgba(0,194,255,0.15); border-radius: 7px; font-size: 12px; line-height: 1.55; color: var(--text); }
+.risk-explainer.open { display: block; }
+.risk-explainer-row { margin-bottom: 7px; }
+.risk-explainer-row:last-child { margin-bottom: 0; }
+.risk-explainer-label { font-weight: 700; color: var(--cyan); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 2px; }
 .risk-empty { text-align: center; padding: 24px 12px; color: var(--green); font-size: 13px; font-weight: 500; }
 .btn-verify-suggest { background: none; border: 1px solid rgba(14,165,233,0.4); color: var(--cyan); font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer; margin-top: 5px; transition: background 0.15s; display: inline-block; }
 .btn-verify-suggest:hover { background: rgba(14,165,233,0.08); }
@@ -352,7 +360,51 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ai-toast { position: fixed; bottom: 24px; right: 24px; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; max-width: 320px; }
 .ai-toast.show { opacity: 1; transform: translateY(0); }
 .ai-toast.error { background: var(--red); }
-/* ── AI Assistant Widget ── */
+/* ── Guided Onboarding ── */
+#onboarding-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(5,8,16,0.78); backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center; padding: 24px;
+}
+#onboarding-overlay.open { display: flex; }
+#onboarding-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+  width: 560px; max-width: 100%; max-height: 88vh; overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.5); padding: 32px 36px;
+}
+#onboarding-progress { display: flex; gap: 6px; margin-bottom: 24px; }
+.onboarding-progress-dot { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); transition: background 0.2s; }
+.onboarding-progress-dot.done { background: var(--cyan); }
+.onboarding-progress-dot.current { background: rgba(0,194,255,0.4); }
+.onboarding-eyebrow { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--cyan); margin-bottom: 10px; }
+.onboarding-title { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 700; color: var(--white); margin-bottom: 10px; line-height: 1.2; }
+.onboarding-body-text { font-size: 14px; color: var(--text); line-height: 1.65; margin-bottom: 18px; }
+.onboarding-body-text strong { color: var(--white); }
+.onboarding-choice-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.onboarding-choice-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: left; }
+.onboarding-choice-card:hover { border-color: rgba(0,194,255,0.35); background: var(--hover-bg); }
+.onboarding-choice-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.onboarding-choice-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+.onboarding-input-group { margin-bottom: 16px; }
+.onboarding-input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.onboarding-input-group textarea, .onboarding-input-group input, .onboarding-input-group select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 13.5px; color: var(--white); background: var(--input-bg); font-family: var(--font);
+}
+.onboarding-input-group textarea:focus, .onboarding-input-group input:focus, .onboarding-input-group select:focus { border-color: var(--cyan); outline: none; }
+.onboarding-mini-audit { background: rgba(0,194,255,0.05); border: 1px solid rgba(0,194,255,0.18); border-radius: 10px; padding: 14px 16px; margin: 16px 0; }
+.onboarding-mini-audit-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); margin-bottom: 8px; }
+.onboarding-mini-audit-row { display: flex; align-items: center; gap: 10px; }
+.onboarding-mini-gauge { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'DM Mono', monospace; font-weight: 700; font-size: 13px; color: var(--white); position: relative; }
+.onboarding-mini-gauge::before { content:''; position:absolute; inset:3px; border-radius:50%; background: var(--bg); }
+.onboarding-mini-gauge span { position: relative; z-index: 1; }
+.onboarding-mini-audit-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+.onboarding-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.onboarding-skip { background: none; color: var(--muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; }
+.onboarding-skip:hover { color: var(--text); }
+.onboarding-nav-btns { display: flex; gap: 8px; }
+.onboarding-summary-stat { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.onboarding-summary-stat:last-child { border-bottom: none; }
 #assistant-toggle {
   position: fixed; bottom: 22px; right: 22px; z-index: 500;
   width: 52px; height: 52px; border-radius: 50%;
@@ -582,6 +634,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div id="ai-status-bar" style="padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11px;display:flex;align-items:center;gap:7px;">
       <span id="ai-status-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
       <span id="ai-status-text" style="color:var(--muted);">Checking AI…</span>
+    </div>
+    <!-- Sync Status Indicator -->
+    <div id="sync-status-bar" style="padding:8px 18px;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11px;display:flex;align-items:center;gap:7px;" title="Projects are saved to the server so they survive a cleared browser or a new device with the same link.">
+      <span id="sync-status-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;"></span>
+      <span id="sync-status-text" style="color:var(--muted);">Local only</span>
     </div>
     <nav id="sidebar-nav">
       <div class="nav-item" data-view="home" title="Home">
@@ -1071,6 +1128,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </main>
 </div>
 
+<!-- Guided Onboarding Overlay (first-run experience) -->
+<div id="onboarding-overlay">
+  <div id="onboarding-card">
+    <div id="onboarding-progress"></div>
+    <div id="onboarding-body"></div>
+  </div>
+</div>
+
 <!-- AI Assistant Widget (persistent across all tabs) -->
 <button id="assistant-toggle" title="Keystone Assistant" aria-label="Open Keystone Assistant">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -1188,7 +1253,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
    KEYSTONE — Core App Logic
    ═══════════════════════════════════════════════════ */
 
-/* ── Storage Helpers ── */
+/* ── Storage Helpers ──────────────────────────────────────────────────────────
+   getData/setData remain fully synchronous and localStorage-backed — every
+   existing call site in the app keeps working unchanged. setData now ALSO
+   schedules a debounced push to the backend (see "Backend Sync" below), so
+   localStorage acts as a fast local cache while Postgres becomes the durable
+   source of truth. If the network is unavailable, the app keeps working
+   exactly as it did before — the sync layer fails silently and retries on
+   the next write or page load. ──────────────────────────────────────────────────────────────────────────── */
 function getData(key) { try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(v) ? v : []; } catch(e) { return []; } }
 function setData(key, array) {
   try {
@@ -1200,6 +1272,7 @@ function setData(key, array) {
       throw e;
     }
   }
+  scheduleBackendSync();
 }
 function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
@@ -1224,6 +1297,199 @@ let _pendingNewProjectComponents = null;
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:8000'
   : '';
+
+/* ── Backend Sync ─────────────────────────────────────────────────────────────
+   Replaces "localStorage as source of truth" with "localStorage as fast
+   local cache, Postgres as durable source of truth". Every browser gets a
+   stable random device_id (generated once, kept in localStorage itself —
+   not synced, since it's the sync key) sent as X-Device-Id on every sync
+   call. This preserves today's "one browser, one set of projects" UX while
+   giving every project a durable home that survives a cleared cache or a
+   new device with the same exported/shared device id.
+   ──────────────────────────────────────────────────────────────────────────── */
+function getDeviceId() {
+  let id = localStorage.getItem('ks_device_id');
+  if (!id) {
+    id = 'dev_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem('ks_device_id', id);
+  }
+  return id;
+}
+
+let _syncDebounceTimer = null;
+let _syncInFlight = false;
+let _syncDirtyWhilePushing = false;
+
+function scheduleBackendSync() {
+  clearTimeout(_syncDebounceTimer);
+  _syncDebounceTimer = setTimeout(pushToBackend, 1200);
+}
+
+function setSyncStatus(status) {
+  // status: 'idle' | 'syncing' | 'synced' | 'offline'
+  const dot = document.getElementById('sync-status-dot');
+  const text = document.getElementById('sync-status-text');
+  if (!dot || !text) return;
+  const map = {
+    idle:    { color: 'var(--muted)', label: 'Local only' },
+    syncing: { color: '#fbbf24',      label: 'Syncing…' },
+    synced:  { color: 'var(--green)', label: 'Synced' },
+    offline: { color: 'var(--muted)', label: 'Offline — local only' },
+  };
+  const m = map[status] || map.idle;
+  dot.style.background = m.color;
+  text.textContent = m.label;
+  text.style.color = m.color;
+}
+
+async function pushToBackend() {
+  if (_syncInFlight) { _syncDirtyWhilePushing = true; return; }
+  _syncInFlight = true;
+  setSyncStatus('syncing');
+  const pending = getPendingDeletions();
+  try {
+    const payload = {
+      projects: getData('ks_projects'),
+      components: getData('ks_components'),
+      auditLog: getData('ks_audit_log'),
+      scoreHistory: flattenScoreHistoryForSync(),
+      docAnalysisHistory: getData('ks_doc_analysis_history'),
+      deletedProjectIds: pending.projects,
+      deletedComponentIds: pending.components,
+      deletedDocAnalysisIds: pending.docAnalysis
+    };
+    const res = await fetch(API_BASE + '/api/sync/push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Device-Id': getDeviceId() },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000)
+    });
+    if (res.ok) {
+      setSyncStatus('synced');
+      clearPendingDeletions(pending);
+    } else {
+      setSyncStatus('offline');
+    }
+  } catch(e) {
+    setSyncStatus('offline');
+  } finally {
+    _syncInFlight = false;
+    if (_syncDirtyWhilePushing) { _syncDirtyWhilePushing = false; scheduleBackendSync(); }
+  }
+}
+
+function flattenScoreHistoryForSync() {
+  let history = {};
+  try { history = JSON.parse(localStorage.getItem('ks_score_history')) || {}; } catch(e) {}
+  const rows = [];
+  Object.entries(history).forEach(([projectId, entries]) => {
+    (entries || []).forEach(e => rows.push({ projectId, score: e.score, ts: e.ts }));
+  });
+  return rows;
+}
+
+/* ── Pending deletions ────────────────────────────────────────────────────────
+   setData() alone can't tell the difference between "this array shrank
+   because a record was deleted" and "this is just a normal write" — so
+   deletions queue their ids here. pushToBackend() drains this queue on
+   every push and tells the server which rows to remove, then clears it on
+   success (so a failed push retries the deletion on the next write).
+   ──────────────────────────────────────────────────────────────────────────── */
+function getPendingDeletions() {
+  try { return JSON.parse(localStorage.getItem('ks_pending_deletions')) || { projects: [], components: [], docAnalysis: [] }; }
+  catch(e) { return { projects: [], components: [], docAnalysis: [] }; }
+}
+function queueDeletion(kind, id) {
+  const pending = getPendingDeletions();
+  if (!pending[kind].includes(id)) pending[kind].push(id);
+  localStorage.setItem('ks_pending_deletions', JSON.stringify(pending));
+  scheduleBackendSync();
+}
+function clearPendingDeletions(sent) {
+  const pending = getPendingDeletions();
+  ['projects','components','docAnalysis'].forEach(kind => {
+    pending[kind] = pending[kind].filter(id => !sent[kind].includes(id));
+  });
+  localStorage.setItem('ks_pending_deletions', JSON.stringify(pending));
+}
+
+/* Pulls the latest server state into localStorage. Called once on app load.
+   If the server has data and localStorage is empty (new device / cleared
+   cache), this is how the project comes back. If localStorage already has
+   local-only changes made while offline, those win locally until the next
+   push reconciles them server-side — pull never overwrites a project that
+   exists locally with the same id and newer content, since push always
+   follows pull on load (see initBackendSync). */
+async function pullFromBackend() {
+  try {
+    const res = await fetch(API_BASE + '/api/sync/pull', {
+      headers: { 'X-Device-Id': getDeviceId() },
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!res.ok) { setSyncStatus('offline'); return false; }
+    const data = await res.json();
+
+    // Merge by id: server data hydrates localStorage only for records not
+    // already present locally, so a device that already has local edits
+    // doesn't get clobbered by a stale server copy on a flaky reconnect.
+    mergeServerRecords('ks_projects', data.projects || []);
+    mergeServerRecords('ks_components', data.components || []);
+    mergeServerRecords('ks_audit_log', data.auditLog || []);
+    mergeServerRecords('ks_doc_analysis_history', data.docAnalysisHistory || []);
+
+    if (data.scoreHistory && data.scoreHistory.length) {
+      let localHistory = {};
+      try { localHistory = JSON.parse(localStorage.getItem('ks_score_history')) || {}; } catch(e) {}
+      data.scoreHistory.forEach(row => {
+        if (!localHistory[row.projectId]) localHistory[row.projectId] = [];
+        const already = localHistory[row.projectId].some(e => String(e.ts) === String(row.ts));
+        if (!already) localHistory[row.projectId].push({ score: row.score, ts: row.ts });
+      });
+      Object.keys(localHistory).forEach(pid => {
+        localHistory[pid].sort((a,b) => Number(a.ts) - Number(b.ts));
+        if (localHistory[pid].length > 12) localHistory[pid] = localHistory[pid].slice(-12);
+      });
+      localStorage.setItem('ks_score_history', JSON.stringify(localHistory));
+    }
+
+    setSyncStatus('synced');
+    return true;
+  } catch(e) {
+    setSyncStatus('offline');
+    return false;
+  }
+}
+
+function mergeServerRecords(key, serverRecords) {
+  const local = getData(key);
+  const localIds = new Set(local.map(r => r.id));
+  const toAdd = serverRecords.filter(r => !localIds.has(r.id));
+  if (toAdd.length) {
+    try { localStorage.setItem(key, JSON.stringify([...local, ...toAdd])); } catch(e) {}
+  }
+}
+
+async function initBackendSync() {
+  const pulled = await pullFromBackend();
+  // Re-render anything already on screen now that localStorage may have
+  // grown with server-side projects (relevant if init() already ran).
+  if (pulled) {
+    if (document.getElementById('view-projects')?.classList.contains('active')) renderProjects();
+    if (document.getElementById('view-home')?.classList.contains('active')) renderHomeView();
+    // If the onboarding overlay is showing but the pull just revealed this
+    // device already has real projects on the server (e.g. a cleared
+    // browser cache, or visiting a fresh browser profile), close the
+    // "let's build your first project" flow — it would be confusing to
+    // walk through onboarding for a device that already has work saved.
+    const hasRealProjects = getData('ks_projects').some(p => p.id !== 'demo-001');
+    if (hasRealProjects && document.getElementById('onboarding-overlay')?.classList.contains('open')) {
+      closeOnboarding();
+      const first = getData('ks_projects').find(p => p.id !== 'demo-001');
+      if (first) setActiveProject(first.id);
+      showToast('Welcome back — restored your projects from the server.');
+    }
+  }
+}
 
 async function aiFetch(endpoint, payload, timeoutMs = 45000) {
   let res;
@@ -1345,6 +1611,55 @@ const ERROR_TYPE_LABELS = {
   Duplicate_Component: 'Duplicate Component',
   Timeframe_Mismatch: 'Timeframe Mismatch'
 };
+
+/* ── Risk Flag Explainer Knowledge Base ───────────────────────────────────────
+   Turns each audit rule from "here's what's wrong" into "here's the standard
+   this fails, and here's what to actually do about it" — the difference
+   between a diagnostic tool and a teaching tool. Shown when a risk flag's
+   info button is clicked (see renderRiskExplainer). ──────────────────────────────────────────────────────────────────────────── */
+const ERROR_TYPE_EXPLAINERS = {
+  Dead_End: {
+    standard: "Every activity in a Treasury Board submission must connect to a documented deliverable or outcome. An activity with no output or outcome can't be evaluated, reported on, or defended in a programme review — it's effort with no accountability trail.",
+    fix: "Add at least one Output (a deliverable this activity produces) or Outcome (a systemic change it contributes to). If the activity genuinely produces nothing evaluable, the strongest fix is usually to remove it rather than force-fit an output."
+  },
+  Miracle_Leap: {
+    standard: "Programme evaluators expect the scale of activity to be proportionate to the scale of claimed impact. Jurisdictional recognition, governance transformation, or systemic reconciliation outcomes require high-leverage activities — negotiation, legislative drafting, formal co-governance structures. A slate of webinars and meetings can't structurally produce that scale of change.",
+    fix: "Either scale back the outcome to match what your activities can plausibly deliver, or add substantive activities: formal negotiation sessions, legislative or regulatory drafting, co-governance body establishment, binding agreements. The fix is rarely to remove the outcome — it's to strengthen the activities underneath it."
+  },
+  Blind_Spot: {
+    standard: "Treasury Board and programme evaluators require a named tracking mechanism for every benchmark. A target with no verification source can't be measured, audited, or reported on — it's a commitment with no way to confirm it happened.",
+    fix: "Name a specific, real mechanism: a quarterly reporting system, a legal registry, a community-controlled survey instrument, a Treasury Board submission, or a Nation-governed data repository. Use the ✨ Suggest Verification Sources button for mandate-specific suggestions."
+  },
+  Circular_Logic: {
+    standard: "An outcome must describe a systemic change caused by an activity — not restate the activity in different words. If the outcome and activity read almost the same, the causal chain hasn't actually progressed; it's circular reasoning dressed up as a logic model.",
+    fix: "Rewrite the outcome to describe what changes in the world as a RESULT of the activity — a shift in jurisdiction, governance, behaviour, or wellbeing — rather than restating that the activity happened."
+  },
+  Orphaned_Input: {
+    standard: "Every resource committed to an initiative should be traceable to at least one activity that uses it. An input that appears nowhere in your activities is either an undocumented use of resources or a budget line that doesn't belong in this logic model — both are accountability gaps an auditor will flag.",
+    fix: "Either reference this input explicitly in an activity's description (so the connection is visible), or remove it from the model if it isn't actually being used here."
+  },
+  Scale_Mismatch: {
+    standard: "When an outcome sets a quantified target (a percentage, a count, a hard number), evaluators expect to see activity-level benchmarks that could plausibly add up to that target. Without them, there's no way to show the scale of effort matches the scale of ambition.",
+    fix: "Add measurable benchmarks to your activities — counts, dates, percentages — so a reviewer can trace how the activities' scale supports the outcome's quantified target."
+  },
+  Duplicate_Component: {
+    standard: "Two components describing the same underlying thing inflate the apparent comprehensiveness of a logic model without adding real analytical value — a reviewer who notices this will read it as padding rather than thoroughness.",
+    fix: "Either merge the two into one well-specified component, or sharpen the wording so they clearly describe genuinely distinct resources, actions, or deliverables."
+  },
+  Timeframe_Mismatch: {
+    standard: "An outcome marked short-term (under 1 year) needs activities that can realistically deliver that fast. Formal negotiations, legislative drafting, and treaty processes routinely take well over a year — claiming a short-term outcome on top of them sets an unrealistic expectation that undermines the credibility of the whole submission.",
+    fix: "Either extend the outcome's timeframe to medium or long-term to reflect realistic negotiation timelines, or, if the short timeframe is firm, identify lower-friction activities that can genuinely complete within a year."
+  }
+};
+
+function renderRiskExplainer(errorType) {
+  const ex = ERROR_TYPE_EXPLAINERS[errorType];
+  if (!ex) return '';
+  return `<div class="risk-explainer">
+    <div class="risk-explainer-row"><span class="risk-explainer-label">The standard:</span> ${escHtml(ex.standard)}</div>
+    <div class="risk-explainer-row"><span class="risk-explainer-label">How to resolve it:</span> ${escHtml(ex.fix)}</div>
+  </div>`;
+}
 
 function wordOverlap(a, b) {
   // threshold > 2 to capture short but meaningful policy terms (act, law, FTE, etc.)
@@ -2025,13 +2340,27 @@ function renderAuditPanel() {
         const isBlindSpot = entry.errorType === 'Blind_Spot';
         const cssClass = riskItemClass(entry);
         return `<div class="risk-item ${cssClass}" data-comp-id="${comp ? comp.id : ''}">
-          <div class="risk-type-label">${ERROR_LABELS[entry.errorType] || entry.errorType.replace(/_/g, ' ')}</div>
+          <div class="risk-type-row">
+            <div class="risk-type-label">${ERROR_LABELS[entry.errorType] || entry.errorType.replace(/_/g, ' ')}</div>
+            <button class="risk-info-btn" data-explainer-id="${entry.id}" title="Why this matters and how to fix it">i</button>
+          </div>
           <div class="risk-message">${escHtml(entry.message)}</div>
           ${compDesc ? `<div class="risk-component" style="cursor:pointer;" data-scroll-comp="${comp ? comp.id : ''}">↗ ${escHtml(compDesc)}</div>` : ''}
+          <div class="risk-explainer" id="explainer-${entry.id}">${renderRiskExplainer(entry.errorType)}</div>
           ${isBlindSpot && comp ? `<button class="btn-verify-suggest" data-comp-id="${comp.id}" data-comp-type="${comp.type}" data-comp-desc="${escHtml(comp.description)}">✨ Suggest verification sources</button><div class="verify-suggestions" id="vs-${entry.id}" style="display:none;"></div>` : ''}
         </div>`;
       }).join('')
     ).join('');
+
+    riskFeed.querySelectorAll('.risk-info-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const panel = document.getElementById('explainer-' + btn.dataset.explainerId);
+        if (!panel) return;
+        const isOpen = panel.classList.toggle('open');
+        btn.classList.toggle('open', isOpen);
+      });
+    });
 
     riskFeed.querySelectorAll('.btn-verify-suggest').forEach(btn => {
       btn.addEventListener('click', () => aiSuggestVerification(btn, btn.dataset.compId, btn.dataset.compType, btn.dataset.compDesc));
@@ -2338,7 +2667,13 @@ function renderContextualStepPanel() {
         showToast('Component restored.');
         window.__undoDelete = null;
       };
-      toast._timer = setTimeout(() => { if (!undone) { toast.className='ai-toast'; window.__undoDelete=null; } }, 5000);
+      // Only tell the server about the deletion once the undo window has
+      // passed without being used — an immediate queueDeletion here would
+      // race the undo and could re-create the row server-side via the next
+      // push before the deletion is sent, or vice versa.
+      toast._timer = setTimeout(() => {
+        if (!undone) { toast.className='ai-toast'; window.__undoDelete=null; queueDeletion('components', comp.id); }
+      }, 5000);
     });
   });
 
@@ -2531,6 +2866,7 @@ function deleteProject(id) {
   setData('ks_projects',   getData('ks_projects').filter(p => p.id !== id));
   setData('ks_components', getData('ks_components').filter(c => c.projectId !== id));
   setData('ks_audit_log',  getData('ks_audit_log').filter(e => e.projectId !== id));
+  queueDeletion('projects', id);
   // Clean up score history to prevent storage leaks
   try {
     const hist = JSON.parse(localStorage.getItem('ks_score_history') || '{}');
@@ -2980,9 +3316,14 @@ document.getElementById('btn-briefing').addEventListener('click', () => {
 <script>
 /* ── Demo Project Seed ── */
 function seedDemoProject() {
-  if (getData('ks_projects').length > 0) return;
+  // The demo project is no longer auto-created on first load — it's offered
+  // as a choice inside the guided onboarding flow instead (see
+  // startOnboarding / onboarding step "demo"), so a brand new user gets an
+  // active decision point rather than a project they didn't ask for.
+  // This function now only creates the demo project when explicitly called.
+  if (getData('ks_projects').some(p => p.id === 'demo-001')) return;
   const proj = { id: 'demo-001', name: 'DRIPA Section 7 Joint Decision-Making Agreement', department: 'BC Ministry of Indigenous Relations and Reconciliation', description: 'Implementation of a joint decision-making framework with the Ktunaxa Nation under DRIPA Section 7, covering land use planning in the Columbia Basin region.', mandate: 'DRIPA Alignment', createdAt: '2025-09-15T09:00:00Z' };
-  setData('ks_projects', [proj]);
+  setData('ks_projects', [...getData('ks_projects'), proj]);
   const comps = [
     { type:'Input',    description:'Federal-Provincial Reconciliation Fund allocation: $2.4M over 3 fiscal years', targetBenchmark:'$2.4M committed by Q1 FY2026', verificationSource:'Treasury Board Submission #2025-447' },
     { type:'Input',    description:'3.0 FTE Policy Analysts assigned to Joint Secretariat', targetBenchmark:'Positions filled by October 2025', verificationSource:'HRMS workforce report' },
@@ -2993,9 +3334,10 @@ function seedDemoProject() {
     { type:'Outcome',  description:'Recognized Ktunaxa Nation jurisdiction over land use decisions in 340,000 hectares of the Columbia Basin', targetBenchmark:'Legal recognition in place, 0 unilateral provincial decisions in scoped area', verificationSource:'Annual compliance audit, legal review' },
     { type:'Outcome',  description:'Increased community data sovereignty: all land data collected in scoped area governed under OCAP principles', targetBenchmark:'Data governance protocol ratified', verificationSource:'Ktunaxa Nation data stewardship committee confirmation' }
   ].map(c => ({ ...c, id: generateId(), projectId: 'demo-001' }));
-  setData('ks_components', comps);
+  setData('ks_components', [...getData('ks_components'), ...comps]);
   // Mark demo as new so banner shows
   sessionStorage.setItem('ks_demo_banner_shown', '0');
+  return proj;
 }
 
 /* ── Collapsible AI Suggest Bar ── */
@@ -3028,17 +3370,33 @@ document.getElementById('demo-banner-close').addEventListener('click', () => {
 
 /* ── App Init ── */
 function init() {
-  seedDemoProject();
+  // Pull any server-persisted projects into localStorage first, so a
+  // returning user (or a fresh browser with the same device id) sees their
+  // real projects instead of an empty state. This runs in the background;
+  // the UI renders immediately from whatever's already in localStorage and
+  // re-renders if the pull brings in anything new.
+  initBackendSync();
+
+  const hasSeenOnboarding = localStorage.getItem('ks_onboarding_complete') === '1';
   const projects = getData('ks_projects');
+
   if (projects.length > 0) {
-    const demo = projects.find(p => p.id === 'demo-001') || projects[0];
-    setActiveProject(demo.id);
-    // Show banner for demo project on first load
+    const preferred = projects.find(p => p.id === 'demo-001') || projects[0];
+    setActiveProject(preferred.id);
     const slot = document.getElementById('ai-narrative-slot');
     if (slot) slot.classList.remove('open');
   }
+
   qsCurrentStep = 0;
-  showView('home');
+
+  if (!hasSeenOnboarding && projects.length === 0) {
+    // True first run, no server data pulled in yet either — offer the
+    // guided flow instead of silently dropping a demo project on the user.
+    showView('home');
+    startOnboarding();
+  } else {
+    showView('home');
+  }
 }
 
 // openProject: open a project and navigate to the builder view
@@ -3178,6 +3536,7 @@ function updateActiveHistoryEntry() {
 
 function deleteDocAnalysisHistory(id) {
   setData('ks_doc_analysis_history', getDocAnalysisHistory().filter(h => h.id !== id));
+  queueDeletion('docAnalysis', id);
   renderDAHistory();
 }
 
@@ -3751,5 +4110,303 @@ async function sendAssistantMessage() {
     renderAssistantMessages();
     input.focus();
   }
+}
+</script>
+<script>
+/* ═══════════════════════════════════════════════════
+   GUIDED ONBOARDING — replaces the passive demo project
+   as the first-run experience. Walks a new analyst through
+   building one real (or example) component of each type,
+   showing the audit panel react after every addition.
+   ═══════════════════════════════════════════════════ */
+
+const ONBOARDING_STEPS = ['welcome', 'choice', 'describe', 'input', 'activity', 'output', 'outcome', 'summary'];
+let onboardingState = {
+  step: 0,
+  projectId: null,
+  initiativeDescription: '',
+  mandate: 'DRIPA Alignment',
+  componentDrafts: {} // type -> { description, targetBenchmark, verificationSource }
+};
+
+function startOnboarding() {
+  onboardingState = { step: 0, projectId: null, initiativeDescription: '', mandate: 'DRIPA Alignment', componentDrafts: {} };
+  document.getElementById('onboarding-overlay').classList.add('open');
+  renderOnboardingStep();
+}
+
+function closeOnboarding() {
+  document.getElementById('onboarding-overlay').classList.remove('open');
+  localStorage.setItem('ks_onboarding_complete', '1');
+}
+
+function onboardingGoTo(stepName) {
+  onboardingState.step = ONBOARDING_STEPS.indexOf(stepName);
+  renderOnboardingStep();
+}
+function onboardingNext() { onboardingState.step = Math.min(onboardingState.step + 1, ONBOARDING_STEPS.length - 1); renderOnboardingStep(); }
+function onboardingBack() { onboardingState.step = Math.max(onboardingState.step - 1, 0); renderOnboardingStep(); }
+
+function renderOnboardingProgress() {
+  const wrap = document.getElementById('onboarding-progress');
+  const current = ONBOARDING_STEPS[onboardingState.step];
+  wrap.innerHTML = ONBOARDING_STEPS.map((s, i) => {
+    const cls = i < onboardingState.step ? 'done' : i === onboardingState.step ? 'current' : '';
+    return `<div class="onboarding-progress-dot ${cls}"></div>`;
+  }).join('');
+}
+
+const ONBOARDING_COMPONENT_GUIDANCE = {
+  input:    { type: 'Input',    eyebrow: 'Step 1 of 4 — Inputs',    title: 'What resources are committed?', hint: 'Funding, staff time, legislative authority — whatever gets allocated before any work starts.', placeholder: 'e.g. $500K allocated over 2 fiscal years for community engagement' },
+  activity: { type: 'Activity', eyebrow: 'Step 2 of 4 — Activities', title: 'What actions will your team take?', hint: 'The concrete work done using that input — sessions held, agreements drafted, consultations run.', placeholder: 'e.g. Hosted 6 community engagement sessions across affected Nations' },
+  output:   { type: 'Output',   eyebrow: 'Step 3 of 4 — Outputs',    title: 'What tangible deliverable results?', hint: 'Something countable and concrete — a signed agreement, a published framework, a committee formed.', placeholder: 'e.g. Engagement summary report published and shared with all participating Nations' },
+  outcome:  { type: 'Outcome',  eyebrow: 'Step 4 of 4 — Outcomes',   title: 'What systemic change does this enable?', hint: 'The medium/long-term shift this work drives — not a restatement of the activity or output.', placeholder: 'e.g. Increased Nation participation in regional land-use decision-making' }
+};
+
+function renderOnboardingStep() {
+  renderOnboardingProgress();
+  const body = document.getElementById('onboarding-body');
+  const step = ONBOARDING_STEPS[onboardingState.step];
+
+  if (step === 'welcome') {
+    body.innerHTML = `
+      <div class="onboarding-eyebrow">Welcome to Keystone</div>
+      <div class="onboarding-title">Let's build your first logic model together.</div>
+      <p class="onboarding-body-text">Keystone audits policy logic models for structural gaps — activities that go nowhere,
+      outcomes too ambitious for the activities behind them, benchmarks no one is tracking. The fastest way to see how
+      it works is to build something real, one piece at a time, and watch the audit panel react as you go.</p>
+      <p class="onboarding-body-text">This takes about <strong>3 minutes</strong>.</p>
+      <div class="onboarding-footer">
+        <button class="onboarding-skip" id="ob-skip-1">Skip — I'll explore on my own</button>
+        <div class="onboarding-nav-btns"><button class="btn-primary" id="ob-start-btn">Let's start →</button></div>
+      </div>`;
+    document.getElementById('ob-start-btn').addEventListener('click', onboardingNext);
+    document.getElementById('ob-skip-1').addEventListener('click', skipOnboarding);
+    return;
+  }
+
+  if (step === 'choice') {
+    body.innerHTML = `
+      <div class="onboarding-eyebrow">Before we begin</div>
+      <div class="onboarding-title">How would you like to get started?</div>
+      <div class="onboarding-choice-row">
+        <button class="onboarding-choice-card" id="ob-choice-build">
+          <div class="onboarding-choice-title">🛠️ Build a real project with me</div>
+          <div class="onboarding-choice-desc">Describe an actual initiative you're working on. We'll add one Input, Activity, Output, and Outcome together — a real starting point you can keep building on.</div>
+        </button>
+        <button class="onboarding-choice-card" id="ob-choice-demo">
+          <div class="onboarding-choice-title">📋 Show me a worked example instead</div>
+          <div class="onboarding-choice-desc">Load a complete example project (a DRIPA Section 7 agreement) so you can explore a finished logic model and its audit findings right away.</div>
+        </button>
+      </div>
+      <div class="onboarding-footer">
+        <button class="onboarding-skip" id="ob-skip-2">Skip for now</button>
+        <div class="onboarding-nav-btns"><button class="btn-secondary" onclick="onboardingBack()">← Back</button></div>
+      </div>`;
+    document.getElementById('ob-choice-build').addEventListener('click', () => onboardingGoTo('describe'));
+    document.getElementById('ob-choice-demo').addEventListener('click', loadDemoFromOnboarding);
+    document.getElementById('ob-skip-2').addEventListener('click', skipOnboarding);
+    return;
+  }
+
+  if (step === 'describe') {
+    body.innerHTML = `
+      <div class="onboarding-eyebrow">Tell me about it</div>
+      <div class="onboarding-title">What's the initiative?</div>
+      <p class="onboarding-body-text">A sentence or two is enough — you'll refine the details as you add components.</p>
+      <div class="onboarding-input-group">
+        <label for="ob-initiative-input">Initiative description</label>
+        <textarea id="ob-initiative-input" rows="3" placeholder="e.g. Expanding First Nations Health Authority primary care coverage to three remote communities">${escHtml(onboardingState.initiativeDescription)}</textarea>
+      </div>
+      <div class="onboarding-input-group">
+        <label for="ob-mandate-select">Mandate classification</label>
+        <select id="ob-mandate-select">${MANDATES.map(m => `<option value="${m}" ${m===onboardingState.mandate?'selected':''}>${m}</option>`).join('')}</select>
+      </div>
+      <div class="onboarding-footer">
+        <button class="onboarding-skip" id="ob-skip-3">Skip for now</button>
+        <div class="onboarding-nav-btns">
+          <button class="btn-secondary" onclick="onboardingBack()">← Back</button>
+          <button class="btn-primary" id="ob-describe-next">Continue →</button>
+        </div>
+      </div>`;
+    document.getElementById('ob-skip-3').addEventListener('click', skipOnboarding);
+    document.getElementById('ob-describe-next').addEventListener('click', () => {
+      const desc = document.getElementById('ob-initiative-input').value.trim();
+      if (!desc) { showToast('Describe your initiative in a sentence or two first.', true); return; }
+      onboardingState.initiativeDescription = desc;
+      onboardingState.mandate = document.getElementById('ob-mandate-select').value;
+      createOnboardingProject();
+      onboardingNext();
+    });
+    return;
+  }
+
+  if (['input','activity','output','outcome'].includes(step)) {
+    renderOnboardingComponentStep(step);
+    return;
+  }
+
+  if (step === 'summary') {
+    renderOnboardingSummary();
+    return;
+  }
+}
+
+function skipOnboarding() {
+  closeOnboarding();
+  showView('projects');
+}
+
+function createOnboardingProject() {
+  if (onboardingState.projectId) return; // already created
+  const project = {
+    id: generateId(),
+    name: onboardingState.initiativeDescription.length > 60 ? onboardingState.initiativeDescription.slice(0,60)+'…' : onboardingState.initiativeDescription,
+    department: '',
+    description: onboardingState.initiativeDescription,
+    mandate: onboardingState.mandate,
+    createdAt: new Date().toISOString()
+  };
+  setData('ks_projects', [...getData('ks_projects'), project]);
+  onboardingState.projectId = project.id;
+}
+
+function renderOnboardingComponentStep(step) {
+  const g = ONBOARDING_COMPONENT_GUIDANCE[step];
+  const draft = onboardingState.componentDrafts[step] || { description: '', targetBenchmark: '', verificationSource: '' };
+  const body = document.getElementById('onboarding-body');
+  body.innerHTML = `
+    <div class="onboarding-eyebrow">${g.eyebrow}</div>
+    <div class="onboarding-title">${g.title}</div>
+    <p class="onboarding-body-text">${g.hint}</p>
+    <div class="onboarding-input-group">
+      <label for="ob-comp-desc">Description</label>
+      <textarea id="ob-comp-desc" rows="2" placeholder="${escHtml(g.placeholder)}">${escHtml(draft.description)}</textarea>
+    </div>
+    <div class="onboarding-input-group">
+      <label for="ob-comp-bench">Target benchmark (optional)</label>
+      <input id="ob-comp-bench" type="text" value="${escHtml(draft.targetBenchmark)}" placeholder="A measurable target — a number, date, or percentage">
+    </div>
+    <div class="onboarding-input-group">
+      <label for="ob-comp-src">Verification source (optional)</label>
+      <input id="ob-comp-src" type="text" value="${escHtml(draft.verificationSource)}" placeholder="Where this gets tracked — a report, registry, or submission">
+    </div>
+    <div id="ob-mini-audit"></div>
+    <div class="onboarding-footer">
+      <button class="onboarding-skip" id="ob-skip-comp">Skip this step</button>
+      <div class="onboarding-nav-btns">
+        <button class="btn-secondary" onclick="onboardingBack()">← Back</button>
+        <button class="btn-primary" id="ob-comp-next">${step === 'outcome' ? 'Finish →' : 'Add & Continue →'}</button>
+      </div>
+    </div>`;
+
+  document.getElementById('ob-skip-comp').addEventListener('click', () => onboardingNext());
+  document.getElementById('ob-comp-next').addEventListener('click', () => commitOnboardingComponent(step));
+
+  // Show the live audit reaction for whatever's already been added,
+  // updating as the user types — this is the core "show, don't tell"
+  // moment of the whole flow.
+  const updateMiniAudit = () => renderOnboardingMiniAudit();
+  document.getElementById('ob-comp-desc').addEventListener('input', updateMiniAudit);
+  updateMiniAudit();
+}
+
+function renderOnboardingMiniAudit() {
+  const slot = document.getElementById('ob-mini-audit');
+  if (!slot || !onboardingState.projectId) { if (slot) slot.innerHTML=''; return; }
+  const components = getData('ks_components').filter(c => c.projectId === onboardingState.projectId);
+  if (!components.length) { slot.innerHTML = ''; return; }
+  const findings = computeAuditFindings(components, onboardingState.projectId);
+  const score = calcHealthScoreFromEntries(findings);
+  const color = scoreColorFor(score);
+  const highC = findings.filter(f=>f.riskLevel==='High').length;
+  const medC  = findings.filter(f=>f.riskLevel==='Medium').length;
+  let text;
+  if (!findings.length) text = `No risk flags yet — looking solid so far.`;
+  else {
+    const top = findings[0];
+    text = `<strong>${highC?`${highC} high-risk`:medC?`${medC} medium-risk`:findings.length+' advisory'}</strong> flag${findings.length!==1?'s':''} so far. Latest: ${escHtml(top.message.split(':')[0])} — this is exactly the kind of gap the audit engine is designed to catch.`;
+  }
+  slot.innerHTML = `<div class="onboarding-mini-audit">
+    <div class="onboarding-mini-audit-label">Live Audit Reaction</div>
+    <div class="onboarding-mini-audit-row">
+      <div class="onboarding-mini-gauge" style="background:conic-gradient(${color} ${score/100*360}deg, rgba(255,255,255,0.08) 0);"><span>${score}</span></div>
+      <div class="onboarding-mini-audit-text">${text}</div>
+    </div>
+  </div>`;
+}
+
+function commitOnboardingComponent(step) {
+  const desc = document.getElementById('ob-comp-desc').value.trim();
+  if (!desc) { onboardingNext(); return; }
+  const g = ONBOARDING_COMPONENT_GUIDANCE[step];
+  const bench = document.getElementById('ob-comp-bench').value.trim();
+  const src   = document.getElementById('ob-comp-src').value.trim();
+  onboardingState.componentDrafts[step] = { description: desc, targetBenchmark: bench, verificationSource: src };
+  const newComp = { id: generateId(), projectId: onboardingState.projectId, type: g.type, description: desc, targetBenchmark: bench, verificationSource: src };
+  setData('ks_components', [...getData('ks_components'), newComp]);
+  runAuditEngine(onboardingState.projectId);
+  onboardingNext();
+}
+
+function renderOnboardingSummary() {
+  const components = getData('ks_components').filter(c => c.projectId === onboardingState.projectId);
+  const score = onboardingState.projectId ? calcHealthScore(onboardingState.projectId) : null;
+  const proj = getData('ks_projects').find(p => p.id === onboardingState.projectId);
+  const body = document.getElementById('onboarding-body');
+
+  if (!proj || !components.length) {
+    body.innerHTML = `
+      <div class="onboarding-eyebrow">All set</div>
+      <div class="onboarding-title">Ready when you are.</div>
+      <p class="onboarding-body-text">You can build a logic model any time from <strong>Active Projects → New Project</strong>, or load the worked example from the Quick Start guide.</p>
+      <div class="onboarding-footer">
+        <div></div>
+        <button class="btn-primary" id="ob-finish-empty">Go to Keystone →</button>
+      </div>`;
+    document.getElementById('ob-finish-empty').addEventListener('click', () => { closeOnboarding(); showView('projects'); });
+    return;
+  }
+
+  const color = scoreColorFor(score);
+  body.innerHTML = `
+    <div class="onboarding-eyebrow">Nicely done</div>
+    <div class="onboarding-title">"${escHtml(proj.name)}" is underway.</div>
+    <p class="onboarding-body-text">You've added ${components.length} component${components.length!==1?'s':''} across the logic chain. Here's where it stands:</p>
+    <div class="onboarding-mini-audit" style="margin-bottom:18px;">
+      <div class="onboarding-mini-audit-row">
+        <div class="onboarding-mini-gauge" style="width:52px;height:52px;background:conic-gradient(${color} ${score/100*360}deg, rgba(255,255,255,0.08) 0);"><span style="font-size:15px;">${score}</span></div>
+        <div class="onboarding-mini-audit-text">Health Score ${score}/100. ${score>=70?'Already in solid shape for a first pass.':'A normal starting point — the audit panel will guide you through tightening it up.'}</div>
+      </div>
+    </div>
+    ${STEPS.map(t => {
+      const c = components.find(c => c.type === t);
+      return `<div class="onboarding-summary-stat">
+        <span class="badge ${typeBadgeClass(t)}" style="font-size:10px;">${t}</span>
+        <span style="font-size:12.5px;color:${c?'var(--text)':'var(--muted)'};">${c?escHtml(c.description.slice(0,70)):'Not added yet — add it any time from the Framework Builder.'}</span>
+      </div>`;
+    }).join('')}
+    <div class="onboarding-footer" style="margin-top:18px;">
+      <div></div>
+      <button class="btn-primary" id="ob-finish">Open Framework Builder →</button>
+    </div>`;
+  document.getElementById('ob-finish').addEventListener('click', () => {
+    closeOnboarding();
+    setActiveProject(onboardingState.projectId);
+    showView('new-framework');
+  });
+}
+
+function loadDemoFromOnboarding() {
+  const proj = seedDemoProject();
+  closeOnboarding();
+  if (proj) setActiveProject(proj.id);
+  else {
+    const demo = getData('ks_projects').find(p => p.id === 'demo-001');
+    if (demo) setActiveProject(demo.id);
+  }
+  showView('new-framework');
+  const banner = document.getElementById('demo-banner');
+  if (banner) banner.style.display = 'flex';
 }
 </script>

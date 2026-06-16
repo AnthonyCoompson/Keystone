@@ -5,17 +5,19 @@ FastAPI backend — routes all AI work through ai_processor.py
 """
 
 import logging
-from typing import List
+from typing import List, Optional, Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 import ai_processor as ai
+import db
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("keystone.main")
 
 # ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Keystone AI API", version="2.0.0")
@@ -26,6 +28,11 @@ app.add_middleware(
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def on_startup():
+    db.init_db()
 
 
 # ── Request models (Pydantic — FastAPI requires these to parse JSON bodies) ────
@@ -508,13 +515,228 @@ has used them first. Return ONLY the response text — no markdown headers, no p
     return {"success": True, "reply": text.strip()}
 
 
+# ── Sync — Backend Persistence ──────────────────────────────────────────────
+# Replaces localStorage as the source of truth. The frontend's setData() now
+# fires a debounced push() after every write, and pull() runs once on app
+# load to hydrate localStorage from the server (so a cleared browser, a new
+# device, or a shared link all see the same data).
+#
+# Scoping: each browser gets a stable random device_id (generated once,
+# persisted in localStorage itself, sent as the X-Device-Id header). This
+# preserves today's "one browser, one set of projects" behaviour while
+# giving every project a durable home outside the browser. A future
+# sharing feature can re-scope specific projects to a shared workspace id
+# without changing this endpoint shape.
+
+class SyncProject(BaseModel):
+    id: str
+    name: str = ""
+    department: str = ""
+    description: str = ""
+    mandate: str = ""
+    createdAt: Optional[str] = None
+    timeline: Optional[Any] = None
+
+class SyncComponent(BaseModel):
+    id: str
+    projectId: str
+    type: str = ""
+    description: str = ""
+    targetBenchmark: str = ""
+    verificationSource: str = ""
+    timeframe: Optional[str] = None
+
+class SyncAuditEntry(BaseModel):
+    id: str
+    projectId: str
+    riskLevel: str = ""
+    errorType: str = ""
+    message: str = ""
+    componentId: Optional[str] = None
+
+class SyncScoreHistoryEntry(BaseModel):
+    projectId: str
+    score: int
+    ts: Any  # epoch ms, sent as number from JS
+
+class SyncDocAnalysisEntry(BaseModel):
+    id: str
+    fileName: str = ""
+    mandate: str = ""
+    timestamp: Any
+    components: List[Any] = []
+
+class SyncPushRequest(BaseModel):
+    projects: List[SyncProject] = []
+    components: List[SyncComponent] = []
+    auditLog: List[SyncAuditEntry] = []
+    scoreHistory: List[SyncScoreHistoryEntry] = []
+    docAnalysisHistory: List[SyncDocAnalysisEntry] = []
+    # ids the client deleted locally since the last push, so the server
+    # mirrors deletions instead of only ever accumulating rows
+    deletedProjectIds: List[str] = []
+    deletedComponentIds: List[str] = []
+    deletedDocAnalysisIds: List[str] = []
+
+
+def _require_device_id(x_device_id: Optional[str]) -> str:
+    if not x_device_id or not x_device_id.strip():
+        raise HTTPException(status_code=400, detail="Missing X-Device-Id header.")
+    return x_device_id.strip()
+
+
+@app.get("/api/sync/pull")
+async def sync_pull(x_device_id: Optional[str] = Header(default=None)):
+    device_id = _require_device_id(x_device_id)
+    session = db.get_session()
+    try:
+        projects = session.query(db.Project).filter_by(device_id=device_id).all()
+        components = session.query(db.Component).filter_by(device_id=device_id).all()
+        audit_entries = session.query(db.AuditEntry).filter_by(device_id=device_id).all()
+        score_history = session.query(db.ScoreHistoryEntry).filter_by(device_id=device_id).all()
+        doc_history = session.query(db.DocAnalysisHistoryEntry).filter_by(device_id=device_id).all()
+
+        return {
+            "success": True,
+            "projects": [
+                {
+                    "id": p.id, "name": p.name, "department": p.department,
+                    "description": p.description, "mandate": p.mandate,
+                    "createdAt": p.created_at, "timeline": p.timeline,
+                }
+                for p in projects
+            ],
+            "components": [
+                {
+                    "id": c.id, "projectId": c.project_id, "type": c.type,
+                    "description": c.description, "targetBenchmark": c.target_benchmark,
+                    "verificationSource": c.verification_source, "timeframe": c.timeframe,
+                }
+                for c in components
+            ],
+            "auditLog": [
+                {
+                    "id": a.id, "projectId": a.project_id, "riskLevel": a.risk_level,
+                    "errorType": a.error_type, "message": a.message, "componentId": a.component_id,
+                }
+                for a in audit_entries
+            ],
+            "scoreHistory": [
+                {"projectId": s.project_id, "score": s.score, "ts": s.ts}
+                for s in score_history
+            ],
+            "docAnalysisHistory": [
+                {
+                    "id": d.id, "fileName": d.file_name, "mandate": d.mandate,
+                    "timestamp": d.timestamp, "components": d.components,
+                }
+                for d in doc_history
+            ],
+        }
+    finally:
+        session.close()
+
+
+@app.post("/api/sync/push")
+async def sync_push(req: SyncPushRequest, x_device_id: Optional[str] = Header(default=None)):
+    device_id = _require_device_id(x_device_id)
+    session = db.get_session()
+    try:
+        if req.projects:
+            rows = [{
+                "id": p.id, "device_id": device_id, "name": p.name, "department": p.department,
+                "description": p.description, "mandate": p.mandate, "created_at": p.createdAt,
+                "timeline": p.timeline,
+            } for p in req.projects]
+            db.upsert_rows(session, db.Project, rows)
+
+        if req.components:
+            rows = [{
+                "id": c.id, "device_id": device_id, "project_id": c.projectId, "type": c.type,
+                "description": c.description, "target_benchmark": c.targetBenchmark,
+                "verification_source": c.verificationSource, "timeframe": c.timeframe,
+            } for c in req.components]
+            db.upsert_rows(session, db.Component, rows)
+
+        if req.auditLog:
+            rows = [{
+                "id": a.id, "device_id": device_id, "project_id": a.projectId,
+                "risk_level": a.riskLevel, "error_type": a.errorType, "message": a.message,
+                "component_id": a.componentId,
+            } for a in req.auditLog]
+            db.upsert_rows(session, db.AuditEntry, rows)
+
+        if req.docAnalysisHistory:
+            rows = [{
+                "id": d.id, "device_id": device_id, "file_name": d.fileName, "mandate": d.mandate,
+                "timestamp": str(d.timestamp), "components": d.components,
+            } for d in req.docAnalysisHistory]
+            db.upsert_rows(session, db.DocAnalysisHistoryEntry, rows)
+
+        # Score history is append-only and has no client-assigned id, so we
+        # simply insert any rows not already represented (cheap dedupe on
+        # project_id + ts, which is effectively unique per save event).
+        for s in req.scoreHistory:
+            exists = session.query(db.ScoreHistoryEntry).filter_by(
+                device_id=device_id, project_id=s.projectId, ts=str(s.ts)
+            ).first()
+            if not exists:
+                session.add(db.ScoreHistoryEntry(
+                    device_id=device_id, project_id=s.projectId, score=s.score, ts=str(s.ts)
+                ))
+
+        # Mirror deletions
+        if req.deletedProjectIds:
+            session.query(db.Project).filter(
+                db.Project.device_id == device_id, db.Project.id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
+            session.query(db.Component).filter(
+                db.Component.device_id == device_id, db.Component.project_id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
+            session.query(db.AuditEntry).filter(
+                db.AuditEntry.device_id == device_id, db.AuditEntry.project_id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
+            session.query(db.ScoreHistoryEntry).filter(
+                db.ScoreHistoryEntry.device_id == device_id, db.ScoreHistoryEntry.project_id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
+
+        if req.deletedComponentIds:
+            session.query(db.Component).filter(
+                db.Component.device_id == device_id, db.Component.id.in_(req.deletedComponentIds)
+            ).delete(synchronize_session=False)
+
+        if req.deletedDocAnalysisIds:
+            session.query(db.DocAnalysisHistoryEntry).filter(
+                db.DocAnalysisHistoryEntry.device_id == device_id,
+                db.DocAnalysisHistoryEntry.id.in_(req.deletedDocAnalysisIds)
+            ).delete(synchronize_session=False)
+
+        session.commit()
+        return {"success": True}
+    except Exception as exc:
+        session.rollback()
+        logger.error(f"Sync push failed: {exc}")
+        raise HTTPException(status_code=500, detail=f"Sync failed: {str(exc)}")
+    finally:
+        session.close()
+
+
 # ── Health check ───────────────────────────────────────────────────────────────
 @app.get("/api/health")
 async def health():
+    db_ready = True
+    try:
+        session = db.get_session()
+        session.execute(db.Project.__table__.select().limit(1))
+        session.close()
+    except Exception as exc:
+        logger.warning(f"Health check DB probe failed: {exc}")
+        db_ready = False
     return {
         "status": "ok",
         "model": "gemini-1.5-flash",
         "gemini_ready": ai.is_ready(),
+        "db_ready": db_ready,
     }
 
 
