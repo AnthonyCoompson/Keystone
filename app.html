@@ -474,7 +474,37 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-da-accept:hover { background: rgba(16,185,129,0.2); }
 .btn-da-reject { background: rgba(196,30,58,0.08); color: #fb7185; border: 1px solid rgba(196,30,58,0.2); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .btn-da-reject:hover { background: rgba(196,30,58,0.15); }
-/* ── Document Analysis History ── */
+/* ── Contextual Step Panel ── */
+.ctx-section { margin-bottom: 14px; }
+.ctx-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; padding: 6px 0 6px; display: flex; align-items: center; gap: 8px; }
+.ctx-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.ctx-upstream { color: var(--muted); }
+.ctx-current { color: var(--cyan); }
+.ctx-downstream { color: var(--muted); }
+.ctx-empty-hint { font-size: 12px; color: var(--muted); font-style: italic; padding: 6px 0 4px; }
+.ctx-card { display: flex; flex-direction: column; background: var(--input-bg); border: 1px solid var(--border); border-radius: 7px; margin-bottom: 6px; transition: border-color 0.15s; }
+.ctx-card.current { border-color: rgba(0,194,255,0.2); background: rgba(0,194,255,0.03); }
+.ctx-card.upstream { opacity: 0.8; }
+.ctx-card.downstream { opacity: 0.55; border-style: dashed; }
+.ctx-card-top { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.ctx-card-desc { flex: 1; font-size: 12.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: text; }
+.ctx-card-desc:hover { color: var(--white); }
+.ctx-link-hint { font-size: 10px; color: var(--muted); padding: 0 10px 7px; line-height: 1.5; font-style: italic; }
+.ctx-link-hint strong { color: var(--text); font-style: normal; }
+.ctx-link-arrow { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+/* Mini-map */
+.step-minimap-wrap { border: 1px solid var(--border); border-radius: 8px; background: rgba(0,0,0,0.12); overflow: hidden; }
+.step-minimap-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 6px 10px 4px; }
+/* Timeline save button */
+.btn-tl-save { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.3); padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-tl-save:hover { background: rgba(16,185,129,0.22); }
+.btn-tl-save.saved { background: rgba(16,185,129,0.18); color: var(--green); }
+/* DA inline confirmation */
+.da-confirm-banner { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.da-confirm-icon { font-size: 22px; flex-shrink: 0; }
+.da-confirm-body { flex: 1; font-size: 13px; line-height: 1.6; color: var(--text); }
+.da-confirm-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
 .da-history-list { display: flex; flex-direction: column; gap: 8px; }
 .da-history-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
 .da-history-item:hover { border-color: rgba(0,194,255,0.3); box-shadow: 0 4px 16px rgba(0,194,255,0.06); }
@@ -740,29 +770,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
                 <input type="text" class="form-control" id="source-3" placeholder="e.g., FNHA quarterly reporting, Treasury Board submission, community survey">
               </div>
             </div>
-            <!-- Logic Model Diagram -->
-            <div class="ai-suggest-bar" id="diagram-panel" style="margin-top:16px;">
-              <div class="ai-suggest-bar-header" id="diagram-panel-header">
-                <span class="ai-suggest-bar-label" style="color:var(--cyan);">🗺️ Logic Model Diagram</span>
-                <span class="ai-suggest-bar-toggle">
-                  <span id="diagram-toggle-label">collapse</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </span>
-              </div>
-              <div class="ai-suggest-bar-body" id="diagram-panel-body">
-                <div id="logic-diagram-container" style="overflow-x:auto;"></div>
-                <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;">
-                  Arrows show inferred causal links between components. <span style="color:#fb7185;">Red</span> dashed lines flag Circular Logic; a <span style="color:#fb7185;">red dot</span> marks components with active risk flags.
-                </div>
-              </div>
-            </div>
-            <div class="component-list-section" id="component-list-section">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <div class="component-list-title" style="margin-bottom:0;">Framework Components</div>
-                <input type="text" id="component-filter" placeholder="Filter…" style="padding:4px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--input-bg);color:var(--text);width:130px;font-family:var(--font);" oninput="filterComponents(this.value)">
-              </div>
-              <div id="component-list"></div>
-            </div>
+            <!-- Logic Model Diagram (step-aware mini-map, always visible) -->
+            <div id="step-minimap" style="margin-top:14px;"></div>
+            <!-- Contextual step panel: shows components relevant to current step -->
+            <div id="contextual-step-panel" style="margin-top:12px;"></div>
           </div>
         </div>
         <div class="form-panel-footer" id="form-panel-footer" style="display:none;">
@@ -1036,6 +1047,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           </div>
           <div style="display:flex;gap:8px;">
             <button class="btn-secondary" id="tl-btn-print">⎙ Export</button>
+            <button class="btn-tl-save" id="tl-btn-save" style="display:none;">💾 Save to Project</button>
             <button class="btn-primary" id="tl-btn-generate">✨ Generate Timeline</button>
           </div>
         </div>
@@ -1792,6 +1804,7 @@ function renderLogicModelDiagram(components, findings, opts = {}) {
   const highlightIds = opts.highlightIds || new Set();
   const colTypes = ['Input', 'Activity', 'Output', 'Outcome'];
   const light = !!opts.light;
+  const activeType = opts.activeType || null; // if set, dim other columns
 
   const textColor   = light ? '#1a2740' : '#c8d4e8';
   const dimColor    = light ? '#6b7a99' : '#8a9bbf';
@@ -1871,9 +1884,11 @@ function renderLogicModelDiagram(components, findings, opts = {}) {
 
     const strokeColor = isNew ? '#00c2ff' : (isFlagged ? '#fb7185' : color);
     const strokeWidth = isNew ? 2.5 : (isFlagged ? 2 : 1);
+    const isDimmed = activeType && pos.type !== activeType && !isNew;
+    const nodeOpacity = isDimmed ? 0.35 : 1;
     const strokeDash = isNew ? '' : '';
 
-    svg += `<g>
+    svg += `<g opacity="${nodeOpacity}">
       <rect x="${pos.x}" y="${pos.y}" width="${pos.w}" height="${pos.h}" rx="6"
         fill="${nodeFill}" stroke="${strokeColor}" stroke-width="${strokeWidth}" ${strokeDash} />
       <rect x="${pos.x}" y="${pos.y}" width="4" height="${pos.h}" fill="${color}" rx="2"/>`;
@@ -1904,29 +1919,8 @@ function renderLogicModelDiagram(components, findings, opts = {}) {
 }
 
 /* ── Diagram panel in the Framework Builder ── */
-function renderDiagramPanel() {
-  const container = document.getElementById('logic-diagram-container');
-  if (!container) return;
-  if (!activeProjectId) { container.innerHTML = ''; return; }
-  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
-  const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
-  container.innerHTML = renderLogicModelDiagram(components, findings, { width: 760 });
-}
-
-(function() {
-  const bar = document.getElementById('diagram-panel');
-  const header = document.getElementById('diagram-panel-header');
-  const toggleLabel = document.getElementById('diagram-toggle-label');
-  if (!bar || !header) return;
-  const collapsed = localStorage.getItem('ks_diagram_collapsed') === '1';
-  if (collapsed) { bar.classList.add('collapsed'); toggleLabel.textContent = 'expand'; }
-  header.addEventListener('click', () => {
-    const isCollapsed = bar.classList.toggle('collapsed');
-    toggleLabel.textContent = isCollapsed ? 'expand' : 'collapse';
-    localStorage.setItem('ks_diagram_collapsed', isCollapsed ? '1' : '0');
-    if (!isCollapsed) renderDiagramPanel();
-  });
-})();
+// renderDiagramPanel replaced by renderStepMinimap (step-aware inline mini-map)
+function renderDiagramPanel() { renderStepMinimap(); }
 </script>
 <script>
 /* ── Render Audit Panel ── */
@@ -1962,7 +1956,7 @@ function renderAuditPanel() {
     updateCoverage(null);
     btnBriefing.disabled = true;
     btnNarrative.disabled = true;
-    renderDiagramPanel();
+    renderStepMinimap();
     return;
   }
 
@@ -2067,7 +2061,7 @@ function renderAuditPanel() {
   updateCoverage(activeProjectId);
   btnBriefing.disabled  = components.length < 2;
   btnNarrative.disabled = components.length < 2;
-  renderDiagramPanel();
+  renderStepMinimap();
 }
 
 function updateCoverage(projectId) {
@@ -2101,7 +2095,7 @@ function renderFormPanel() {
     renderAuditPanel(); return;
   }
   notice.style.display = 'none'; stepForms.style.display = 'block'; footer.style.display = 'flex';
-  // Re-apply AI suggest bar collapsed state (DOM is rebuilt on each view switch)
+  // Re-apply AI suggest bar collapsed state
   const suggestBar = document.getElementById('ai-suggest-bar');
   const suggestLabel = document.getElementById('ai-suggest-toggle-label');
   if (suggestBar && suggestLabel) {
@@ -2109,15 +2103,7 @@ function renderFormPanel() {
     suggestBar.classList.toggle('collapsed', collapsed);
     suggestLabel.textContent = collapsed ? 'expand' : 'collapse';
   }
-  // Re-apply diagram panel collapsed state (DOM is rebuilt on each view switch)
-  const diagramBar = document.getElementById('diagram-panel');
-  const diagramLabel = document.getElementById('diagram-toggle-label');
-  if (diagramBar && diagramLabel) {
-    const diagramCollapsed = localStorage.getItem('ks_diagram_collapsed') === '1';
-    diagramBar.classList.toggle('collapsed', diagramCollapsed);
-    diagramLabel.textContent = diagramCollapsed ? 'expand' : 'collapse';
-  }
-  renderStepIndicator(); renderComponentList(); renderAuditPanel(); renderDiagramPanel();
+  renderStepIndicator(); renderContextualStepPanel(); renderStepMinimap(); renderAuditPanel();
 }
 
 function renderStepIndicator() {
@@ -2135,119 +2121,229 @@ function renderStepIndicator() {
   document.querySelectorAll('.step-content').forEach((c, i) => c.classList.toggle('active', i === currentStep));
   document.getElementById('btn-prev').disabled = currentStep === 0;
   document.getElementById('btn-next').disabled = currentStep === STEPS.length - 1;
+  renderContextualStepPanel();
+  renderStepMinimap();
 }
 
-function renderComponentList() {
-  const container = document.getElementById('component-list');
+/* ── Step-aware mini-map ─────────────────────────────────────────────────────
+   Renders a compact version of the full diagram with the current step column
+   highlighted and others dimmed. Replaces the old collapsible diagram panel.
+   ──────────────────────────────────────────────────────────────────────────── */
+function renderStepMinimap() {
+  const container = document.getElementById('step-minimap');
+  if (!container) return;
   if (!activeProjectId) { container.innerHTML = ''; return; }
   const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
-  if (components.length === 0) {
-    container.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:8px 0;">No components added yet. Fill in the form above and click <strong>+ Add Component</strong>.</div>'; return;
+  const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  if (!components.length) { container.innerHTML = ''; return; }
+  const activeType = STEPS[currentStep];
+  // Pass the current step type so the SVG renderer can dim other columns
+  const svg = renderLogicModelDiagram(components, findings, { width: 680, activeType });
+  container.innerHTML = `<div class="step-minimap-wrap">
+    <div class="step-minimap-label">Logic Model Map — ${activeType}s highlighted</div>
+    <div style="padding:8px;overflow-x:auto;">${svg}</div>
+  </div>`;
+}
+
+/* ── Contextual step panel ───────────────────────────────────────────────────
+   Replaces the old "all components at bottom" list. Shows:
+   - Upstream column (e.g. Inputs when on Activity step) — read-only context
+   - Current column items — editable, with linkage hints to upstream
+   - Downstream column (e.g. Outputs when on Activity step) — ghosted hints
+   ──────────────────────────────────────────────────────────────────────────── */
+function renderContextualStepPanel() {
+  const container = document.getElementById('contextual-step-panel');
+  if (!container) return;
+  if (!activeProjectId) { container.innerHTML = ''; return; }
+
+  const allComps   = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  const flaggedIds = new Set(findings.map(f => f.componentId).filter(Boolean));
+
+  const currentType   = STEPS[currentStep];
+  const upstreamType  = STEPS[currentStep - 1] || null;
+  const downstreamType= STEPS[currentStep + 1] || null;
+
+  const currentComps   = allComps.filter(c => c.type === currentType);
+  const upstreamComps  = upstreamType  ? allComps.filter(c => c.type === upstreamType)  : [];
+  const downstreamComps= downstreamType? allComps.filter(c => c.type === downstreamType) : [];
+
+  // Build inferred links from graph
+  const { edges } = buildLogicModelGraph(allComps, findings);
+
+  function linkedIds(fromId) {
+    return new Set(edges.filter(e => e.from === fromId).map(e => e.to));
   }
+  function linkedFromIds(toId) {
+    return new Set(edges.filter(e => e.to === toId).map(e => e.from));
+  }
+
+  const STEP_GUIDANCE = {
+    Input:    { upstream: null, upstreamVerb: null, downstreamVerb: 'consumed by Activities →', hint: 'What activities will use this input?' },
+    Activity: { upstream: 'Input', upstreamVerb: '← Resources drawn from', downstreamVerb: 'produces Outputs →', hint: 'Which inputs feed this activity? What outputs does it produce?' },
+    Output:   { upstream: 'Activity', upstreamVerb: '← Produced by Activities', downstreamVerb: 'drives Outcomes →', hint: 'Which activities produce this output? What outcomes does it enable?' },
+    Outcome:  { upstream: 'Output', upstreamVerb: '← Enabled by Outputs', downstreamVerb: null, hint: 'Which outputs lead to this outcome?' }
+  };
+  const guidance = STEP_GUIDANCE[currentType];
+
   let html = '';
-  STEPS.forEach(type => {
-    const group = components.filter(c => c.type === type);
-    if (!group.length) return;
-    html += `<div class="component-group"><div class="component-group-label">${type}s</div>`;
-    group.forEach(comp => {
-      const desc = comp.description.length > 60 ? comp.description.slice(0, 60) + '…' : comp.description;
-      const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
-        ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe === 'short' ? '< 1yr' : comp.timeframe === 'medium' ? '1–3yr' : '3yr+'}</span>`
-        : '';
-      html += `<div class="component-item" data-id="${comp.id}" style="flex-direction:column;align-items:stretch;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="badge ${typeBadgeClass(type)}">${type}</span>
-          ${timeframeBadge}
-          <span class="component-item-desc editable" data-id="${comp.id}" title="Click to edit description">${escHtml(desc)}</span>
-          <button class="btn-expand-comp" data-id="${comp.id}" title="Edit benchmark &amp; verification source">⋯</button>
-          <button class="btn-improve" data-id="${comp.id}" title="AI: Improve this description">✨</button>
-          <button class="btn-delete-component" data-id="${comp.id}" title="Remove component">×</button>
+
+  // ── Upstream section ──────────────────────────────────────────
+  if (upstreamType && upstreamComps.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-label ctx-upstream">← ${upstreamType}s (${upstreamComps.length})</div>`;
+    upstreamComps.forEach(comp => {
+      const flagged = flaggedIds.has(comp.id);
+      const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
+      html += `<div class="ctx-card upstream">
+        <div class="ctx-card-top">
+          <span class="badge ${typeBadgeClass(upstreamType)}" style="font-size:10px;padding:2px 6px;">${upstreamType}</span>
+          ${flagged ? '<span style="color:#fb7185;font-size:11px;">⚠</span>' : ''}
+          <span class="ctx-card-desc">${escHtml(desc)}</span>
         </div>
+      </div>`;
+    });
+    html += '</div>';
+  } else if (upstreamType && !upstreamComps.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-label ctx-upstream">← ${upstreamType}s</div>
+      <div class="ctx-empty-hint">No ${upstreamType}s added yet — add them in the previous step.</div>
+    </div>`;
+  }
+
+  // ── Current section ───────────────────────────────────────────
+  html += `<div class="ctx-section">
+    <div class="ctx-section-label ctx-current">${currentType}s — this step (${currentComps.length})</div>`;
+
+  if (!currentComps.length) {
+    html += `<div class="ctx-empty-hint">No ${currentType}s yet. Fill in the form above and click <strong>+ Add Component</strong>.</div>`;
+  } else {
+    currentComps.forEach(comp => {
+      const flagged   = flaggedIds.has(comp.id);
+      const feedsFrom = linkedFromIds(comp.id);
+      const feedsInto = linkedIds(comp.id);
+      const matchedUpstream   = upstreamComps.filter(u => feedsFrom.has(u.id));
+      const matchedDownstream = downstreamComps.filter(d => feedsInto.has(d.id));
+      const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
+      const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
+        ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe==='short'?'< 1yr':comp.timeframe==='medium'?'1–3yr':'3yr+'}</span>`
+        : '';
+      const flagEl = findings.filter(f => f.componentId === comp.id).map(f =>
+        `<span style="font-size:10px;color:${f.riskLevel==='High'?'#fb7185':f.riskLevel==='Medium'?'#fbbf24':'var(--cyan)'};" title="${escHtml(f.message)}">● ${ERROR_TYPE_LABELS[f.errorType]||f.errorType}</span>`
+      ).join(' ');
+
+      let linkHint = '';
+      if (matchedUpstream.length) {
+        linkHint += `<strong>Uses:</strong> ${matchedUpstream.map(u => `"${u.description.slice(0,40)}${u.description.length>40?'…':''}"`) .join(', ')}`;
+      }
+      if (matchedDownstream.length) {
+        linkHint += (linkHint?' · ':'') + `<strong>Produces:</strong> ${matchedDownstream.map(d => `"${d.description.slice(0,40)}${d.description.length>40?'…':''}"` ).join(', ')}`;
+      }
+
+      html += `<div class="ctx-card current" data-id="${comp.id}">
+        <div class="ctx-card-top">
+          <span class="badge ${typeBadgeClass(currentType)}" style="font-size:10px;padding:2px 6px;">${currentType}</span>
+          ${timeframeBadge}
+          <span class="ctx-card-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
+          <button class="btn-expand-comp" data-id="${comp.id}" title="Edit details">⋯</button>
+          <button class="btn-improve" data-id="${comp.id}" title="AI: Improve description">✨</button>
+          <button class="btn-delete-component" data-id="${comp.id}" title="Remove">×</button>
+        </div>
+        ${flagEl ? `<div style="padding:0 10px 6px;display:flex;gap:8px;flex-wrap:wrap;">${flagEl}</div>` : ''}
+        ${linkHint ? `<div class="ctx-link-hint">${linkHint}</div>` : ''}
         <div class="comp-edit-panel" id="edit-panel-${comp.id}">
           <label class="comp-edit-label">Target Benchmark</label>
           <input class="comp-edit-field" id="edit-bench-${comp.id}" value="${escHtml(comp.targetBenchmark||'')}" placeholder="e.g. 2 sessions completed by Q3">
           <label class="comp-edit-label">Verification / Data Source</label>
           <input class="comp-edit-field" id="edit-src-${comp.id}" value="${escHtml(comp.verificationSource||'')}" placeholder="e.g. FNHA quarterly report, BC Gazette">
-          ${comp.type === 'Outcome' ? `<label class="comp-edit-label">Timeframe</label><select class="comp-edit-field" id="edit-tf-${comp.id}"><option value="short" ${comp.timeframe==='short'?'selected':''}>Short-term (&lt;1 year)</option><option value="medium" ${comp.timeframe==='medium'||!comp.timeframe?'selected':''}>Medium-term (1–3 years)</option><option value="long" ${comp.timeframe==='long'?'selected':''}>Long-term (3+ years)</option></select>` : ''}
-          <div style="display:flex;gap:8px;align-items:center;">
-            <button class="btn-impact-preview" data-id="${comp.id}" data-preview-edit="true" title="See how this edit affects the Health Score">📊 Preview Impact</button>
+          ${comp.type==='Outcome'?`<label class="comp-edit-label">Timeframe</label><select class="comp-edit-field" id="edit-tf-${comp.id}"><option value="short" ${comp.timeframe==='short'?'selected':''}>Short-term (&lt;1 year)</option><option value="medium" ${comp.timeframe==='medium'||!comp.timeframe?'selected':''}>Medium-term (1–3 years)</option><option value="long" ${comp.timeframe==='long'?'selected':''}>Long-term (3+ years)</option></select>`:''}
+          <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+            <button class="btn-impact-preview" data-id="${comp.id}" data-preview-edit="true">📊 Preview</button>
             <button class="comp-edit-save" data-id="${comp.id}">Save</button>
           </div>
         </div>
       </div>`;
     });
+  }
+  html += '</div>';
+
+  // ── Downstream section ────────────────────────────────────────
+  if (downstreamType) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-label ctx-downstream">${downstreamType}s — next step → (${downstreamComps.length})</div>`;
+    if (!downstreamComps.length) {
+      html += `<div class="ctx-empty-hint">No ${downstreamType}s yet — add them in the next step. ${guidance.hint}</div>`;
+    } else {
+      downstreamComps.forEach(comp => {
+        const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
+        html += `<div class="ctx-card downstream">
+          <div class="ctx-card-top">
+            <span class="badge ${typeBadgeClass(downstreamType)}" style="font-size:10px;padding:2px 6px;opacity:0.7;">${downstreamType}</span>
+            <span class="ctx-card-desc" style="opacity:0.7;">${escHtml(desc)}</span>
+            <span class="ctx-link-arrow">→</span>
+          </div>
+        </div>`;
+      });
+    }
     html += '</div>';
-  });
+  }
+
   container.innerHTML = html;
 
-  // Inline editing
-  container.querySelectorAll('.component-item-desc.editable').forEach(span => {
+  // Wire events (same as old renderComponentList)
+  container.querySelectorAll('.ctx-card-desc.editable').forEach(span => {
     span.addEventListener('click', () => {
-      const compId = span.dataset.id;
-      const comp = getData('ks_components').find(c => c.id === compId);
+      const comp = getData('ks_components').find(c => c.id === span.dataset.id);
       if (!comp) return;
       span.setAttribute('contenteditable', 'true');
       span.textContent = comp.description;
       span.focus();
-      // Select all text
       const range = document.createRange();
       range.selectNodeContents(span);
       window.getSelection().removeAllRanges();
       window.getSelection().addRange(range);
     });
     span.addEventListener('blur', () => {
-      const compId = span.dataset.id;
       const newDesc = span.textContent.trim();
       span.removeAttribute('contenteditable');
-      if (!newDesc) { renderComponentList(); return; }
+      if (!newDesc) { renderContextualStepPanel(); return; }
       const comps = getData('ks_components');
-      const updated = comps.map(c => c.id === compId ? { ...c, description: newDesc } : c);
-      setData('ks_components', updated);
+      setData('ks_components', comps.map(c => c.id === span.dataset.id ? { ...c, description: newDesc } : c));
       runAuditEngine(activeProjectId);
-      renderComponentList();
+      renderContextualStepPanel();
     });
     span.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); span.blur(); }
-      if (e.key === 'Escape') { span.removeAttribute('contenteditable'); renderComponentList(); }
+      if (e.key === 'Escape') { span.removeAttribute('contenteditable'); renderContextualStepPanel(); }
     });
   });
 
   container.querySelectorAll('.btn-delete-component').forEach(btn => {
     btn.addEventListener('click', () => {
-      const allComps = getData('ks_components');
-      const comp = allComps.find(c => c.id === btn.dataset.id);
+      const allC = getData('ks_components');
+      const comp = allC.find(c => c.id === btn.dataset.id);
       if (!comp) return;
-      // Remove immediately
-      setData('ks_components', allComps.filter(c => c.id !== btn.dataset.id));
-      runAuditEngine(activeProjectId); renderComponentList();
-      // Show undo toast for 5 seconds
+      setData('ks_components', allC.filter(c => c.id !== btn.dataset.id));
+      runAuditEngine(activeProjectId); renderContextualStepPanel(); renderStepMinimap();
       let undone = false;
       const toast = document.getElementById('ai-toast');
-      toast.innerHTML = `Removed "${comp.description.slice(0,40)}…" <button onclick="window.__undoDelete && window.__undoDelete()" style="margin-left:10px;background:rgba(255,255,255,0.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">Undo</button>`;
+      toast.innerHTML = `Removed "${comp.description.slice(0,40)}…" <button onclick="window.__undoDelete&&window.__undoDelete()" style="margin-left:10px;background:rgba(255,255,255,0.2);border:none;color:#fff;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;">Undo</button>`;
       toast.className = 'ai-toast show';
       clearTimeout(toast._timer);
       window.__undoDelete = () => {
-        if (undone) return;
-        undone = true;
-        const current = getData('ks_components');
-        // Re-insert at original position
-        setData('ks_components', [...current, comp]);
-        runAuditEngine(activeProjectId); renderComponentList();
+        if (undone) return; undone = true;
+        setData('ks_components', [...getData('ks_components'), comp]);
+        runAuditEngine(activeProjectId); renderContextualStepPanel(); renderStepMinimap();
         toast.className = 'ai-toast';
         showToast('Component restored.');
         window.__undoDelete = null;
       };
-      toast._timer = setTimeout(() => {
-        if (!undone) { toast.className = 'ai-toast'; window.__undoDelete = null; }
-      }, 5000);
+      toast._timer = setTimeout(() => { if (!undone) { toast.className='ai-toast'; window.__undoDelete=null; } }, 5000);
     });
   });
 
-  container.querySelectorAll('.btn-improve').forEach(btn => {
-    btn.addEventListener('click', () => aiImproveDescription(btn));
-  });
+  container.querySelectorAll('.btn-improve').forEach(btn => btn.addEventListener('click', () => aiImproveDescription(btn)));
 
-  // Expand/collapse inline edit panel
   container.querySelectorAll('.btn-expand-comp').forEach(btn => {
     btn.addEventListener('click', () => {
       const panel = document.getElementById('edit-panel-' + btn.dataset.id);
@@ -2257,60 +2353,56 @@ function renderComponentList() {
     });
   });
 
-  // Save inline edit (benchmark + verification + timeframe)
   function buildEditedComponent(id) {
     const bench = document.getElementById('edit-bench-' + id);
     const src   = document.getElementById('edit-src-'   + id);
     const tf    = document.getElementById('edit-tf-'    + id);
     if (!bench || !src) return null;
-    const comp = getData('ks_components').find(c => c.id === id);
+    const comp  = getData('ks_components').find(c => c.id === id);
     if (!comp) return null;
     const u = { ...comp, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim() };
     if (tf) u.timeframe = tf.value;
     return u;
   }
 
-  function commitEditedComponent(updatedComp) {
-    const comps = getData('ks_components');
-    setData('ks_components', comps.map(c => c.id === updatedComp.id ? updatedComp : c));
+  function commitEditedComponent(updated) {
+    setData('ks_components', getData('ks_components').map(c => c.id === updated.id ? updated : c));
     runAuditEngine(activeProjectId);
-    renderComponentList();
+    renderContextualStepPanel();
+    renderStepMinimap();
     showToast('Component updated.');
   }
 
   container.querySelectorAll('.comp-edit-save').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const updated = buildEditedComponent(id);
-      if (!updated) return;
-      commitEditedComponent(updated);
+      const u = buildEditedComponent(btn.dataset.id);
+      if (u) commitEditedComponent(u);
     });
   });
 
   container.querySelectorAll('[data-preview-edit]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id = btn.dataset.id;
-      const updated = buildEditedComponent(id);
-      if (!updated) return;
-      openImpactPreview(activeProjectId, [updated], () => commitEditedComponent(updated));
+      const u = buildEditedComponent(btn.dataset.id);
+      if (u) openImpactPreview(activeProjectId, [u], () => commitEditedComponent(u));
     });
   });
 }
 
-function filterComponents(query) {
-  const q = query.toLowerCase().trim();
-  document.querySelectorAll('.component-group').forEach(group => {
-    let groupHasVisible = false;
-    group.querySelectorAll('.component-item').forEach(item => {
-      const descEl = item.querySelector('.component-item-desc');
-      const text = (descEl ? descEl.textContent : '').toLowerCase();
-      const visible = !q || text.includes(q);
-      item.style.display = visible ? '' : 'none';
-      if (visible) groupHasVisible = true;
-    });
-    group.style.display = groupHasVisible ? '' : 'none';
+// Keep renderComponentList as an alias so existing callers don't break
+function renderComponentList() {
+  renderContextualStepPanel();
+  renderStepMinimap();
+}
+
+function filterComponents(q) {
+  // filter now works on ctx-cards instead of component-items
+  const query = q.toLowerCase().trim();
+  document.querySelectorAll('#contextual-step-panel .ctx-card.current').forEach(card => {
+    const text = (card.querySelector('.ctx-card-desc')?.textContent || '').toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
   });
 }
+
 
 document.getElementById('btn-prev').addEventListener('click', () => { if (currentStep > 0) { currentStep--; renderStepIndicator(); } });
 document.getElementById('btn-next').addEventListener('click', () => { if (currentStep < STEPS.length - 1) { currentStep++; renderStepIndicator(); } });
@@ -2387,15 +2479,17 @@ function renderProjects() {
     const lowPenalty = Math.min(5, auditLog.filter(e => e.riskLevel === 'Low').length);
     const score      = Math.max(0, 100 - highCount*20 - medCount*8 - lowPenalty);
     const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? '#fbbf24' : '#fb7185';
+    const timelineBadge = proj.timeline ? `<span style="font-size:10px;font-weight:600;color:var(--green);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:2px 6px;border-radius:10px;">📅 Timeline</span>` : '';
     return `<div class="project-card">
       <div class="project-card-name">${escHtml(proj.name)}</div>
       <div class="project-card-dept">${escHtml(proj.department)}</div>
-      <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}<span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;margin-left:auto;">${score}</span></div>
-      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+      <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}${timelineBadge}<span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;margin-left:auto;">${score}</span></div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button>${proj.timeline?`<button class="btn-secondary btn-view-timeline" data-id="${proj.id}">📅 Timeline</button>`:''}<button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
   grid.querySelectorAll('.btn-edit-project').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+  grid.querySelectorAll('.btn-view-timeline').forEach(btn => btn.addEventListener('click', () => { setActiveProject(btn.dataset.id); showView('timeline'); }));
   grid.querySelectorAll('.btn-export-project').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); exportProject(btn.dataset.id); }));
   grid.querySelectorAll('.btn-delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
 }
@@ -3267,14 +3361,34 @@ document.getElementById('da-btn-import').addEventListener('click', () => {
   }
   const accepted = daExtractedComponents.filter(c=>c.accepted);
   if (!accepted.length) { showToast('No components accepted.', true); return; }
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
   const newComps = accepted.map(c => ({ id:generateId(), projectId:activeProjectId, type:c.componentType, description:c.description, targetBenchmark:c.targetBenchmark||'', verificationSource:c.verificationSource||'' }));
   const commit = () => {
     setData('ks_components', [...getData('ks_components'), ...newComps]);
     runAuditEngine(activeProjectId);
-    showToast(`✓ Imported ${newComps.length} components.`);
+    // Show inline confirmation instead of navigating away
+    const area = document.getElementById('da-results-area');
+    const counts = {};
+    newComps.forEach(c => { counts[c.type] = (counts[c.type]||0)+1; });
+    const countSummary = Object.entries(counts).map(([t,n]) => `${n} ${t}${n!==1?'s':''}`).join(', ');
+    const newScore = calcHealthScore(activeProjectId);
+    const scoreColor = newScore>=70?'var(--green)':newScore>=40?'#fbbf24':'#fb7185';
+    area.innerHTML = `<div class="da-confirm-banner">
+      <div class="da-confirm-icon">✓</div>
+      <div class="da-confirm-body">
+        <strong>${newComps.length} component${newComps.length!==1?'s':''} imported into "${escHtml(proj?.name||'project')}"</strong> — ${countSummary}.
+        <br>New Health Score: <strong style="color:${scoreColor};font-family:'DM Mono',monospace;">${newScore}/100</strong>
+        <div class="da-confirm-actions">
+          <button class="btn-primary" onclick="showView('new-framework')">Open Project →</button>
+          <button class="btn-secondary" onclick="document.getElementById('da-btn-reset').click()">Analyse Another Document</button>
+        </div>
+      </div>
+    </div>`;
+    document.getElementById('da-btn-import').style.display='none';
+    document.getElementById('da-btn-import-new').style.display='none';
+    document.getElementById('da-btn-reset').style.display='none';
     daExtractedComponents=[];
     daActiveHistoryId=null;
-    showView('new-framework');
   };
   openImpactPreview(activeProjectId, newComps, commit);
 });
@@ -3299,22 +3413,42 @@ let tlTimelineData = null;
 function renderTimeline() {
   const proj = activeProjectId ? getData('ks_projects').find(p=>p.id===activeProjectId) : null;
   const components = activeProjectId ? getData('ks_components').filter(c=>c.projectId===activeProjectId) : [];
+  const saveBtn = document.getElementById('tl-btn-save');
   if (!proj || components.length < 2) {
     document.getElementById('tl-no-project').style.display='flex';
     document.getElementById('tl-content').style.display='none';
     document.getElementById('tl-loading').style.display='none';
+    if (saveBtn) saveBtn.style.display='none';
     return;
   }
   document.getElementById('tl-no-project').style.display='none';
   document.getElementById('tl-project-name').textContent=proj.name;
+  // Load saved timeline from project if available and no in-memory one for this project
+  if (!tlTimelineData || tlTimelineData.projectId !== activeProjectId) {
+    if (proj.timeline) {
+      tlTimelineData = { projectId: activeProjectId, timeline: proj.timeline };
+    }
+  }
   const tlContent = document.getElementById('tl-content');
   if (tlTimelineData && tlTimelineData.projectId===activeProjectId) {
     tlContent.style.display='flex';
+    if (saveBtn) { saveBtn.style.display='inline-block'; saveBtn.classList.toggle('saved', !!proj.timeline); saveBtn.textContent = proj.timeline ? '✓ Saved to Project' : '💾 Save to Project'; }
     renderTLGantt(tlTimelineData.timeline);
   } else {
     tlContent.style.display='none';
+    if (saveBtn) saveBtn.style.display='none';
   }
 }
+
+document.getElementById('tl-btn-save').addEventListener('click', () => {
+  if (!activeProjectId || !tlTimelineData) return;
+  const projects = getData('ks_projects');
+  setData('ks_projects', projects.map(p => p.id === activeProjectId ? { ...p, timeline: tlTimelineData.timeline } : p));
+  const btn = document.getElementById('tl-btn-save');
+  btn.textContent = '✓ Saved to Project';
+  btn.classList.add('saved');
+  showToast('Timeline saved to project.');
+});
 
 document.getElementById('tl-btn-generate').addEventListener('click', async () => {
   if (!activeProjectId) { showToast('Select a project first.', true); return; }
@@ -3331,6 +3465,8 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
     tlTimelineData = { projectId:activeProjectId, timeline:data.timeline };
     document.getElementById('tl-loading').style.display='none';
     document.getElementById('tl-content').style.display='flex';
+    const saveBtn = document.getElementById('tl-btn-save');
+    if (saveBtn) { saveBtn.style.display='inline-block'; saveBtn.textContent='💾 Save to Project'; saveBtn.classList.remove('saved'); }
     renderTLGantt(data.timeline);
     showToast('✨ Timeline generated.');
   } catch(e) {
