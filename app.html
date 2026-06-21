@@ -256,6 +256,40 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-briefing { width: 100%; background: linear-gradient(135deg,#1d4ed8,#2563eb); color: var(--white); padding: 10px; border-radius: 6px; font-size: 13.5px; font-weight: 600; transition: background 0.15s; }
 .btn-briefing:hover { background: var(--slate-light); }
 .btn-briefing:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-save-version { width: 100%; background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.3); padding: 9px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: background 0.15s; }
+.btn-tb-submission { width: 100%; background: rgba(184,134,11,0.1); color: #fbbf24; border: 1px solid rgba(184,134,11,0.3); padding: 9px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: background 0.15s; }
+.btn-tb-submission:hover { background: rgba(184,134,11,0.2); }
+.btn-tb-submission:disabled { opacity: 0.4; cursor: not-allowed; }
+/* ── TB Submission Modal ── */
+.tb-section-heading { font-size: 13px; font-weight: 700; color: var(--white); margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.tb-section-heading:first-child { margin-top: 0; }
+.tb-narrative { font-size: 13px; color: var(--text); line-height: 1.65; background: rgba(184,134,11,0.05); border: 1px solid rgba(184,134,11,0.18); border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
+.tb-table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.tb-table { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 12px; }
+.tb-table th { background: rgba(184,134,11,0.08); color: var(--text); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+.tb-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); line-height: 1.5; vertical-align: top; }
+.tb-table tr:last-child td { border-bottom: none; }
+.tb-gap-tag { display: inline-block; font-size: 9.5px; font-weight: 700; color: #fb7185; background: rgba(196,30,58,0.1); border-radius: 3px; padding: 1px 5px; margin-left: 4px; }
+.tb-gaps-box { background: rgba(196,30,58,0.05); border: 1px solid rgba(196,30,58,0.2); border-radius: 8px; padding: 12px 14px; margin-top: 14px; }
+.tb-gaps-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #fb7185; margin-bottom: 8px; }
+.tb-gap-item { font-size: 12px; color: var(--text); line-height: 1.6; padding: 3px 0; }
+.tb-empty-cat { font-size: 12px; color: var(--muted); font-style: italic; padding: 8px 0; }
+.btn-save-version:hover { background: rgba(16,185,129,0.18); }
+.btn-save-version:disabled { opacity: 0.4; cursor: not-allowed; }
+/* ── Version History ── */
+.version-list { display: flex; flex-direction: column; gap: 8px; max-height: 60vh; overflow-y: auto; }
+.version-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 9px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+.version-item-meta { flex: 1; min-width: 0; }
+.version-item-label { font-size: 13.5px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.version-item-sub { font-size: 11.5px; color: var(--muted); }
+.version-item-score { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+.version-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.version-checkbox { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); flex-shrink: 0; cursor: pointer; }
+.version-checkbox input { accent-color: var(--cyan); cursor: pointer; }
+.version-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.version-compare-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px; }
+.version-compare-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.version-compare-label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
 .btn-ai-narrative { width: 100%; background: linear-gradient(135deg, #7c3aed, #0ea5e9); color: var(--white); padding: 9px; border-radius: 6px; font-size: 13px; font-weight: 600; transition: opacity 0.15s; }
 .btn-ai-narrative:hover { opacity: 0.9; }
 .btn-ai-narrative:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -330,6 +364,89 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .component-item-desc.editable { cursor: text; border-radius: 3px; padding: 1px 3px; margin: -1px -3px; transition: background 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .comp-edit-panel { display: none; margin-top: 8px; padding: 10px; background: var(--bg2); border-radius: 6px; border: 1px solid var(--border); }
 .comp-edit-panel.open { display: block; }
+.link-picker-group { display: flex; flex-direction: column; gap: 4px; max-height: 130px; overflow-y: auto; margin-bottom: 8px; padding: 6px 8px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; }
+.link-picker-item { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: var(--text); cursor: pointer; line-height: 1.4; padding: 2px 0; }
+.link-picker-item input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--cyan); cursor: pointer; }
+.link-picker-item span { flex: 1; }
+.ctx-link-mode-banner { font-size: 11.5px; line-height: 1.5; color: var(--cyan); background: rgba(0,194,255,0.05); border: 1px solid rgba(0,194,255,0.18); border-radius: 7px; padding: 9px 11px; margin-bottom: 14px; }
+.ctx-link-mode-banner strong { color: var(--white); }
+.completeness-badge { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; cursor: help; }
+.completeness-badge.c0, .completeness-badge.c1 { background: rgba(196,30,58,0.12); color: #fb7185; }
+.completeness-badge.c2 { background: rgba(184,134,11,0.12); color: #fbbf24; }
+.completeness-badge.c3 { background: rgba(16,185,129,0.12); color: var(--green); }
+.btn-audit-settings { background: none; border: 1px solid var(--border); color: var(--muted); width: 24px; height: 24px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+.btn-audit-settings:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,194,255,0.07); }
+.completeness-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11.5px; }
+.completeness-bar-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.completeness-bar-track { width: 60px; height: 6px; border-radius: 3px; background: var(--border); flex-shrink: 0; overflow: hidden; }
+.completeness-bar-fill { height: 100%; border-radius: 3px; }
+.completeness-avg-row { display: flex; align-items: center; gap: 10px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); }
+.completeness-avg-num { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700; }
+.completeness-avg-label { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+/* ── Audit Settings Modal ── */
+.settings-rule-group { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+.settings-toggle { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.settings-toggle input { width: 16px; height: 16px; accent-color: var(--cyan); cursor: pointer; }
+.settings-rule-title { font-size: 14px; font-weight: 700; color: var(--white); }
+.settings-rule-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 6px 0 10px; }
+.settings-sub-toggle { font-size: 12.5px; color: var(--text); padding: 4px 0; }
+.settings-sub-toggle label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; line-height: 1.45; }
+.settings-sub-toggle input[type="checkbox"] { margin-top: 2px; accent-color: var(--cyan); cursor: pointer; flex-shrink: 0; }
+/* ── Logic Model Map (full view) ── */
+.lm-view { padding: 24px 32px; height: 100%; display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+.lm-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-shrink: 0; flex-wrap: wrap; }
+.lm-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.lm-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.lm-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text); }
+.lm-legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.lm-empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: 13.5px; text-align: center; }
+.lm-content { flex: 1; display: grid; grid-template-columns: 1fr 320px; gap: 16px; overflow: hidden; min-height: 0; }
+.lm-canvas-wrapper { border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,0.15); overflow: auto; min-height: 0; }
+#lm-canvas-container { padding: 20px; min-width: 100%; width: max-content; }
+.lm-detail-panel { border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); padding: 16px; overflow-y: auto; min-height: 0; }
+.lm-detail-empty { font-size: 12.5px; color: var(--muted); line-height: 1.6; padding: 8px 2px; }
+.lm-detail-type-badge { margin-bottom: 10px; }
+.lm-detail-desc { font-size: 14px; color: var(--white); font-weight: 600; line-height: 1.45; margin-bottom: 12px; }
+.lm-detail-field { margin-bottom: 10px; }
+.lm-detail-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
+.lm-detail-field-value { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+.lm-detail-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--cyan); margin: 14px 0 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+.lm-detail-section-title:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+.lm-detail-link-item { font-size: 12px; color: var(--text); padding: 6px 8px; background: var(--input-bg); border-radius: 6px; margin-bottom: 5px; line-height: 1.4; cursor: pointer; transition: background 0.15s; }
+.lm-detail-link-item:hover { background: var(--hover-bg); }
+.lm-detail-flag { font-size: 11.5px; padding: 6px 8px; border-radius: 6px; margin-bottom: 5px; border-left: 3px solid var(--border); line-height: 1.45; }
+.lm-detail-flag.high { border-left-color: #fb7185; background: rgba(196,30,58,0.06); }
+.lm-detail-flag.medium { border-left-color: #fbbf24; background: rgba(184,134,11,0.06); }
+.lm-detail-flag.low { border-left-color: var(--cyan); background: rgba(0,194,255,0.05); }
+@media (max-width: 900px) {
+  .lm-content { grid-template-columns: 1fr; grid-template-rows: 1fr 220px; }
+}
+/* ── Compare Projects View ── */
+.cmp-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.cmp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.cmp-picker-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.cmp-picker-slot { flex: 1; min-width: 220px; }
+.cmp-picker-slot select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; color: var(--text); background: var(--input-bg); font-family: var(--font); }
+.cmp-empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 13.5px; }
+.cmp-table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); }
+.cmp-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.cmp-table th, .cmp-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.cmp-table th { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: rgba(255,255,255,0.02); }
+.cmp-table th:first-child, .cmp-table td:first-child { position: sticky; left: 0; background: var(--card-bg); min-width: 160px; }
+.cmp-row-label { font-size: 12px; font-weight: 600; color: var(--muted); }
+.cmp-project-name { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.cmp-project-dept { font-size: 11.5px; color: var(--muted); }
+.cmp-score-cell { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 700; }
+.cmp-risk-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+.cmp-coverage-cell { display: flex; gap: 5px; flex-wrap: wrap; }
+.cmp-coverage-pill { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
+.cmp-coverage-pill.zero { color: #fb7185; border-color: rgba(196,30,58,0.3); }
+.cmp-flag-section { margin-top: 20px; }
+.cmp-flag-section-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.cmp-flag-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: 0 6px 6px 0; border-left: 3px solid var(--border); background: rgba(255,255,255,0.03); margin-bottom: 6px; font-size: 12.5px; }
+.cmp-flag-row.high { border-left-color: var(--red); }
+.cmp-flag-row.medium { border-left-color: var(--amber); }
+.cmp-flag-project-tag { font-size: 10px; font-weight: 700; color: var(--cyan); flex-shrink: 0; white-space: nowrap; }
 .comp-edit-field { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 12px; color: var(--text); background: var(--input-bg); font-family: var(--font); margin-bottom: 6px; }
 .comp-edit-field:focus { border-color: var(--cyan); outline: none; }
 .comp-edit-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; display: block; }
@@ -521,6 +638,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .da-card-header { display: flex; align-items: center; gap: 8px; }
 .da-card-desc { font-size: 13.5px; color: var(--text); line-height: 1.5; }
 .da-card-quote { font-size: 12px; color: var(--muted); font-style: italic; border-left: 2px solid var(--border); padding-left: 8px; }
+.da-crossref-flag { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.5; padding: 8px 10px; border-radius: 6px; margin-top: 2px; }
+.da-crossref-flag.duplicate { background: rgba(184,134,11,0.07); border: 1px solid rgba(184,134,11,0.25); color: var(--text); }
+.da-crossref-flag.contradiction { background: rgba(196,30,58,0.07); border: 1px solid rgba(196,30,58,0.25); color: var(--text); }
+.da-crossref-icon { flex-shrink: 0; font-size: 13px; line-height: 1.4; }
+.da-crossref-flag strong { color: var(--white); }
 .da-card-actions { display: flex; gap: 8px; }
 .btn-da-accept { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.3); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .btn-da-accept:hover { background: rgba(16,185,129,0.2); }
@@ -667,6 +789,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <div class="nav-item" data-view="timeline" title="AI-generated project timeline">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Timeline
+        <span class="nav-badge">New</span>
+      </div>
+      <div class="nav-item" data-view="logic-map" title="Full-size logic model diagram with click-to-trace links">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.2 7.2 16.8 11"/><path d="M7.2 16.8 16.8 13"/></svg>
+        Logic Model Map
+        <span class="nav-badge">New</span>
+      </div>
+      <div class="nav-item" data-view="compare" title="Compare multiple projects side-by-side">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Compare Projects
         <span class="nav-badge">New</span>
       </div>
       <div class="nav-item" data-view="reference" title="Reference guide and methodology">
@@ -849,7 +981,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div class="audit-header">
           <div class="audit-header-row">
             <span class="audit-title">Logic Audit</span>
-            <span class="audit-timestamp" id="audit-timestamp">Last checked: just now</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button class="btn-audit-settings" id="btn-audit-settings" title="Customize completeness rubric and timeframe rules">⚙</button>
+              <span class="audit-timestamp" id="audit-timestamp">Last checked: just now</span>
+            </div>
           </div>
         </div>
         <div class="health-score-section">
@@ -871,6 +1006,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <div class="coverage-box" id="cov-outcome"><div class="coverage-count">—</div><div class="coverage-type">Outcomes</div></div>
           </div>
         </div>
+        <div class="coverage-section" id="completeness-section" style="display:none;">
+          <div class="coverage-title">Submission Readiness <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;">(completeness rubric)</span></div>
+          <div id="completeness-summary"></div>
+        </div>
         <div class="risk-feed-section">
           <div class="risk-feed-title">Risk Feed</div>
           <div id="risk-feed"><div class="risk-empty">Select a project to view audit results.</div></div>
@@ -884,6 +1023,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           </div>
           <button class="btn-ai-narrative" id="btn-ai-narrative" disabled>✨ Generate AI Diagnostic Summary</button>
           <button class="btn-briefing btn-with-tooltip" id="btn-briefing" disabled data-tooltip="Add at least 2 components to generate a briefing">Generate Executive Briefing</button>
+          <button class="btn-tb-submission btn-with-tooltip" id="btn-tb-submission" disabled data-tooltip="Add at least one Outcome to generate this section">📋 Generate TB Submission Section</button>
+          <button class="btn-save-version" id="btn-save-version" disabled>💾 Save Version Checkpoint</button>
         </div>
       </div>
     </div>
@@ -1077,7 +1218,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <div class="da-upload-zone" id="da-upload-zone">
             <div class="da-upload-icon">📄</div>
             <div class="da-upload-text">Drop a <strong>.docx</strong> or <strong>.pdf</strong> file here, or <strong>click to browse</strong></div>
-            <div class="da-upload-hint">Max 10MB · Policy documents, agreements, frameworks, briefing notes</div>
+            <div class="da-upload-hint">Max 10MB · Policy documents, agreements, frameworks, briefing notes<br>Re-uploading the same file reuses the prior result — no AI tokens spent twice.</div>
             <input type="file" id="da-file-input" accept=".docx,.pdf" style="display:none;">
           </div>
         </div>
@@ -1125,8 +1266,63 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         </div>
       </div>
     </div>
+
+    <!-- View: Logic Model Map -->
+    <div id="view-logic-map" class="view-panel">
+      <div class="lm-view">
+        <div class="lm-header">
+          <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:4px;">Logic Model Map</h1>
+            <p style="font-size:13px;color:var(--muted);" id="lm-project-name">Select a project to view its logic model map.</p>
+          </div>
+          <div class="lm-controls" id="lm-controls" style="display:none;">
+            <div class="lm-legend">
+              <span class="lm-legend-item"><span class="lm-legend-dot" style="background:#1d4ed8;"></span>Input</span>
+              <span class="lm-legend-item"><span class="lm-legend-dot" style="background:#0ea5e9;"></span>Activity</span>
+              <span class="lm-legend-item"><span class="lm-legend-dot" style="background:#10b981;"></span>Output</span>
+              <span class="lm-legend-item"><span class="lm-legend-dot" style="background:#7c3aed;"></span>Outcome</span>
+            </div>
+            <button class="btn-secondary" id="lm-btn-clear-selection" style="display:none;">✕ Clear Selection</button>
+          </div>
+        </div>
+        <div id="lm-no-project" class="lm-empty-state">
+          <div style="font-size:40px;margin-bottom:12px;">🗺️</div>
+          <div>Select a project with components to view its logic model map.</div>
+        </div>
+        <div id="lm-content" class="lm-content" style="display:none;">
+          <div class="lm-canvas-wrapper" id="lm-canvas-wrapper">
+            <div id="lm-canvas-container"></div>
+          </div>
+          <div class="lm-detail-panel" id="lm-detail-panel">
+            <div class="lm-detail-empty" id="lm-detail-empty">
+              Click any component to trace its connections through the logic chain. Hover highlights too — click pins the selection so you can scroll and explore.
+            </div>
+            <div id="lm-detail-body" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Compare Projects -->
+    <div id="view-compare" class="view-panel">
+      <div class="cmp-view">
+        <div class="cmp-header">
+          <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:4px;">Compare Projects</h1>
+            <p style="font-size:13px;color:var(--muted);">Select two or three projects to see Health Scores, risk profiles, and component coverage side-by-side — useful when a Treasury Board submission spans multiple initiatives.</p>
+          </div>
+        </div>
+        <div class="cmp-picker-row" id="cmp-picker-row"></div>
+        <div id="cmp-empty-state" class="cmp-empty-state">
+          <div style="font-size:36px;margin-bottom:10px;">📊</div>
+          <div>Select at least two projects above to compare them.</div>
+        </div>
+        <div id="cmp-results" style="display:none;"></div>
+      </div>
+    </div>
   </main>
 </div>
+
 
 <!-- Guided Onboarding Overlay (first-run experience) -->
 <div id="onboarding-overlay">
@@ -1246,6 +1442,100 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- Save Version Modal (label entry) -->
+<div class="modal-overlay" id="modal-save-version">
+  <div class="modal">
+    <div class="modal-title">Save Version Checkpoint</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">
+      Snapshots the current logic model, audit findings, and Health Score so you can compare
+      this point in time against later changes — useful before sending a project for Director
+      review, or after incorporating feedback.
+    </p>
+    <div class="form-group">
+      <label class="form-label" for="version-label-input">Version label <span class="required">*</span></label>
+      <input type="text" class="form-control" id="version-label-input" placeholder="e.g. Before Director review, After Q2 revisions">
+      <div class="form-error" id="version-label-err">Give this version a short label.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-save-version-cancel">Cancel</button>
+      <button class="btn-modal-submit" id="btn-save-version-confirm">Save Checkpoint</button>
+    </div>
+  </div>
+</div>
+
+<!-- Versions List / Comparison Modal -->
+<div class="modal-overlay" id="modal-versions">
+  <div class="modal" style="width:820px;">
+    <div class="modal-title" id="versions-modal-title">Version History</div>
+    <div id="versions-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-versions-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Settings Modal -->
+<div class="modal-overlay" id="modal-audit-settings">
+  <div class="modal" style="width:560px;">
+    <div class="modal-title">Audit Settings</div>
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:18px;">
+      Customize two of Keystone's rules for this project. Other settings (mandate, audit rule
+      thresholds tied to mandate calibration) are set when you choose a mandate classification.
+    </p>
+
+    <div class="settings-rule-group">
+      <div class="settings-rule-header">
+        <label class="settings-toggle">
+          <input type="checkbox" id="setting-completeness-enabled">
+          <span class="settings-rule-title">Completeness Rubric</span>
+        </label>
+      </div>
+      <p class="settings-rule-desc">Scores every Outcome and Output on a 0–3 scale based on which fields are filled in. Turn off individual requirements below if they don't apply to this project.</p>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-outcome-benchmark"> Outcomes require a target benchmark</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-outcome-verification"> Outcomes require a verification source</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-outcome-baseline"> Outcomes require a baseline</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-output-benchmark"> Outputs require a target benchmark</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-output-verification"> Outputs require a verification source</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-output-responsible"> Outputs require a responsible party</label></div>
+    </div>
+
+    <div class="settings-rule-group">
+      <div class="settings-rule-header">
+        <label class="settings-toggle">
+          <input type="checkbox" id="setting-timeframe-enabled">
+          <span class="settings-rule-title">Timeframe Coherence</span>
+        </label>
+      </div>
+      <p class="settings-rule-desc">Flags outcomes whose stated timeframe doesn't match the scale of activity behind it.</p>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-tf-short-heavy"> Flag short-term outcomes paired with high-leverage activities (negotiation, legislative drafting)</label></div>
+      <div class="settings-sub-toggle"><label><input type="checkbox" id="setting-tf-long-noint"> Flag long-term outcomes with no intermediate Output</label></div>
+      <div class="settings-sub-toggle" style="padding-left:24px;">
+        <label style="display:flex;align-items:center;gap:8px;">Minimum intermediate Outputs required:
+          <input type="number" id="setting-tf-min-outputs" min="1" max="5" style="width:50px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;background:var(--input-bg);color:var(--text);font-family:var(--font);">
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-audit-settings-reset">Reset to Defaults</button>
+      <button class="btn-modal-submit" id="btn-audit-settings-save">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<!-- Treasury Board Submission Modal -->
+<div class="modal-overlay" id="modal-tb-submission">
+  <div class="modal" style="width:780px;">
+    <div class="modal-title">Performance Measurement Framework</div>
+    <div id="tb-submission-body"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-tb-close">Close</button>
+      <button class="btn-secondary" id="btn-tb-regenerate" style="display:none;">↻ Regenerate</button>
+      <button class="btn-modal-submit" id="btn-tb-print" style="display:none;">⎙ Open as Document</button>
+    </div>
+  </div>
+</div>
+
 <!-- AI Toast -->
 <div class="ai-toast" id="ai-toast"></div>
 <script>
@@ -1354,9 +1644,12 @@ async function pushToBackend() {
       auditLog: getData('ks_audit_log'),
       scoreHistory: flattenScoreHistoryForSync(),
       docAnalysisHistory: getData('ks_doc_analysis_history'),
+      projectVersions: getData('ks_project_versions'),
+      ruleSettings: getData('ks_rule_settings'),
       deletedProjectIds: pending.projects,
       deletedComponentIds: pending.components,
-      deletedDocAnalysisIds: pending.docAnalysis
+      deletedDocAnalysisIds: pending.docAnalysis,
+      deletedVersionIds: pending.versions || []
     };
     const res = await fetch(API_BASE + '/api/sync/push', {
       method: 'POST',
@@ -1396,8 +1689,11 @@ function flattenScoreHistoryForSync() {
    success (so a failed push retries the deletion on the next write).
    ──────────────────────────────────────────────────────────────────────────── */
 function getPendingDeletions() {
-  try { return JSON.parse(localStorage.getItem('ks_pending_deletions')) || { projects: [], components: [], docAnalysis: [] }; }
-  catch(e) { return { projects: [], components: [], docAnalysis: [] }; }
+  const fallback = { projects: [], components: [], docAnalysis: [], versions: [] };
+  try {
+    const parsed = JSON.parse(localStorage.getItem('ks_pending_deletions'));
+    return parsed ? { ...fallback, ...parsed } : fallback;
+  } catch(e) { return fallback; }
 }
 function queueDeletion(kind, id) {
   const pending = getPendingDeletions();
@@ -1407,8 +1703,8 @@ function queueDeletion(kind, id) {
 }
 function clearPendingDeletions(sent) {
   const pending = getPendingDeletions();
-  ['projects','components','docAnalysis'].forEach(kind => {
-    pending[kind] = pending[kind].filter(id => !sent[kind].includes(id));
+  ['projects','components','docAnalysis','versions'].forEach(kind => {
+    pending[kind] = pending[kind].filter(id => !(sent[kind] || []).includes(id));
   });
   localStorage.setItem('ks_pending_deletions', JSON.stringify(pending));
 }
@@ -1436,6 +1732,8 @@ async function pullFromBackend() {
     mergeServerRecords('ks_components', data.components || []);
     mergeServerRecords('ks_audit_log', data.auditLog || []);
     mergeServerRecords('ks_doc_analysis_history', data.docAnalysisHistory || []);
+    mergeServerRecords('ks_project_versions', data.projectVersions || []);
+    mergeServerRecords('ks_rule_settings', data.ruleSettings || [], 'projectId');
 
     if (data.scoreHistory && data.scoreHistory.length) {
       let localHistory = {};
@@ -1460,10 +1758,11 @@ async function pullFromBackend() {
   }
 }
 
-function mergeServerRecords(key, serverRecords) {
+function mergeServerRecords(key, serverRecords, idField) {
+  idField = idField || 'id';
   const local = getData(key);
-  const localIds = new Set(local.map(r => r.id));
-  const toAdd = serverRecords.filter(r => !localIds.has(r.id));
+  const localIds = new Set(local.map(r => r[idField]));
+  const toAdd = serverRecords.filter(r => !localIds.has(r[idField]));
   if (toAdd.length) {
     try { localStorage.setItem(key, JSON.stringify([...local, ...toAdd])); } catch(e) {}
   }
@@ -1588,6 +1887,8 @@ function showView(v) {
   if (v === 'quick-start') renderQuickStart();
   if (v === 'document-analysis') renderDocumentAnalysis();
   if (v === 'timeline') renderTimeline();
+  if (v === 'logic-map') renderLogicMapView();
+  if (v === 'compare') renderComparePicker();
   if (v === 'reference') { /* static content */ }
 }
 document.querySelectorAll('.nav-item[data-view]').forEach(item => item.addEventListener('click', () => showView(item.dataset.view)));
@@ -1595,10 +1896,84 @@ document.getElementById('btn-go-projects').addEventListener('click', () => showV
 </script>
 <script>
 /* ── Audit Engine ── */
-const MIRACLE_KEYWORDS  = ["jurisdiction","sovereignty","self-government","governance","treaty","title","rights","systemic","transformational","full authority","nation-to-nation","reconciliation","decolonization","cultural revitalization"];
-const MINOR_KEYWORDS    = ["webinar","workshop","meeting","email","newsletter","survey","report drafted","presentation","info session","awareness"];
 const PERCENT_PATTERN   = /(\d+)\s*%/;
 const NUMBER_PATTERN    = /\b(\d{2,})\b/;
+
+/* ── Mandate-Aware Calibration ────────────────────────────────────────────────
+   The same Health Score formula and the same eight rules apply to every
+   mandate, but WHAT counts as "low-leverage" activity, how aggressively
+   Miracle Leap fires, and how harshly each risk level is penalized differ
+   by the real accountability context. A DRIPA Section 7 negotiation living
+   entirely in "meetings" for 18 months is the work, not a red flag — formal
+   negotiation sessions ARE high-leverage there. A Service Delivery
+   programme claiming a province-wide outcome off the back of meetings alone
+   is a much more legitimate Miracle Leap flag.
+
+   Each mandate config can override:
+     - minorKeywords / majorKeywords: words that count as low/high leverage
+       for THIS mandate specifically (merged with the shared base lists,
+       not a full replacement, so common terms like "webinar" still count
+       everywhere unless explicitly removed)
+     - removeFromMinor: words that are low-leverage in general but are
+       actually substantive for this mandate (e.g. "meeting" for DRIPA,
+       since negotiation sessions are frequently logged that way)
+     - miracleLeapThreshold: minority-activity ratio required to trigger
+       Miracle Leap (default 0.6) — raised for mandates where the
+       evaluator's bar for "this counts as real work" is naturally lower
+     - severityWeights: override the High/Medium/Low point deductions in
+       the Health Score formula for this mandate
+   ──────────────────────────────────────────────────────────────────────────── */
+const BASE_MIRACLE_KEYWORDS = ["jurisdiction","sovereignty","self-government","governance","treaty","title","rights","systemic","transformational","full authority","nation-to-nation","reconciliation","decolonization","cultural revitalization"];
+const BASE_MINOR_KEYWORDS   = ["webinar","workshop","meeting","email","newsletter","survey","report drafted","presentation","info session","awareness"];
+const DEFAULT_SEVERITY_WEIGHTS = { High: 20, Medium: 8, Low: 1 }; // Low capped separately at 5 total, see calcHealthScoreFromEntries
+
+const MANDATE_CALIBRATION = {
+  "DRIPA Alignment": {
+    // Negotiation sessions are very often logged as "meetings" in DRIPA
+    // Section 7 contexts — that IS the high-leverage work, not a red flag.
+    // Pull "meeting" out of the minor list and raise the trigger threshold
+    // so a normal negotiation-heavy DRIPA project doesn't get penalized for
+    // doing exactly what DRIPA work looks like.
+    removeFromMinor: ["meeting"],
+    extraMajorKeywords: ["section 7", "consent", "free prior and informed consent", "fpic", "joint decision"],
+    miracleLeapThreshold: 0.75,
+    severityWeights: { High: 18, Medium: 7, Low: 1 }
+  },
+  "Self-Government Transition": {
+    removeFromMinor: ["meeting"],
+    extraMajorKeywords: ["jurisdiction transfer", "fiscal transfer", "constitution", "governance structure"],
+    miracleLeapThreshold: 0.75,
+    severityWeights: { High: 18, Medium: 7, Low: 1 }
+  },
+  "Service Delivery": {
+    // Service delivery outcomes are usually about coverage, access, and
+    // wait times — claims of major change need real delivery activity
+    // (clinics opened, staff hired, programmes run), not just meetings.
+    // Default thresholds apply, but severity is slightly harsher on Blind
+    // Spot since service programmes are expected to already have
+    // established reporting systems.
+    miracleLeapThreshold: 0.6,
+    severityWeights: { High: 20, Medium: 9, Low: 1 }
+  },
+  "Economic Development": {
+    extraMajorKeywords: ["revenue sharing", "equity stake", "procurement", "capacity building", "joint venture"],
+    miracleLeapThreshold: 0.6,
+    severityWeights: { High: 20, Medium: 8, Low: 1 }
+  }
+};
+
+function getMandateCalibration(mandate) {
+  const cfg = MANDATE_CALIBRATION[mandate] || {};
+  const removeFromMinor = new Set((cfg.removeFromMinor || []).map(k => k.toLowerCase()));
+  const minorKeywords = BASE_MINOR_KEYWORDS.filter(k => !removeFromMinor.has(k.toLowerCase()));
+  const majorKeywords = [...BASE_MIRACLE_KEYWORDS, ...(cfg.extraMajorKeywords || [])];
+  return {
+    minorKeywords,
+    majorKeywords,
+    miracleLeapThreshold: cfg.miracleLeapThreshold ?? 0.6,
+    severityWeights: { ...DEFAULT_SEVERITY_WEIGHTS, ...(cfg.severityWeights || {}) }
+  };
+}
 
 /* Shared human-readable labels for error types — used by audit panel, briefing, and impact preview */
 const ERROR_TYPE_LABELS = {
@@ -1669,23 +2044,102 @@ function wordOverlap(a, b) {
   return wordsB.filter(w => wordsA.has(w)).length / wordsB.length;
 }
 
+/* ── Editable Rule Settings ───────────────────────────────────────────────────
+   Some rules have analyst-tunable parameters rather than fixed thresholds.
+   Settings are stored per-project (so a portfolio can have different
+   submission standards per initiative) with sensible defaults applied when
+   a project has never customised them. Edited via the "⚙ Audit Settings"
+   modal in the Framework Builder.
+   ──────────────────────────────────────────────────────────────────────────── */
+const DEFAULT_RULE_SETTINGS = {
+  completeness: {
+    enabled: true,
+    // Which fields count toward the 0-3 score, per component type. Always
+    // includes "description" implicitly as the base point; these three
+    // keys are the +1 increments analysts can toggle on/off.
+    outcomeRequiresBaseline: true,
+    outcomeRequiresBenchmark: true,
+    outcomeRequiresVerification: true,
+    outputRequiresResponsibleParty: true,
+    outputRequiresBenchmark: true,
+    outputRequiresVerification: true
+  },
+  timeframeCoherence: {
+    enabled: true,
+    // Original Rule H: short-term outcome + high-leverage (negotiation-style)
+    // activities is unrealistic.
+    flagShortWithHeavyActivities: true,
+    // New: a long-term outcome with no intermediate short-term Output is a
+    // "everything happens in year 5" submission, which Treasury Board reads
+    // as unstructured. minIntermediateOutputs is how many short/medium-term
+    // outputs are required before a long-term outcome is considered to have
+    // a credible intermediate path.
+    flagLongWithNoIntermediateOutputs: true,
+    minIntermediateOutputs: 1
+  }
+};
+
+function getRuleSettings(projectId) {
+  const all = getData('ks_rule_settings');
+  const projectSettings = all.find(s => s.projectId === projectId);
+  if (!projectSettings) {
+    return { completeness: { ...DEFAULT_RULE_SETTINGS.completeness }, timeframeCoherence: { ...DEFAULT_RULE_SETTINGS.timeframeCoherence } };
+  }
+  // Merge with defaults so older saved settings missing newly-added keys
+  // (e.g. after a Keystone update introduces a new toggle) still work.
+  return {
+    completeness: { ...DEFAULT_RULE_SETTINGS.completeness, ...(projectSettings.completeness || {}) },
+    timeframeCoherence: { ...DEFAULT_RULE_SETTINGS.timeframeCoherence, ...(projectSettings.timeframeCoherence || {}) }
+  };
+}
+
+function saveRuleSettings(projectId, settings) {
+  const all = getData('ks_rule_settings').filter(s => s.projectId !== projectId);
+  setData('ks_rule_settings', [...all, { projectId, ...settings }]);
+}
+
 /* ── Pure audit computation ──────────────────────────────────────────────────
-   Takes a components array (and a projectId used only to tag entries) and
-   returns the array of audit findings WITHOUT touching localStorage or the
-   DOM. This is the single source of truth for both:
+   Takes a components array, a projectId (used only to tag entries), and a
+   mandate (used to calibrate keyword lists, thresholds, and severity
+   weights — see MANDATE_CALIBRATION above). Returns the array of audit
+   findings WITHOUT touching localStorage or the DOM. This is the single
+   source of truth for both:
      - runAuditEngine() — the live audit that persists results
      - simulateAuditImpact() — a hypothetical "what if I added/changed this"
        preview that never persists anything
    ──────────────────────────────────────────────────────────────────────────── */
-function computeAuditFindings(components, projectId) {
+function computeAuditFindings(components, projectId, mandate, ruleSettings) {
+  const cal = getMandateCalibration(mandate);
+  const rs = ruleSettings || DEFAULT_RULE_SETTINGS;
   const newEntries = [];
   const inputs     = components.filter(c => c.type === 'Input');
   const outputs    = components.filter(c => c.type === 'Output');
   const outcomes   = components.filter(c => c.type === 'Outcome');
   const activities = components.filter(c => c.type === 'Activity');
+  const linked     = hasExplicitLinks(components);
+  const byId        = new Map(components.map(c => [c.id, c]));
+
+  // Helper: does this activity have at least one explicit downstream link
+  // (an output or, indirectly via that output, an outcome)? Only used when
+  // the project has explicit links at all — otherwise Rule A falls back to
+  // the original "are there ANY outputs/outcomes in the whole project"
+  // check, since per-activity linkage isn't available to test against.
+  function activityHasExplicitDownstream(act) {
+    return Array.isArray(act.linkedOutputIds) && act.linkedOutputIds.some(id => byId.has(id));
+  }
 
   // Rule A: Dead End
-  if (outputs.length === 0 && outcomes.length === 0) {
+  if (linked) {
+    activities.forEach(act => {
+      if (!activityHasExplicitDownstream(act)) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: 'High', errorType: 'Dead_End',
+          message: 'Dead End: This activity has no Output explicitly linked to it. Use the link picker to connect it to the deliverable it produces, or add one if none exists yet.',
+          componentId: act.id
+        });
+      }
+    });
+  } else if (outputs.length === 0 && outcomes.length === 0) {
     activities.forEach(act => newEntries.push({
       id: generateId(), projectId, riskLevel: 'High', errorType: 'Dead_End',
       message: 'Dead End: Activities are committed with no mapped deliverables or systemic impact. Add at least one Output or Outcome to complete the logic chain.',
@@ -1693,13 +2147,13 @@ function computeAuditFindings(components, projectId) {
     }));
   }
 
-  // Rule B: Miracle Leap (ratio-based)
+  // Rule B: Miracle Leap (ratio-based, mandate-calibrated)
   outcomes.forEach(outcome => {
     const txt = outcome.description.toLowerCase();
-    if (MIRACLE_KEYWORDS.some(kw => txt.includes(kw)) && activities.length > 0) {
-      const minorCount = activities.filter(a => MINOR_KEYWORDS.some(kw => a.description.toLowerCase().includes(kw))).length;
+    if (cal.majorKeywords.some(kw => txt.includes(kw)) && activities.length > 0) {
+      const minorCount = activities.filter(a => cal.minorKeywords.some(kw => a.description.toLowerCase().includes(kw))).length;
       const minorRatio = minorCount / activities.length;
-      if (minorRatio >= 0.6) {
+      if (minorRatio >= cal.miracleLeapThreshold) {
         newEntries.push({
           id: generateId(), projectId, riskLevel: minorRatio === 1 ? 'High' : 'Medium', errorType: 'Miracle_Leap',
           message: `Miracle Leap: ${Math.round(minorRatio*100)}% of your activities are low-leverage (meetings, webinars, surveys) yet this outcome claims major systemic change. Add substantive activities — legislative drafting, formal negotiations, co-governance body establishment — to support this claim.`,
@@ -1722,7 +2176,9 @@ function computeAuditFindings(components, projectId) {
     }
   });
 
-  // Rule D: Circular Logic — one flag per outcome maximum
+  // Rule D: Circular Logic — one flag per outcome maximum (semantic overlap
+  // regardless of link mode, since this is a wording problem not a missing
+  // relationship — see buildLogicModelGraph's comment on the same point)
   outcomes.forEach(outcome => {
     const offendingActivity = activities.find(activity =>
       wordOverlap(activity.description, outcome.description) > 0.65
@@ -1737,31 +2193,71 @@ function computeAuditFindings(components, projectId) {
   });
 
   // Rule E: Orphaned Input
-  inputs.forEach(input => {
-    if (activities.length === 0) return;
-    const inputWords = input.description.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 4);
-    const matched = activities.some(act => inputWords.some(w => act.description.toLowerCase().includes(w)));
-    if (!matched && inputWords.length > 2) {
-      newEntries.push({
-        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Orphaned_Input',
-        message: `Orphaned Input: "${input.description.slice(0,50)}…" does not appear to be consumed by any Activity. Confirm this resource is referenced in at least one activity, or remove it from the model.`,
-        componentId: input.id
-      });
-    }
-  });
+  if (linked) {
+    const consumedInputIds = new Set();
+    activities.forEach(act => (act.linkedInputIds || []).forEach(id => consumedInputIds.add(id)));
+    inputs.forEach(input => {
+      if (activities.length === 0) return;
+      if (!consumedInputIds.has(input.id)) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: 'Low', errorType: 'Orphaned_Input',
+          message: `Orphaned Input: "${input.description.slice(0,50)}…" is not linked to any Activity. Use the link picker on an activity to mark it as consuming this input, or remove it from the model.`,
+          componentId: input.id
+        });
+      }
+    });
+  } else {
+    inputs.forEach(input => {
+      if (activities.length === 0) return;
+      const inputWords = input.description.toLowerCase().replace(/[^a-z\s]/g,'').split(/\s+/).filter(w => w.length > 4);
+      const matched = activities.some(act => inputWords.some(w => act.description.toLowerCase().includes(w)));
+      if (!matched && inputWords.length > 2) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: 'Low', errorType: 'Orphaned_Input',
+          message: `Orphaned Input: "${input.description.slice(0,50)}…" does not appear to be consumed by any Activity. Confirm this resource is referenced in at least one activity, or remove it from the model.`,
+          componentId: input.id
+        });
+      }
+    });
+  }
 
   // Rule F: Scale Mismatch
-  outcomes.forEach(outcome => {
-    const benchText = (outcome.targetBenchmark || '').toLowerCase();
-    if ((PERCENT_PATTERN.test(benchText) || NUMBER_PATTERN.test(benchText)) &&
-        !activities.some(a => a.targetBenchmark && a.targetBenchmark.trim())) {
-      newEntries.push({
-        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Scale_Mismatch',
-        message: `Scale Mismatch: This outcome sets a quantified target ("${(outcome.targetBenchmark||'').slice(0,60)}") but no Activity has a benchmark. Without measurable activity-level commitments, the scale of effort cannot be shown to match the scale of ambition.`,
-        componentId: outcome.id
-      });
-    }
-  });
+  if (linked) {
+    // With explicit links, check whether the SPECIFIC activities feeding
+    // this outcome's chain (via its linked outputs) have benchmarks, not
+    // just "does any activity in the whole project have one".
+    const activitiesForOutcome = (outcome) => {
+      const feedingOutputs = outputs.filter(o => (o.linkedOutcomeIds || []).includes(outcome.id));
+      const feedingOutputIds = new Set(feedingOutputs.map(o => o.id));
+      return activities.filter(a => (a.linkedOutputIds || []).some(id => feedingOutputIds.has(id)));
+    };
+    outcomes.forEach(outcome => {
+      const benchText = (outcome.targetBenchmark || '').toLowerCase();
+      if (PERCENT_PATTERN.test(benchText) || NUMBER_PATTERN.test(benchText)) {
+        const feedingActivities = activitiesForOutcome(outcome);
+        const hasBenchmarked = feedingActivities.some(a => a.targetBenchmark && a.targetBenchmark.trim());
+        if (!hasBenchmarked) {
+          newEntries.push({
+            id: generateId(), projectId, riskLevel: 'Low', errorType: 'Scale_Mismatch',
+            message: `Scale Mismatch: This outcome sets a quantified target ("${(outcome.targetBenchmark||'').slice(0,60)}") but none of the Activities linked into it (via its Outputs) have a benchmark. Without measurable activity-level commitments, the scale of effort cannot be shown to match the scale of ambition.`,
+            componentId: outcome.id
+          });
+        }
+      }
+    });
+  } else {
+    outcomes.forEach(outcome => {
+      const benchText = (outcome.targetBenchmark || '').toLowerCase();
+      if ((PERCENT_PATTERN.test(benchText) || NUMBER_PATTERN.test(benchText)) &&
+          !activities.some(a => a.targetBenchmark && a.targetBenchmark.trim())) {
+        newEntries.push({
+          id: generateId(), projectId, riskLevel: 'Low', errorType: 'Scale_Mismatch',
+          message: `Scale Mismatch: This outcome sets a quantified target ("${(outcome.targetBenchmark||'').slice(0,60)}") but no Activity has a benchmark. Without measurable activity-level commitments, the scale of effort cannot be shown to match the scale of ambition.`,
+          componentId: outcome.id
+        });
+      }
+    });
+  }
 
   // Rule G: Duplicate Component
   STEPS.forEach(type => {
@@ -1781,48 +2277,153 @@ function computeAuditFindings(components, projectId) {
     }
   });
 
-  // Rule H: Timeframe Coherence
-  const longActivities = activities.filter(a => {
-    const d = a.description.toLowerCase();
-    return ['negotiation','legislative','co-governance','treaty','jurisdiction','formal agreement'].some(kw => d.includes(kw));
-  });
-  outcomes.filter(o => o.timeframe === 'short').forEach(outcome => {
-    if (longActivities.length > 0) {
-      newEntries.push({
-        id: generateId(), projectId, riskLevel: 'Low', errorType: 'Timeframe_Mismatch',
-        message: `Timeframe Mismatch: This outcome is marked short-term (< 1 year) but the project includes high-leverage activities (negotiation, legislative drafting) that realistically require more than 12 months. Consider updating the timeframe to medium or long-term.`,
-        componentId: outcome.id
+  // Rule H: Timeframe Coherence (editable — see DEFAULT_RULE_SETTINGS.timeframeCoherence)
+  const tc = rs.timeframeCoherence || DEFAULT_RULE_SETTINGS.timeframeCoherence;
+  if (tc.enabled) {
+    const longActivities = activities.filter(a => {
+      const d = a.description.toLowerCase();
+      return ['negotiation','legislative','co-governance','treaty','jurisdiction','formal agreement'].some(kw => d.includes(kw));
+    });
+
+    // H1: short-term outcome claimed alongside high-leverage activities that
+    // realistically take longer than a year.
+    if (tc.flagShortWithHeavyActivities) {
+      outcomes.filter(o => o.timeframe === 'short').forEach(outcome => {
+        if (longActivities.length > 0) {
+          newEntries.push({
+            id: generateId(), projectId, riskLevel: 'Low', errorType: 'Timeframe_Mismatch',
+            message: `Timeframe Mismatch: This outcome is marked short-term (< 1 year) but the project includes high-leverage activities (negotiation, legislative drafting) that realistically require more than 12 months. Consider updating the timeframe to medium or long-term.`,
+            componentId: outcome.id
+          });
+        }
       });
     }
-  });
+
+    // H2: long-term outcome with no intermediate short/medium-term Output —
+    // a logic model where everything happens "in year 5" with nothing
+    // delivered along the way is structurally indefensible in a submission,
+    // since it gives Treasury Board no checkpoint to evaluate progress
+    // before the full multi-year horizon has elapsed.
+    if (tc.flagLongWithNoIntermediateOutputs) {
+      const minRequired = tc.minIntermediateOutputs ?? 1;
+      outcomes.filter(o => o.timeframe === 'long').forEach(outcome => {
+        // An output counts as "intermediate" if it's explicitly linked to
+        // this outcome (explicit-link mode) and the project has no
+        // timeframe field on Outputs to check directly — so instead we
+        // treat ANY output linked to (or, in inferred mode, semantically
+        // tied to) a long-term outcome as a potential intermediate
+        // checkpoint, and only flag when there are NONE at all, since
+        // Outputs are by definition nearer-term deliverables than the
+        // Outcomes they drive.
+        let relatedOutputs;
+        if (linked) {
+          relatedOutputs = outputs.filter(o => (o.linkedOutcomeIds || []).includes(outcome.id));
+        } else {
+          relatedOutputs = outputs.filter(o => wordOverlap(o.description, outcome.description) > 0.1 || wordOverlap(outcome.description, o.description) > 0.1);
+        }
+        if (relatedOutputs.length < minRequired) {
+          newEntries.push({
+            id: generateId(), projectId, riskLevel: 'Low', errorType: 'Timeframe_Mismatch',
+            message: `Timeframe Mismatch: This outcome is marked long-term (3+ years) but has no intermediate Output${minRequired>1?'s (needs at least '+minRequired+')':''} linked to it. A multi-year outcome needs nearer-term deliverables along the way so progress can be evaluated before the full horizon elapses — add an Output the analyst can point to in Year 1 or 2.`,
+            componentId: outcome.id
+          });
+        }
+      });
+    }
+  }
 
   return newEntries;
+}
+
+/* ── Completeness Rubric ──────────────────────────────────────────────────────
+   Separate from the eight structural audit rules (Dead End, Miracle Leap,
+   etc.) — those catch logic GAPS, this catches submission-readiness GAPS.
+   Treasury Board expects every Outcome to have a baseline, a target, and a
+   data source; every Output to have a named responsible party. This scores
+   each Outcome and Output on a 0-3 scale:
+     1 point  — has a description (the component exists at all)
+     +1 point — has the type-appropriate "benchmark" field filled in
+     +1 point — has a verification source
+     +1 point — has the type-specific extra field (baseline for Outcomes,
+                responsible party for Outputs)
+   Inputs and Activities aren't scored — Treasury Board's completeness
+   expectations are specifically about deliverables and impacts, not the
+   resources/actions that produce them (those are covered by the
+   structural rules instead, e.g. Blind Spot already checks Activities
+   with benchmarks). Each of the three +1 increments can be turned off
+   per-project via Audit Settings, e.g. an analyst who knows baselines
+   genuinely don't apply to a particular outcome type can disable that
+   requirement rather than be stuck with a permanently low score.
+   ──────────────────────────────────────────────────────────────────────────── */
+function computeCompletenessScores(components, ruleSettings) {
+  const rs = (ruleSettings || DEFAULT_RULE_SETTINGS).completeness || DEFAULT_RULE_SETTINGS.completeness;
+  if (!rs.enabled) return [];
+
+  const scored = [];
+  components.forEach(comp => {
+    if (comp.type !== 'Outcome' && comp.type !== 'Output') return;
+    let score = comp.description && comp.description.trim() ? 1 : 0;
+    const missing = [];
+
+    const benchmarkRequired = comp.type === 'Outcome' ? rs.outcomeRequiresBenchmark : rs.outputRequiresBenchmark;
+    const verificationRequired = comp.type === 'Outcome' ? rs.outcomeRequiresVerification : rs.outputRequiresVerification;
+
+    if (benchmarkRequired) {
+      if (comp.targetBenchmark && comp.targetBenchmark.trim()) score++;
+      else missing.push('a target benchmark');
+    }
+    if (verificationRequired) {
+      if (comp.verificationSource && comp.verificationSource.trim()) score++;
+      else missing.push('a verification source');
+    }
+    if (comp.type === 'Outcome' && rs.outcomeRequiresBaseline) {
+      if (comp.baseline && comp.baseline.trim()) score++;
+      else missing.push('a baseline');
+    }
+    if (comp.type === 'Output' && rs.outputRequiresResponsibleParty) {
+      if (comp.responsibleParty && comp.responsibleParty.trim()) score++;
+      else missing.push('a responsible party');
+    }
+
+    // Max achievable score depends on how many requirements are enabled —
+    // an analyst who disables baseline shouldn't see every outcome capped
+    // at "2 of 3" forever; the denominator shrinks too.
+    const maxScore = 1 + (benchmarkRequired?1:0) + (verificationRequired?1:0) +
+      (comp.type==='Outcome' ? (rs.outcomeRequiresBaseline?1:0) : (rs.outputRequiresResponsibleParty?1:0));
+
+    scored.push({ componentId: comp.id, type: comp.type, score, maxScore, missing });
+  });
+  return scored;
 }
 
 function runAuditEngine(projectId) {
   if (!projectId) return;
   let log = getData('ks_audit_log').filter(e => e.projectId !== projectId);
   const components = getData('ks_components').filter(c => c.projectId === projectId);
-  const newEntries = computeAuditFindings(components, projectId);
+  const project = getData('ks_projects').find(p => p.id === projectId);
+  const newEntries = computeAuditFindings(components, projectId, project?.mandate, getRuleSettings(projectId));
 
   setData('ks_audit_log', [...log, ...newEntries]);
-  recordScoreHistory(projectId, calcHealthScoreFromEntries(newEntries));
+  recordScoreHistory(projectId, calcHealthScoreFromEntries(newEntries, project?.mandate));
   auditLastChecked = Date.now();
   renderAuditPanel();
 }
 
-function calcHealthScoreFromEntries(entries) {
-  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length);
+function calcHealthScoreFromEntries(entries, mandate) {
+  const weights = getMandateCalibration(mandate).severityWeights;
+  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length * weights.Low);
   return Math.max(0, 100
-    - (entries.filter(e => e.riskLevel === 'High').length * 20)
-    - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
+    - (entries.filter(e => e.riskLevel === 'High').length * weights.High)
+    - (entries.filter(e => e.riskLevel === 'Medium').length * weights.Medium)
     - lowPenalty
   );
 }
 
 function calcHealthScore(projectId) {
   const entries = getData('ks_audit_log').filter(e => e.projectId === projectId);
-  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length);
+  const project = getData('ks_projects').find(p => p.id === projectId);
+  const weights = getMandateCalibration(project?.mandate).severityWeights;
+  const lowPenalty = Math.min(5, entries.filter(e => e.riskLevel === 'Low').length * weights.Low);
   return Math.max(0, 100
     - (entries.filter(e => e.riskLevel === 'High').length * 20)
     - (entries.filter(e => e.riskLevel === 'Medium').length * 8)
@@ -1849,6 +2450,8 @@ function calcHealthScore(projectId) {
    ──────────────────────────────────────────────────────────────────────────── */
 function simulateAuditImpact(projectId, hypotheticalComponents) {
   const currentComponents = getData('ks_components').filter(c => c.projectId === projectId);
+  const project = getData('ks_projects').find(p => p.id === projectId);
+  const mandate = project?.mandate;
 
   // Build the "after" component set: replace any component whose id matches
   // a hypothetical, and append any hypothetical with a new id.
@@ -1858,11 +2461,12 @@ function simulateAuditImpact(projectId, hypotheticalComponents) {
     ...hypotheticalComponents
   ];
 
-  const beforeFindings = computeAuditFindings(currentComponents, projectId);
-  const afterFindings  = computeAuditFindings(afterComponents, projectId);
+  const ruleSettings = getRuleSettings(projectId);
+  const beforeFindings = computeAuditFindings(currentComponents, projectId, mandate, ruleSettings);
+  const afterFindings  = computeAuditFindings(afterComponents, projectId, mandate, ruleSettings);
 
-  const beforeScore = calcHealthScoreFromEntries(beforeFindings);
-  const afterScore  = calcHealthScoreFromEntries(afterFindings);
+  const beforeScore = calcHealthScoreFromEntries(beforeFindings, mandate);
+  const afterScore  = calcHealthScoreFromEntries(afterFindings, mandate);
 
   // Compare findings by a stable signature (errorType + componentId-independent
   // message text), since generateId() gives every finding a fresh id each run.
@@ -2025,6 +2629,427 @@ document.getElementById('btn-impact-apply').addEventListener('click', () => {
 });
 </script>
 <script>
+/* ═══════════════════════════════════════════════════
+   VERSION HISTORY — lightweight per-project checkpoints
+   ═══════════════════════════════════════════════════ */
+
+/* A version snapshot captures everything needed to fully reconstruct and
+   re-diff a past state: the component set, the audit findings AT THAT
+   TIME (not recomputed later, since mandate calibration or rule changes
+   over time could otherwise make an old snapshot's score drift), and the
+   resulting Health Score. */
+function saveProjectVersion(projectId, label) {
+  const proj = getData('ks_projects').find(p => p.id === projectId);
+  if (!proj) return null;
+  const components = getData('ks_components').filter(c => c.projectId === projectId);
+  const findings   = getData('ks_audit_log').filter(e => e.projectId === projectId);
+  const version = {
+    id: generateId(),
+    projectId,
+    label: label.trim(),
+    timestamp: Date.now(),
+    mandate: proj.mandate,
+    score: calcHealthScoreFromEntries(findings, proj.mandate),
+    components: components.map(c => ({ ...c })),
+    findings: findings.map(f => ({ ...f }))
+  };
+  setData('ks_project_versions', [...getData('ks_project_versions'), version]);
+  return version;
+}
+
+function getProjectVersions(projectId) {
+  return getData('ks_project_versions')
+    .filter(v => v.projectId === projectId)
+    .sort((a, b) => b.timestamp - a.timestamp);
+}
+
+function deleteProjectVersion(versionId) {
+  setData('ks_project_versions', getData('ks_project_versions').filter(v => v.id !== versionId));
+  queueDeletion('versions', versionId);
+}
+
+function formatVersionTimestamp(ts) {
+  return new Date(ts).toLocaleString('en-CA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+/* ── Save Version modal ── */
+const saveVersionModal = document.getElementById('modal-save-version');
+document.getElementById('btn-save-version').addEventListener('click', () => {
+  if (!activeProjectId) return;
+  document.getElementById('version-label-input').value = '';
+  document.getElementById('version-label-err').classList.remove('visible');
+  document.getElementById('version-label-input').classList.remove('error');
+  saveVersionModal.classList.add('open');
+  setTimeout(() => document.getElementById('version-label-input').focus(), 50);
+});
+document.getElementById('btn-save-version-cancel').addEventListener('click', () => saveVersionModal.classList.remove('open'));
+saveVersionModal.addEventListener('click', e => { if (e.target === saveVersionModal) saveVersionModal.classList.remove('open'); });
+document.getElementById('btn-save-version-confirm').addEventListener('click', () => {
+  const input = document.getElementById('version-label-input');
+  const label = input.value.trim();
+  if (!label) {
+    input.classList.add('error');
+    document.getElementById('version-label-err').classList.add('visible');
+    return;
+  }
+  saveProjectVersion(activeProjectId, label);
+  saveVersionModal.classList.remove('open');
+  showToast(`Version "${label}" saved.`);
+});
+document.getElementById('version-label-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('btn-save-version-confirm').click(); }
+});
+
+/* ── Versions list / comparison modal ── */
+const versionsModal = document.getElementById('modal-versions');
+let _versionsModalProjectId = null;
+let _versionCompareSelection = [];
+
+function openVersionsModal(projectId) {
+  _versionsModalProjectId = projectId;
+  _versionCompareSelection = [];
+  const proj = getData('ks_projects').find(p => p.id === projectId);
+  document.getElementById('versions-modal-title').textContent = proj ? `Version History — ${proj.name}` : 'Version History';
+  renderVersionsList();
+  versionsModal.classList.add('open');
+}
+function closeVersionsModal() { versionsModal.classList.remove('open'); }
+document.getElementById('btn-versions-close').addEventListener('click', closeVersionsModal);
+versionsModal.addEventListener('click', e => { if (e.target === versionsModal) closeVersionsModal(); });
+
+function renderVersionsList() {
+  const body = document.getElementById('versions-modal-body');
+  const versions = getProjectVersions(_versionsModalProjectId);
+  const proj = getData('ks_projects').find(p => p.id === _versionsModalProjectId);
+  const currentScore = calcHealthScore(_versionsModalProjectId);
+
+  if (!versions.length) {
+    body.innerHTML = `<div class="version-empty">
+      No version checkpoints saved yet.<br>Open this project and use <strong>💾 Save Version Checkpoint</strong>
+      in the audit panel before a review cycle, then again afterward, to track how the model changes.
+    </div>`;
+    return;
+  }
+
+  const compareBtn = _versionCompareSelection.length === 2
+    ? `<button class="btn-primary" id="btn-do-compare" style="margin-bottom:14px;">Compare Selected Versions →</button>`
+    : `<div style="font-size:11.5px;color:var(--muted);margin-bottom:14px;">${_versionCompareSelection.length === 1 ? 'Select one more version to compare.' : 'Select two versions to compare them, or compare any version against the current state.'}</div>`;
+
+  body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div style="font-size:12.5px;color:var(--muted);">Current state: <strong style="color:${scoreColorFor(currentScore)};font-family:'DM Mono',monospace;">${currentScore}</strong>/100</div>
+    </div>
+    ${compareBtn}
+    <div class="version-list">
+      ${versions.map(v => `
+        <div class="version-item">
+          <label class="version-checkbox">
+            <input type="checkbox" data-version-id="${v.id}" ${_versionCompareSelection.includes(v.id) ? 'checked' : ''}>
+          </label>
+          <div class="version-item-meta">
+            <div class="version-item-label">${escHtml(v.label)}</div>
+            <div class="version-item-sub">${formatVersionTimestamp(v.timestamp)} · ${v.components.length} component${v.components.length!==1?'s':''}</div>
+          </div>
+          <div class="version-item-score" style="color:${scoreColorFor(v.score)};">${v.score}</div>
+          <div class="version-item-actions">
+            <button class="btn-secondary" data-compare-current="${v.id}" style="font-size:11.5px;padding:5px 10px;">vs. Current</button>
+            <button class="btn-danger" data-delete-version="${v.id}" style="font-size:11.5px;padding:5px 10px;">Delete</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  body.querySelectorAll('input[data-version-id]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const id = cb.dataset.versionId;
+      if (cb.checked) {
+        if (_versionCompareSelection.length >= 2) { cb.checked = false; showToast('You can compare two versions at a time.', true); return; }
+        _versionCompareSelection.push(id);
+      } else {
+        _versionCompareSelection = _versionCompareSelection.filter(x => x !== id);
+      }
+      renderVersionsList();
+    });
+  });
+  const doCompareBtn = document.getElementById('btn-do-compare');
+  if (doCompareBtn) doCompareBtn.addEventListener('click', () => {
+    const [idA, idB] = _versionCompareSelection;
+    const vA = versions.find(v => v.id === idA);
+    const vB = versions.find(v => v.id === idB);
+    // Render older-first so the comparison reads left-to-right chronologically
+    if (vA.timestamp <= vB.timestamp) renderVersionComparison(vA, vB, vA.label, vB.label);
+    else renderVersionComparison(vB, vA, vB.label, vA.label);
+  });
+  body.querySelectorAll('[data-compare-current]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = versions.find(vv => vv.id === btn.dataset.compareCurrent);
+      const currentComponents = getData('ks_components').filter(c => c.projectId === _versionsModalProjectId);
+      const currentFindings = getData('ks_audit_log').filter(e => e.projectId === _versionsModalProjectId);
+      const currentSnapshot = { label: 'Current', score: currentScore, components: currentComponents, findings: currentFindings, timestamp: Date.now() };
+      renderVersionComparison(v, currentSnapshot, v.label, 'Current');
+    });
+  });
+  body.querySelectorAll('[data-delete-version]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!window.confirm('Delete this version checkpoint? This cannot be undone.')) return;
+      deleteProjectVersion(btn.dataset.deleteVersion);
+      _versionCompareSelection = _versionCompareSelection.filter(id => id !== btn.dataset.deleteVersion);
+      renderVersionsList();
+    });
+  });
+}
+
+/* Renders a before/after comparison between two version snapshots (or a
+   version vs. the live current state), reusing the same visual language
+   as the Impact Preview modal — score delta, resolved/introduced findings —
+   since analysts already learned to read that pattern there. */
+function renderVersionComparison(beforeSnap, afterSnap, beforeLabel, afterLabel) {
+  const body = document.getElementById('versions-modal-body');
+  const scoreDelta = afterSnap.score - beforeSnap.score;
+  const deltaClass = scoreDelta > 0 ? 'positive' : scoreDelta < 0 ? 'negative' : 'neutral';
+  const deltaLabel = scoreDelta > 0 ? `+${scoreDelta}` : `${scoreDelta}`;
+
+  const sig = f => `${f.errorType}::${f.message}`;
+  const beforeSigs = new Map(beforeSnap.findings.map(f => [sig(f), f]));
+  const afterSigs  = new Map(afterSnap.findings.map(f => [sig(f), f]));
+  const resolved   = beforeSnap.findings.filter(f => !afterSigs.has(sig(f)));
+  const introduced = afterSnap.findings.filter(f => !beforeSigs.has(sig(f)));
+
+  // Component count diff by type, since that's often the fastest "what changed" signal
+  const countByType = (comps) => STEPS.reduce((acc, t) => ({ ...acc, [t]: comps.filter(c => c.type === t).length }), {});
+  const beforeCounts = countByType(beforeSnap.components);
+  const afterCounts  = countByType(afterSnap.components);
+
+  body.innerHTML = `
+    <button class="btn-secondary" id="btn-back-to-versions" style="margin-bottom:14px;">← Back to version list</button>
+    <div class="version-compare-bar">
+      <div class="version-compare-label">${escHtml(beforeLabel)}</div>
+      <div style="font-size:11px;color:var(--muted);">vs.</div>
+      <div class="version-compare-label">${escHtml(afterLabel)}</div>
+    </div>
+    <div class="impact-score-row">
+      <div class="impact-score-box">
+        <div class="impact-score-num" style="color:${scoreColorFor(beforeSnap.score)}">${beforeSnap.score}</div>
+        <div class="impact-score-label">${escHtml(beforeLabel)}</div>
+      </div>
+      <div class="impact-arrow">→</div>
+      <div class="impact-score-box">
+        <div class="impact-score-num" style="color:${scoreColorFor(afterSnap.score)}">${afterSnap.score}</div>
+        <div class="impact-score-label">${escHtml(afterLabel)}</div>
+      </div>
+      <div class="impact-delta ${deltaClass}">${deltaLabel} pts</div>
+    </div>
+    <div class="impact-section-title">Component Count Changes</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px;">
+      ${STEPS.map(t => {
+        const b = beforeCounts[t], a = afterCounts[t];
+        const diff = a - b;
+        const diffColor = diff > 0 ? 'var(--green)' : diff < 0 ? '#fb7185' : 'var(--muted)';
+        return `<div class="coverage-box"><div class="coverage-count">${a}</div><div class="coverage-type">${t}s ${diff !== 0 ? `<span style="color:${diffColor};">(${diff>0?'+':''}${diff})</span>` : ''}</div></div>`;
+      }).join('')}
+    </div>
+    <div class="impact-section-title">Risks Resolved Since ${escHtml(beforeLabel)} (${resolved.length})</div>
+    ${resolved.length ? resolved.map(f => renderFindingRow(f, 'resolved')).join('') : '<div class="impact-empty-note">No risk flags resolved between these two points.</div>'}
+    <div class="impact-section-title">New Risks Since ${escHtml(beforeLabel)} (${introduced.length})</div>
+    ${introduced.length ? introduced.map(f => renderFindingRow(f, 'introduced')).join('') : '<div class="impact-empty-note">No new risk flags introduced between these two points.</div>'}
+  `;
+  document.getElementById('btn-back-to-versions').addEventListener('click', renderVersionsList);
+}
+</script>
+<script>
+/* ── Audit Settings Modal ── */
+const auditSettingsModal = document.getElementById('modal-audit-settings');
+
+function populateAuditSettingsForm(settings) {
+  document.getElementById('setting-completeness-enabled').checked = settings.completeness.enabled;
+  document.getElementById('setting-outcome-benchmark').checked = settings.completeness.outcomeRequiresBenchmark;
+  document.getElementById('setting-outcome-verification').checked = settings.completeness.outcomeRequiresVerification;
+  document.getElementById('setting-outcome-baseline').checked = settings.completeness.outcomeRequiresBaseline;
+  document.getElementById('setting-output-benchmark').checked = settings.completeness.outputRequiresBenchmark;
+  document.getElementById('setting-output-verification').checked = settings.completeness.outputRequiresVerification;
+  document.getElementById('setting-output-responsible').checked = settings.completeness.outputRequiresResponsibleParty;
+
+  document.getElementById('setting-timeframe-enabled').checked = settings.timeframeCoherence.enabled;
+  document.getElementById('setting-tf-short-heavy').checked = settings.timeframeCoherence.flagShortWithHeavyActivities;
+  document.getElementById('setting-tf-long-noint').checked = settings.timeframeCoherence.flagLongWithNoIntermediateOutputs;
+  document.getElementById('setting-tf-min-outputs').value = settings.timeframeCoherence.minIntermediateOutputs;
+}
+
+function readAuditSettingsForm() {
+  return {
+    completeness: {
+      enabled: document.getElementById('setting-completeness-enabled').checked,
+      outcomeRequiresBenchmark: document.getElementById('setting-outcome-benchmark').checked,
+      outcomeRequiresVerification: document.getElementById('setting-outcome-verification').checked,
+      outcomeRequiresBaseline: document.getElementById('setting-outcome-baseline').checked,
+      outputRequiresBenchmark: document.getElementById('setting-output-benchmark').checked,
+      outputRequiresVerification: document.getElementById('setting-output-verification').checked,
+      outputRequiresResponsibleParty: document.getElementById('setting-output-responsible').checked
+    },
+    timeframeCoherence: {
+      enabled: document.getElementById('setting-timeframe-enabled').checked,
+      flagShortWithHeavyActivities: document.getElementById('setting-tf-short-heavy').checked,
+      flagLongWithNoIntermediateOutputs: document.getElementById('setting-tf-long-noint').checked,
+      minIntermediateOutputs: Math.max(1, parseInt(document.getElementById('setting-tf-min-outputs').value, 10) || 1)
+    }
+  };
+}
+
+document.getElementById('btn-audit-settings').addEventListener('click', () => {
+  if (!activeProjectId) { showToast('Open a project first.', true); return; }
+  populateAuditSettingsForm(getRuleSettings(activeProjectId));
+  auditSettingsModal.classList.add('open');
+});
+auditSettingsModal.addEventListener('click', e => { if (e.target === auditSettingsModal) auditSettingsModal.classList.remove('open'); });
+
+document.getElementById('btn-audit-settings-reset').addEventListener('click', () => {
+  populateAuditSettingsForm({ completeness: { ...DEFAULT_RULE_SETTINGS.completeness }, timeframeCoherence: { ...DEFAULT_RULE_SETTINGS.timeframeCoherence } });
+});
+
+document.getElementById('btn-audit-settings-save').addEventListener('click', () => {
+  if (!activeProjectId) return;
+  const settings = readAuditSettingsForm();
+  saveRuleSettings(activeProjectId, settings);
+  auditSettingsModal.classList.remove('open');
+  runAuditEngine(activeProjectId);
+  showToast('Audit settings saved — findings recalculated.');
+});
+</script>
+<script>
+/* ═══════════════════════════════════════════════════
+   TREASURY BOARD SUBMISSION GENERATOR
+   ═══════════════════════════════════════════════════ */
+const tbSubmissionModal = document.getElementById('modal-tb-submission');
+let _lastTBSubmission = null;
+
+document.getElementById('btn-tb-submission').addEventListener('click', () => generateTBSubmission());
+document.getElementById('btn-tb-regenerate').addEventListener('click', () => generateTBSubmission());
+document.getElementById('btn-tb-close').addEventListener('click', () => tbSubmissionModal.classList.remove('open'));
+tbSubmissionModal.addEventListener('click', e => { if (e.target === tbSubmissionModal) tbSubmissionModal.classList.remove('open'); });
+
+async function generateTBSubmission() {
+  if (!activeProjectId) return;
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  if (!proj || !components.some(c => c.type === 'Outcome')) {
+    showToast('Add at least one Outcome before generating this section.', true);
+    return;
+  }
+
+  const body = document.getElementById('tb-submission-body');
+  const regenBtn = document.getElementById('btn-tb-regenerate');
+  const printBtn = document.getElementById('btn-tb-print');
+  body.innerHTML = `<div style="text-align:center;padding:40px;"><span class="ai-loading">Drafting Performance Measurement Framework…</span></div>`;
+  regenBtn.style.display = 'none';
+  printBtn.style.display = 'none';
+  tbSubmissionModal.classList.add('open');
+
+  try {
+    const data = await aiFetch('/api/ai/generate-tb-submission', {
+      project_name: proj.name,
+      department: proj.department,
+      mandate: proj.mandate,
+      components: components.map(c => ({
+        type: c.type, description: c.description, targetBenchmark: c.targetBenchmark || '',
+        verificationSource: c.verificationSource || '', timeframe: c.timeframe || null,
+        baseline: c.baseline || null, responsibleParty: c.responsibleParty || null
+      }))
+    }, 60000);
+    _lastTBSubmission = { projectName: proj.name, department: proj.department, submission: data.submission };
+    renderTBSubmission(data.submission);
+    regenBtn.style.display = 'inline-block';
+    printBtn.style.display = 'inline-block';
+  } catch(e) {
+    body.innerHTML = `<div style="text-align:center;padding:40px;color:#fb7185;font-size:13px;">Failed to generate: ${escHtml(e.message || 'Unknown error')}</div>`;
+    regenBtn.style.display = 'inline-block';
+  }
+}
+
+function renderTBSubmissionTable(rows) {
+  if (!rows || !rows.length) return `<div class="tb-empty-cat">No outcomes in this category.</div>`;
+  return `<div class="tb-table-wrapper"><table class="tb-table">
+    <thead><tr><th>Outcome</th><th>Indicator</th><th>Baseline</th><th>Target</th><th>Data Source</th><th>Frequency</th></tr></thead>
+    <tbody>
+      ${rows.map(r => {
+        const isPlaceholder = (r.baseline||'').includes('TO BE CONFIRMED');
+        return `<tr>
+          <td>${escHtml(r.outcome||'')}</td>
+          <td>${escHtml(r.indicator||'')}</td>
+          <td>${escHtml(r.baseline||'')}${isPlaceholder?'<span class="tb-gap-tag">GAP</span>':''}</td>
+          <td>${escHtml(r.target||'')}</td>
+          <td>${escHtml(r.data_source||'')}</td>
+          <td>${escHtml(r.reporting_frequency||'')}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+function renderTBSubmission(sub) {
+  const body = document.getElementById('tb-submission-body');
+  if (!sub) { body.innerHTML = `<div class="tb-empty-cat">No data returned.</div>`; return; }
+  body.innerHTML = `
+    ${sub.narrative_summary ? `<div class="tb-narrative">${escHtml(sub.narrative_summary)}</div>` : ''}
+    <div class="tb-section-heading">Immediate Outcomes (within 1 year)</div>
+    ${renderTBSubmissionTable(sub.immediate_outcomes)}
+    <div class="tb-section-heading">Intermediate Outcomes (1–3 years)</div>
+    ${renderTBSubmissionTable(sub.intermediate_outcomes)}
+    <div class="tb-section-heading">Ultimate Outcomes (3+ years)</div>
+    ${renderTBSubmissionTable(sub.ultimate_outcomes)}
+    ${(sub.data_gaps && sub.data_gaps.length) ? `
+      <div class="tb-gaps-box">
+        <div class="tb-gaps-title">⚠ Data Gaps to Resolve Before Submission</div>
+        ${sub.data_gaps.map(g => `<div class="tb-gap-item">• ${escHtml(g)}</div>`).join('')}
+      </div>` : ''}
+  `;
+}
+
+document.getElementById('btn-tb-print').addEventListener('click', () => {
+  if (!_lastTBSubmission) return;
+  const { projectName, department, submission: sub } = _lastTBSubmission;
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+  <title>Performance Measurement Framework — ${escHtml(projectName)}</title>
+  <style>
+    body{font-family:'DM Sans',Arial,sans-serif;color:#1a2740;background:#fff;padding:40px 48px;max-width:900px;margin:0 auto;}
+    h1{font-size:22px;margin-bottom:4px;}
+    .meta{font-size:12.5px;color:#6b7a99;margin-bottom:18px;}
+    .narrative{font-size:13.5px;line-height:1.7;background:#f8f5ee;border:1px solid #e8dfc8;border-radius:8px;padding:14px 16px;margin-bottom:22px;}
+    h2{font-size:14px;margin:22px 0 8px;padding-bottom:5px;border-bottom:2px solid #1a2740;}
+    table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:6px;}
+    th{background:#f4f0e4;text-align:left;padding:7px 9px;border:1px solid #ddd;font-size:10px;text-transform:uppercase;letter-spacing:0.03em;}
+    td{padding:7px 9px;border:1px solid #ddd;vertical-align:top;}
+    .gap{color:#b91c3c;font-weight:700;font-size:9px;margin-left:4px;}
+    .gaps-box{background:#fdf2f2;border:1px solid #f3c9c9;border-radius:8px;padding:12px 16px;margin-top:18px;}
+    .gaps-title{font-size:11px;font-weight:700;color:#b91c3c;text-transform:uppercase;margin-bottom:6px;}
+    @media print { body{padding:24px;} }
+  </style></head><body>
+  <h1>Performance Measurement Framework</h1>
+  <div class="meta">${escHtml(projectName)} · ${escHtml(department)} · Generated ${new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})}</div>
+  ${sub.narrative_summary ? `<div class="narrative">${escHtml(sub.narrative_summary)}</div>` : ''}
+  ${['immediate_outcomes','intermediate_outcomes','ultimate_outcomes'].map((key,i) => {
+    const titles = ['Immediate Outcomes (within 1 year)','Intermediate Outcomes (1–3 years)','Ultimate Outcomes (3+ years)'];
+    const rows = sub[key] || [];
+    if (!rows.length) return `<h2>${titles[i]}</h2><p style="color:#6b7a99;font-size:12px;font-style:italic;">No outcomes in this category.</p>`;
+    return `<h2>${titles[i]}</h2><table><thead><tr><th>Outcome</th><th>Indicator</th><th>Baseline</th><th>Target</th><th>Data Source</th><th>Frequency</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${escHtml(r.outcome||'')}</td><td>${escHtml(r.indicator||'')}</td><td>${escHtml(r.baseline||'')}${(r.baseline||'').includes('TO BE CONFIRMED')?'<span class="gap">GAP</span>':''}</td><td>${escHtml(r.target||'')}</td><td>${escHtml(r.data_source||'')}</td><td>${escHtml(r.reporting_frequency||'')}</td></tr>`).join('')}
+      </tbody></table>`;
+  }).join('')}
+  ${(sub.data_gaps && sub.data_gaps.length) ? `<div class="gaps-box"><div class="gaps-title">Data Gaps to Resolve Before Submission</div>${sub.data_gaps.map(g=>`<div style="font-size:12px;padding:3px 0;">• ${escHtml(g)}</div>`).join('')}</div>` : ''}
+  </body></html>`;
+  const win = window.open('', '_blank');
+  if (win) { win.document.write(html); win.document.close(); }
+  else {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `tb-submission-${Date.now()}.html`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Popup blocked — document downloaded as HTML file.');
+  }
+});
+</script>
+<script>
 /* ── Logic Model Diagram ──────────────────────────────────────────────────────
    Builds a graph of the four component columns (Input → Activity → Output →
    Outcome) plus edges inferred from the same keyword/overlap heuristics the
@@ -2045,9 +3070,74 @@ const DIAGRAM_TYPE_COLORS = {
  * @param {Array} findings   - audit findings (used to flag risky nodes)
  * @returns {{columns: Object, edges: Array, flaggedIds: Set}}
  */
+/* ── Explicit component links ─────────────────────────────────────────────────
+   Components can now carry explicit relationship fields set by the user via
+   the link picker in the edit panel:
+     Activity.linkedInputIds   — Inputs this activity consumes
+     Activity.linkedOutputIds  — Outputs this activity produces
+     Output.linkedOutcomeIds   — Outcomes this output drives
+   (Output→Activity and Outcome→Output are derived from the reverse direction
+   of the above rather than stored twice, to avoid the two ends drifting out
+   of sync with each other.)
+
+   A component is considered "explicitly linked" for a given relationship if
+   the relevant array key exists on it at all (even if empty) — an empty
+   array means "the user told us this consumes nothing", which is different
+   from "the user hasn't said yet" (undefined), and should NOT fall back to
+   guessing. This distinction is what lets Dead End / Orphaned Input / Scale
+   Mismatch fire on real structural gaps instead of vocabulary gaps once a
+   project has been explicitly linked, while projects that haven't been
+   linked yet (older projects, fresh AI-Suggester output) keep working via
+   the original keyword-overlap inference as a graceful fallback.
+   ──────────────────────────────────────────────────────────────────────────── */
+function hasExplicitLinks(components) {
+  return components.some(c =>
+    Array.isArray(c.linkedInputIds) || Array.isArray(c.linkedOutputIds) || Array.isArray(c.linkedOutcomeIds)
+  );
+}
+
 function buildLogicModelGraph(components, findings) {
   const columns = { Input: [], Activity: [], Output: [], Outcome: [] };
   components.forEach(c => { if (columns[c.type]) columns[c.type].push(c); });
+
+  const edges = [];
+  const byId = new Map(components.map(c => [c.id, c]));
+  const explicit = hasExplicitLinks(components);
+
+  if (explicit) {
+    // Activity → Input (reversed for display as Input → Activity "consumes")
+    columns.Activity.forEach(act => {
+      (act.linkedInputIds || []).forEach(inputId => {
+        if (byId.has(inputId)) edges.push({ from: inputId, to: act.id, type: 'consumes' });
+      });
+      (act.linkedOutputIds || []).forEach(outputId => {
+        if (byId.has(outputId)) edges.push({ from: act.id, to: outputId, type: 'produces' });
+      });
+    });
+    columns.Output.forEach(out => {
+      (out.linkedOutcomeIds || []).forEach(outcomeId => {
+        if (byId.has(outcomeId)) edges.push({ from: out.id, to: outcomeId, type: 'drives' });
+      });
+    });
+    // Circular Logic edge still uses semantic overlap even in explicit mode —
+    // "this outcome restates an activity" is a wording problem, not a
+    // relationship a user would think to draw a link for.
+    columns.Activity.forEach(act => {
+      columns.Outcome.forEach(oc => {
+        if (wordOverlap(act.description, oc.description) > 0.65) {
+          edges.push({ from: act.id, to: oc.id, type: 'circular' });
+        }
+      });
+    });
+    return { columns, edges, flaggedIds: new Set((findings || []).map(f => f.componentId).filter(Boolean)) };
+  }
+
+  return buildLogicModelGraphInferred(columns, components, findings);
+}
+
+/* The original keyword/overlap-based inference, used only as a fallback for
+   components that haven't been explicitly linked yet. */
+function buildLogicModelGraphInferred(columns, components, findings) {
 
   const edges = [];
 
@@ -2238,6 +3328,297 @@ function renderLogicModelDiagram(components, findings, opts = {}) {
 function renderDiagramPanel() { renderStepMinimap(); }
 </script>
 <script>
+/* ═══════════════════════════════════════════════════
+   LOGIC MODEL MAP — dedicated full-size interactive view
+   ═══════════════════════════════════════════════════
+   Separate from renderLogicModelDiagram (used by the step mini-map and the
+   Executive Briefing, which both want a small static SVG). This renderer
+   is built for a full-width canvas with three things the small version
+   doesn't need:
+     1. Click/hover-to-trace: selecting a node dims everything not
+        connected to it, full-color/opacity on the connected chain.
+     2. Edges colored by their SOURCE node rather than one flat gray, so a
+        single Input's path is visually distinguishable by eye-color even
+        without clicking anything.
+     3. Curve staggering: when multiple edges run between the same two
+        columns, each gets a slightly different vertical offset in its
+        bezier control points so parallel edges fan out instead of
+        perfectly overlapping — the #1 readability problem in models with
+        many inputs/activities.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+// A larger, more distinguishable palette for per-source edge coloring,
+// cycled across nodes within a column so adjacent nodes in the same column
+// get visually distinct edge colors rather than all sharing the column's
+// single type-color.
+const LM_EDGE_PALETTE = ['#00c2ff', '#34d399', '#fbbf24', '#a78bfa', '#fb7185', '#38bdf8', '#facc15', '#f472b6', '#4ade80', '#c084fc'];
+
+let lmSelectedId = null;   // clicked node id, or null
+let lmHoveredId = null;    // currently hovered node id, or null
+let lmComponents = [];     // last-rendered component set, for the detail panel
+let lmFindings = [];
+let lmEdges = [];
+
+function renderLogicMapView() {
+  const proj = activeProjectId ? getData('ks_projects').find(p => p.id === activeProjectId) : null;
+  const noProjectEl = document.getElementById('lm-no-project');
+  const contentEl = document.getElementById('lm-content');
+  const controlsEl = document.getElementById('lm-controls');
+  const nameEl = document.getElementById('lm-project-name');
+
+  const components = activeProjectId ? getData('ks_components').filter(c => c.projectId === activeProjectId) : [];
+  if (!proj || !components.length) {
+    noProjectEl.style.display = 'flex';
+    contentEl.style.display = 'none';
+    controlsEl.style.display = 'none';
+    return;
+  }
+
+  noProjectEl.style.display = 'none';
+  contentEl.style.display = 'grid';
+  controlsEl.style.display = 'flex';
+  nameEl.textContent = `${proj.name} — click any component to trace its connections`;
+
+  lmSelectedId = null;
+  lmHoveredId = null;
+  renderLogicMapCanvas();
+  renderLogicMapDetail(null);
+}
+
+document.getElementById('lm-btn-clear-selection').addEventListener('click', () => {
+  lmSelectedId = null;
+  applyLogicMapHighlight();
+  renderLogicMapDetail(null);
+  document.getElementById('lm-btn-clear-selection').style.display = 'none';
+});
+
+function renderLogicMapCanvas() {
+  const container = document.getElementById('lm-canvas-container');
+  lmComponents = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  lmFindings = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+  const { columns, edges, flaggedIds } = buildLogicModelGraph(lmComponents, lmFindings);
+  lmEdges = edges;
+
+  const colTypes = ['Input', 'Activity', 'Output', 'Outcome'];
+  const colWidth = 260;
+  const nodeW = 222;
+  const nodeH = 64;
+  const nodeGapY = 18;
+  const topPad = 44;
+
+  // Assign each node a stable edge-color from the palette, based on its
+  // position within its own column — keeps colors consistent across
+  // re-renders (e.g. after editing a component) rather than reassigning
+  // randomly each time.
+  const nodeColorById = {};
+  colTypes.forEach(type => {
+    columns[type].forEach((comp, i) => { nodeColorById[comp.id] = LM_EDGE_PALETTE[i % LM_EDGE_PALETTE.length]; });
+  });
+
+  const positions = {};
+  let maxNodes = 1;
+  colTypes.forEach((type, ci) => {
+    const items = columns[type];
+    maxNodes = Math.max(maxNodes, items.length);
+    items.forEach((comp, ri) => {
+      positions[comp.id] = { x: ci * colWidth + 10, y: topPad + ri * (nodeH + nodeGapY), w: nodeW, h: nodeH, type, colIndex: ci };
+    });
+  });
+  const width = colTypes.length * colWidth + 20;
+  const height = topPad + maxNodes * (nodeH + nodeGapY) + 24;
+
+  // Group edges by (fromCol,toCol) pair so we can stagger parallel edges —
+  // each edge between the same two columns gets a different curve "lane"
+  // instead of all of them sharing the exact same bezier path.
+  const laneGroups = {};
+  edges.forEach(e => {
+    const a = positions[e.from], b = positions[e.to];
+    if (!a || !b) return;
+    const key = `${a.colIndex}-${b.colIndex}`;
+    (laneGroups[key] = laneGroups[key] || []).push(e);
+  });
+
+  let svg = '';
+
+  // Column headers
+  colTypes.forEach((type, ci) => {
+    const x = ci * colWidth + 10;
+    svg += `<text x="${x}" y="22" font-family="DM Sans, sans-serif" font-size="13" font-weight="700"
+      letter-spacing="0.08em" fill="${DIAGRAM_TYPE_COLORS[type]}">${type.toUpperCase()}S (${columns[type].length})</text>`;
+    svg += `<line x1="${x}" y1="30" x2="${x + nodeW}" y2="30" stroke="${DIAGRAM_TYPE_COLORS[type]}" stroke-width="2" opacity="0.4"/>`;
+  });
+
+  // Edges — colored by source node, staggered within their lane group
+  Object.values(laneGroups).forEach(group => {
+    group.forEach((edge, laneIdx) => {
+      const a = positions[edge.from], b = positions[edge.to];
+      const x1 = a.x + a.w, y1 = a.y + a.h / 2;
+      const x2 = b.x, y2 = b.y + b.h / 2;
+      // Stagger: spread control points vertically based on this edge's lane
+      // index within the group, centered around the straight-line midpoint.
+      const laneOffset = (laneIdx - (group.length - 1) / 2) * 10;
+      const midX = (x1 + x2) / 2;
+      const c1y = y1 + laneOffset, c2y = y2 + laneOffset;
+
+      let stroke = nodeColorById[edge.from] || '#8a9bbf';
+      let dash = '';
+      let width_ = 1.8;
+      if (edge.type === 'produces-weak' || edge.type === 'drives-weak') { dash = '4,4'; width_ = 1.3; }
+      if (edge.type === 'circular') { stroke = '#fb7185'; dash = '3,3'; width_ = 2.2; }
+
+      svg += `<path class="lm-edge" data-from="${edge.from}" data-to="${edge.to}"
+        d="M ${x1} ${y1} C ${midX} ${c1y}, ${midX} ${c2y}, ${x2} ${y2}"
+        fill="none" stroke="${stroke}" stroke-width="${width_}" ${dash ? `stroke-dasharray="${dash}"` : ''}
+        opacity="0.85" style="transition: opacity 0.15s, stroke-width 0.15s;"/>`;
+    });
+  });
+
+  // Nodes
+  Object.entries(positions).forEach(([id, pos]) => {
+    const comp = lmComponents.find(c => c.id === id);
+    if (!comp) return;
+    const color = DIAGRAM_TYPE_COLORS[pos.type];
+    const isFlagged = flaggedIds.has(id);
+    const desc = comp.description.length > 90 ? comp.description.slice(0, 90) + '…' : comp.description;
+    const words = desc.split(' ');
+    const lines = [];
+    let line = '';
+    words.forEach(w => {
+      if ((line + ' ' + w).trim().length > 30 && line) { lines.push(line.trim()); line = w; }
+      else line = (line + ' ' + w).trim();
+    });
+    if (line) lines.push(line);
+    const shownLines = lines.slice(0, 4);
+
+    svg += `<g class="lm-node" data-id="${id}" style="cursor:pointer;transition:opacity 0.15s;">
+      <rect class="lm-node-rect" x="${pos.x}" y="${pos.y}" width="${pos.w}" height="${pos.h}" rx="7"
+        fill="rgba(255,255,255,0.03)" stroke="${color}" stroke-width="1.4" style="transition:stroke-width 0.15s, fill 0.15s;"/>
+      <rect x="${pos.x}" y="${pos.y}" width="4" height="${pos.h}" fill="${color}" rx="2"/>`;
+    shownLines.forEach((l, i) => {
+      svg += `<text x="${pos.x + 12}" y="${pos.y + 17 + i * 13}" font-family="DM Sans, sans-serif"
+        font-size="11" fill="#c8d4e8" style="pointer-events:none;">${escHtml(l)}</text>`;
+    });
+    if (isFlagged) {
+      svg += `<circle cx="${pos.x + pos.w - 11}" cy="${pos.y + 11}" r="6" fill="#fb7185"/>
+        <text x="${pos.x + pos.w - 11}" y="${pos.y + 14.5}" font-family="DM Sans, sans-serif" font-size="9.5"
+          font-weight="700" fill="#0a0f1a" text-anchor="middle" style="pointer-events:none;">!</text>`;
+    }
+    svg += `</g>`;
+  });
+
+  container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg"
+    width="${width}" height="${height}" style="display:block;">${svg}</svg>`;
+
+  // Wire interaction directly on the rendered SVG nodes — click toggles a
+  // pinned selection, hover previews the same highlight without pinning.
+  container.querySelectorAll('.lm-node').forEach(nodeEl => {
+    const id = nodeEl.dataset.id;
+    nodeEl.addEventListener('mouseenter', () => { if (!lmSelectedId) { lmHoveredId = id; applyLogicMapHighlight(); } });
+    nodeEl.addEventListener('mouseleave', () => { if (!lmSelectedId) { lmHoveredId = null; applyLogicMapHighlight(); } });
+    nodeEl.addEventListener('click', () => {
+      lmSelectedId = (lmSelectedId === id) ? null : id;
+      lmHoveredId = null;
+      applyLogicMapHighlight();
+      renderLogicMapDetail(lmSelectedId);
+      document.getElementById('lm-btn-clear-selection').style.display = lmSelectedId ? 'inline-block' : 'none';
+    });
+  });
+}
+
+/* Applies dim/highlight styling to the already-rendered SVG without a full
+   re-render — keeps hover instant and avoids losing scroll position. */
+function applyLogicMapHighlight() {
+  const container = document.getElementById('lm-canvas-container');
+  const activeId = lmSelectedId || lmHoveredId;
+
+  if (!activeId) {
+    container.querySelectorAll('.lm-node').forEach(n => { n.style.opacity = '1'; });
+    container.querySelectorAll('.lm-node-rect').forEach(r => { r.style.strokeWidth = '1.4'; r.style.fill = 'rgba(255,255,255,0.03)'; });
+    container.querySelectorAll('.lm-edge').forEach(e => { e.style.opacity = '0.85'; e.setAttribute('stroke-width', e.dataset.baseWidth || '1.8'); });
+    return;
+  }
+
+  // Find every node connected to activeId, walking both directions one hop
+  // (the component's own direct neighbors) — matches what the detail panel
+  // shows, so highlighting and the side panel always agree.
+  const connectedIds = new Set([activeId]);
+  lmEdges.forEach(e => {
+    if (e.from === activeId) connectedIds.add(e.to);
+    if (e.to === activeId) connectedIds.add(e.from);
+  });
+
+  container.querySelectorAll('.lm-node').forEach(n => {
+    n.style.opacity = connectedIds.has(n.dataset.id) ? '1' : '0.25';
+  });
+  container.querySelectorAll('.lm-node-rect').forEach(r => {
+    const id = r.closest('.lm-node')?.dataset.id;
+    r.style.strokeWidth = (id === activeId) ? '2.6' : '1.4';
+    r.style.fill = (id === activeId) ? 'rgba(0,194,255,0.07)' : 'rgba(255,255,255,0.03)';
+  });
+  container.querySelectorAll('.lm-edge').forEach(e => {
+    const touches = e.dataset.from === activeId || e.dataset.to === activeId;
+    e.style.opacity = touches ? '1' : '0.08';
+    e.setAttribute('stroke-width', touches ? '2.6' : (e.getAttribute('stroke-width')));
+  });
+}
+
+function renderLogicMapDetail(componentId) {
+  const empty = document.getElementById('lm-detail-empty');
+  const body = document.getElementById('lm-detail-body');
+  if (!componentId) {
+    empty.style.display = 'block';
+    body.style.display = 'none';
+    return;
+  }
+  const comp = lmComponents.find(c => c.id === componentId);
+  if (!comp) { empty.style.display = 'block'; body.style.display = 'none'; return; }
+
+  empty.style.display = 'none';
+  body.style.display = 'block';
+
+  const upstream = lmEdges.filter(e => e.to === componentId).map(e => lmComponents.find(c => c.id === e.from)).filter(Boolean);
+  const downstream = lmEdges.filter(e => e.from === componentId).map(e => lmComponents.find(c => c.id === e.to)).filter(Boolean);
+  const flags = lmFindings.filter(f => f.componentId === componentId);
+
+  function linkList(comps, emptyLabel) {
+    if (!comps.length) return `<div class="lm-detail-field-value" style="color:var(--muted);font-style:italic;">${emptyLabel}</div>`;
+    return comps.map(c => `<div class="lm-detail-link-item" data-jump-id="${c.id}">
+      <span class="badge ${typeBadgeClass(c.type)}" style="font-size:9px;padding:1px 5px;margin-right:5px;">${c.type}</span>
+      ${escHtml(c.description.length > 60 ? c.description.slice(0,60)+'…' : c.description)}
+    </div>`).join('');
+  }
+
+  body.innerHTML = `
+    <span class="badge ${typeBadgeClass(comp.type)} lm-detail-type-badge">${comp.type}</span>
+    <div class="lm-detail-desc">${escHtml(comp.description)}</div>
+    ${comp.targetBenchmark ? `<div class="lm-detail-field"><div class="lm-detail-field-label">Target Benchmark</div><div class="lm-detail-field-value">${escHtml(comp.targetBenchmark)}</div></div>` : ''}
+    ${comp.verificationSource ? `<div class="lm-detail-field"><div class="lm-detail-field-label">Verification Source</div><div class="lm-detail-field-value">${escHtml(comp.verificationSource)}</div></div>` : ''}
+    ${comp.baseline ? `<div class="lm-detail-field"><div class="lm-detail-field-label">Baseline</div><div class="lm-detail-field-value">${escHtml(comp.baseline)}</div></div>` : ''}
+    ${comp.responsibleParty ? `<div class="lm-detail-field"><div class="lm-detail-field-label">Responsible Party</div><div class="lm-detail-field-value">${escHtml(comp.responsibleParty)}</div></div>` : ''}
+    ${comp.timeframe ? `<div class="lm-detail-field"><div class="lm-detail-field-label">Timeframe</div><div class="lm-detail-field-value">${comp.timeframe==='short'?'Short-term (<1yr)':comp.timeframe==='medium'?'Medium-term (1–3yr)':'Long-term (3yr+)'}</div></div>` : ''}
+
+    <div class="lm-detail-section-title">← Upstream (${upstream.length})</div>
+    ${linkList(upstream, 'Nothing feeds into this component.')}
+
+    <div class="lm-detail-section-title">Downstream → (${downstream.length})</div>
+    ${linkList(downstream, 'This component feeds nothing further — check for a Dead End flag below if unexpected.')}
+
+    ${flags.length ? `<div class="lm-detail-section-title">Risk Flags (${flags.length})</div>
+      ${flags.map(f => `<div class="lm-detail-flag ${f.riskLevel.toLowerCase()}"><strong>${ERROR_TYPE_LABELS[f.errorType]||f.errorType}</strong><br>${escHtml(f.message)}</div>`).join('')}` : ''}
+  `;
+
+  body.querySelectorAll('[data-jump-id]').forEach(el => {
+    el.addEventListener('click', () => {
+      lmSelectedId = el.dataset.jumpId;
+      lmHoveredId = null;
+      applyLogicMapHighlight();
+      renderLogicMapDetail(lmSelectedId);
+      document.getElementById('lm-btn-clear-selection').style.display = 'inline-block';
+    });
+  });
+}
+</script>
+<script>
 /* ── Render Audit Panel ── */
 let _lastScore = null;
 function animateScore(from, to, el) {
@@ -2260,6 +3641,8 @@ function renderAuditPanel() {
   const riskFeed     = document.getElementById('risk-feed');
   const btnBriefing  = document.getElementById('btn-briefing');
   const btnNarrative = document.getElementById('btn-ai-narrative');
+  const btnSaveVersion = document.getElementById('btn-save-version');
+  const btnTbSubmission = document.getElementById('btn-tb-submission');
   const sparklineContainer = document.getElementById('score-sparkline-container');
 
   if (!activeProjectId) {
@@ -2269,8 +3652,11 @@ function renderAuditPanel() {
     if (sparklineContainer) sparklineContainer.innerHTML = '';
     riskFeed.innerHTML = '<div class="risk-empty">Select a project to view audit results.</div>';
     updateCoverage(null);
+    renderCompletenessSection(null);
     btnBriefing.disabled = true;
     btnNarrative.disabled = true;
+    if (btnSaveVersion) btnSaveVersion.disabled = true;
+    if (btnTbSubmission) btnTbSubmission.disabled = true;
     renderStepMinimap();
     return;
   }
@@ -2388,8 +3774,11 @@ function renderAuditPanel() {
   }
 
   updateCoverage(activeProjectId);
+  renderCompletenessSection(activeProjectId);
   btnBriefing.disabled  = components.length < 2;
   btnNarrative.disabled = components.length < 2;
+  if (btnSaveVersion) btnSaveVersion.disabled = components.length < 1;
+  if (btnTbSubmission) btnTbSubmission.disabled = !components.some(c => c.type === 'Outcome');
   renderStepMinimap();
 }
 
@@ -2403,6 +3792,52 @@ function updateCoverage(projectId) {
     box.querySelector('.coverage-count').textContent = projectId ? count : '—';
     box.classList.toggle('warn', projectId !== null && count === 0);
   });
+}
+
+function scoreColorForFraction(score, max) {
+  if (max === 0) return 'var(--muted)';
+  const pct = score / max;
+  return pct >= 1 ? 'var(--green)' : pct >= 0.66 ? '#fbbf24' : '#fb7185';
+}
+
+function renderCompletenessSection(projectId) {
+  const section = document.getElementById('completeness-section');
+  const summary = document.getElementById('completeness-summary');
+  if (!section || !summary) return;
+  if (!projectId) { section.style.display = 'none'; return; }
+
+  const ruleSettings = getRuleSettings(projectId);
+  if (!ruleSettings.completeness.enabled) { section.style.display = 'none'; return; }
+
+  const components = getData('ks_components').filter(c => c.projectId === projectId);
+  const scores = computeCompletenessScores(components, ruleSettings);
+  if (!scores.length) { section.style.display = 'none'; return; }
+
+  section.style.display = 'block';
+  const totalScore = scores.reduce((sum, s) => sum + s.score, 0);
+  const totalMax   = scores.reduce((sum, s) => sum + s.maxScore, 0);
+  const avgColor = scoreColorForFraction(totalScore, totalMax);
+  const readyCount = scores.filter(s => s.score === s.maxScore).length;
+
+  const rows = scores.map(s => {
+    const comp = components.find(c => c.id === s.componentId);
+    const desc = comp ? (comp.description.length > 38 ? comp.description.slice(0,38)+'…' : comp.description) : '';
+    const color = scoreColorForFraction(s.score, s.maxScore);
+    const pct = s.maxScore ? (s.score / s.maxScore * 100) : 0;
+    return `<div class="completeness-bar-row" title="${s.missing.length ? 'Missing: ' + escHtml(s.missing.join(', ')) : 'Complete'}">
+      <span class="completeness-bar-label">${escHtml(comp?.type || '')}: ${escHtml(desc)}</span>
+      <div class="completeness-bar-track"><div class="completeness-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <span style="font-family:'DM Mono',monospace;color:${color};flex-shrink:0;">${s.score}/${s.maxScore}</span>
+    </div>`;
+  }).join('');
+
+  summary.innerHTML = `
+    <div class="completeness-avg-row">
+      <div class="completeness-avg-num" style="color:${avgColor};">${totalMax ? Math.round(totalScore/totalMax*100) : 0}%</div>
+      <div class="completeness-avg-label">${readyCount} of ${scores.length} Outcomes/Outputs are fully submission-ready<br>(have every required field for this project's rubric)</div>
+    </div>
+    ${rows}
+  `;
 }
 
 function updateTimestamp() {
@@ -2480,6 +3915,70 @@ function renderStepMinimap() {
    - Current column items — editable, with linkage hints to upstream
    - Downstream column (e.g. Outputs when on Activity step) — ghosted hints
    ──────────────────────────────────────────────────────────────────────────── */
+/* ── Explicit Link Pickers ────────────────────────────────────────────────────
+   Renders checkbox lists inside the comp-edit-panel letting the user
+   explicitly mark which upstream/downstream components this one relates to.
+   Only Activities and Outputs have pickers (the two component types that
+   sit "in the middle" of a relationship): an Activity picks which Inputs
+   it consumes and which Outputs it produces; an Output picks which
+   Outcomes it drives. Inputs and Outcomes don't get their own picker — an
+   Input's "consumed by" relationship is set FROM the Activity side, and an
+   Outcome's "driven by" relationship is set FROM the Output side, so each
+   relationship has exactly one place it's edited (avoids the two ends of a
+   link drifting out of sync with each other).
+   ──────────────────────────────────────────────────────────────────────────── */
+function renderLinkPickers(comp, allComps) {
+  if (comp.type === 'Activity') {
+    const inputs  = allComps.filter(c => c.type === 'Input');
+    const outputs = allComps.filter(c => c.type === 'Output');
+    return `
+      ${renderLinkPickerGroup(comp.id, 'inputs', 'Consumes which Inputs?', inputs, comp.linkedInputIds)}
+      ${renderLinkPickerGroup(comp.id, 'outputs', 'Produces which Outputs?', outputs, comp.linkedOutputIds)}
+    `;
+  }
+  if (comp.type === 'Output') {
+    const outcomes = allComps.filter(c => c.type === 'Outcome');
+    return renderLinkPickerGroup(comp.id, 'outcomes', 'Drives which Outcomes?', outcomes, comp.linkedOutcomeIds);
+  }
+  return '';
+}
+
+function renderLinkPickerGroup(compId, kind, label, options, currentLinks) {
+  // currentLinks undefined (never explicitly set) vs [] (explicitly set to
+  // "none") matters for the audit engine — but for the checkbox UI itself
+  // both render as nothing checked, so default to [] just for display.
+  const checked = new Set(currentLinks || []);
+  if (!options.length) {
+    return `<label class="comp-edit-label">${escHtml(label)}</label>
+      <div class="ctx-empty-hint" style="padding:2px 0 6px;">No components of that type exist yet.</div>`;
+  }
+  return `<label class="comp-edit-label">${escHtml(label)}</label>
+    <div class="link-picker-group" data-link-kind="${kind}" data-comp-id="${compId}">
+      ${options.map(o => `<label class="link-picker-item">
+        <input type="checkbox" value="${o.id}" ${checked.has(o.id) ? 'checked' : ''}>
+        <span>${escHtml(o.description.length > 56 ? o.description.slice(0,56)+'…' : o.description)}</span>
+      </label>`).join('')}
+    </div>`;
+}
+
+/* Reads the checked state of all link-picker-group elements inside a given
+   comp-edit-panel and returns a patch object to merge into the component
+   (e.g. { linkedInputIds: [...], linkedOutputIds: [...] }). Only includes
+   keys for pickers that actually exist on this component's panel. */
+function readLinkPickerState(compId) {
+  const panel = document.getElementById('edit-panel-' + compId);
+  if (!panel) return {};
+  const patch = {};
+  panel.querySelectorAll('.link-picker-group').forEach(group => {
+    const kind = group.dataset.linkKind;
+    const ids = Array.from(group.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+    if (kind === 'inputs') patch.linkedInputIds = ids;
+    if (kind === 'outputs') patch.linkedOutputIds = ids;
+    if (kind === 'outcomes') patch.linkedOutcomeIds = ids;
+  });
+  return patch;
+}
+
 function renderContextualStepPanel() {
   const container = document.getElementById('contextual-step-panel');
   if (!container) return;
@@ -2488,6 +3987,9 @@ function renderContextualStepPanel() {
   const allComps   = getData('ks_components').filter(c => c.projectId === activeProjectId);
   const findings   = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
   const flaggedIds = new Set(findings.map(f => f.componentId).filter(Boolean));
+  const ruleSettings = getRuleSettings(activeProjectId);
+  const completenessScores = computeCompletenessScores(allComps, ruleSettings);
+  const completenessById = new Map(completenessScores.map(s => [s.componentId, s]));
 
   const currentType   = STEPS[currentStep];
   const upstreamType  = STEPS[currentStep - 1] || null;
@@ -2497,7 +3999,9 @@ function renderContextualStepPanel() {
   const upstreamComps  = upstreamType  ? allComps.filter(c => c.type === upstreamType)  : [];
   const downstreamComps= downstreamType? allComps.filter(c => c.type === downstreamType) : [];
 
-  // Build inferred links from graph
+  // Build links from graph (explicit if the project has started using
+  // them, inferred otherwise — see buildLogicModelGraph)
+  const explicitMode = hasExplicitLinks(allComps);
   const { edges } = buildLogicModelGraph(allComps, findings);
 
   function linkedIds(fromId) {
@@ -2516,6 +4020,14 @@ function renderContextualStepPanel() {
   const guidance = STEP_GUIDANCE[currentType];
 
   let html = '';
+
+  if (explicitMode) {
+    html += `<div class="ctx-link-mode-banner">
+      🔗 <strong>Explicit linking is on</strong> for this project — the audit engine now checks the links you've set
+      (via the ⋯ button on each component) instead of guessing from wording. Components you haven't linked yet may
+      show new flags until you set their links.
+    </div>`;
+  }
 
   // ── Upstream section ──────────────────────────────────────────
   if (upstreamType && upstreamComps.length) {
@@ -2557,6 +4069,10 @@ function renderContextualStepPanel() {
       const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
         ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe==='short'?'< 1yr':comp.timeframe==='medium'?'1–3yr':'3yr+'}</span>`
         : '';
+      const completeness = completenessById.get(comp.id);
+      const completenessBadge = completeness
+        ? `<span class="completeness-badge c${completeness.score}" title="${completeness.missing.length ? 'Missing: ' + escHtml(completeness.missing.join(', ')) : 'Complete'}">${completeness.score}/${completeness.maxScore}</span>`
+        : '';
       const flagEl = findings.filter(f => f.componentId === comp.id).map(f =>
         `<span style="font-size:10px;color:${f.riskLevel==='High'?'#fb7185':f.riskLevel==='Medium'?'#fbbf24':'var(--cyan)'};" title="${escHtml(f.message)}">● ${ERROR_TYPE_LABELS[f.errorType]||f.errorType}</span>`
       ).join(' ');
@@ -2573,6 +4089,7 @@ function renderContextualStepPanel() {
         <div class="ctx-card-top">
           <span class="badge ${typeBadgeClass(currentType)}" style="font-size:10px;padding:2px 6px;">${currentType}</span>
           ${timeframeBadge}
+          ${completenessBadge}
           <span class="ctx-card-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
           <button class="btn-expand-comp" data-id="${comp.id}" title="Edit details">⋯</button>
           <button class="btn-improve" data-id="${comp.id}" title="AI: Improve description">✨</button>
@@ -2585,7 +4102,10 @@ function renderContextualStepPanel() {
           <input class="comp-edit-field" id="edit-bench-${comp.id}" value="${escHtml(comp.targetBenchmark||'')}" placeholder="e.g. 2 sessions completed by Q3">
           <label class="comp-edit-label">Verification / Data Source</label>
           <input class="comp-edit-field" id="edit-src-${comp.id}" value="${escHtml(comp.verificationSource||'')}" placeholder="e.g. FNHA quarterly report, BC Gazette">
+          ${comp.type==='Outcome'?`<label class="comp-edit-label">Baseline</label><input class="comp-edit-field" id="edit-baseline-${comp.id}" value="${escHtml(comp.baseline||'')}" placeholder="e.g. 0 of 14 First Nations communities currently have access">`:''}
+          ${comp.type==='Output'?`<label class="comp-edit-label">Responsible Party</label><input class="comp-edit-field" id="edit-resp-${comp.id}" value="${escHtml(comp.responsibleParty||'')}" placeholder="e.g. Director, Indigenous Relations Branch">`:''}
           ${comp.type==='Outcome'?`<label class="comp-edit-label">Timeframe</label><select class="comp-edit-field" id="edit-tf-${comp.id}"><option value="short" ${comp.timeframe==='short'?'selected':''}>Short-term (&lt;1 year)</option><option value="medium" ${comp.timeframe==='medium'||!comp.timeframe?'selected':''}>Medium-term (1–3 years)</option><option value="long" ${comp.timeframe==='long'?'selected':''}>Long-term (3+ years)</option></select>`:''}
+          ${renderLinkPickers(comp, allComps)}
           <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
             <button class="btn-impact-preview" data-id="${comp.id}" data-preview-edit="true">📊 Preview</button>
             <button class="comp-edit-save" data-id="${comp.id}">Save</button>
@@ -2692,11 +4212,15 @@ function renderContextualStepPanel() {
     const bench = document.getElementById('edit-bench-' + id);
     const src   = document.getElementById('edit-src-'   + id);
     const tf    = document.getElementById('edit-tf-'    + id);
+    const baseline = document.getElementById('edit-baseline-' + id);
+    const resp     = document.getElementById('edit-resp-' + id);
     if (!bench || !src) return null;
     const comp  = getData('ks_components').find(c => c.id === id);
     if (!comp) return null;
-    const u = { ...comp, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim() };
+    const u = { ...comp, targetBenchmark: bench.value.trim(), verificationSource: src.value.trim(), ...readLinkPickerState(id) };
     if (tf) u.timeframe = tf.value;
+    if (baseline) u.baseline = baseline.value.trim();
+    if (resp) u.responsibleParty = resp.value.trim();
     return u;
   }
 
@@ -2811,20 +4335,21 @@ function renderProjects() {
     const highCount  = auditLog.filter(e => e.riskLevel === 'High').length;
     const medCount   = auditLog.filter(e => e.riskLevel === 'Medium').length;
     const riskFlags  = [highCount > 0 ? `<span class="risk-flag high">${highCount} High</span>` : '', medCount > 0 ? `<span class="risk-flag medium">${medCount} Medium</span>` : ''].filter(Boolean).join('');
-    const lowPenalty = Math.min(5, auditLog.filter(e => e.riskLevel === 'Low').length);
-    const score      = Math.max(0, 100 - highCount*20 - medCount*8 - lowPenalty);
+    const score      = calcHealthScoreFromEntries(auditLog, proj.mandate);
+    const versionCount = getData('ks_project_versions').filter(v => v.projectId === proj.id).length;
     const scoreColor = score >= 70 ? 'var(--green)' : score >= 40 ? '#fbbf24' : '#fb7185';
     const timelineBadge = proj.timeline ? `<span style="font-size:10px;font-weight:600;color:var(--green);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:2px 6px;border-radius:10px;">📅 Timeline</span>` : '';
     return `<div class="project-card">
       <div class="project-card-name">${escHtml(proj.name)}</div>
       <div class="project-card-dept">${escHtml(proj.department)}</div>
       <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}${timelineBadge}<span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;margin-left:auto;">${score}</span></div>
-      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button>${proj.timeline?`<button class="btn-secondary btn-view-timeline" data-id="${proj.id}">📅 Timeline</button>`:''}<button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button>${proj.timeline?`<button class="btn-secondary btn-view-timeline" data-id="${proj.id}">📅 Timeline</button>`:''}<button class="btn-secondary btn-view-versions" data-id="${proj.id}">📜 Versions${versionCount?` (${versionCount})`:''}</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
   grid.querySelectorAll('.btn-edit-project').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
   grid.querySelectorAll('.btn-view-timeline').forEach(btn => btn.addEventListener('click', () => { setActiveProject(btn.dataset.id); showView('timeline'); }));
+  grid.querySelectorAll('.btn-view-versions').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openVersionsModal(btn.dataset.id); }));
   grid.querySelectorAll('.btn-export-project').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); exportProject(btn.dataset.id); }));
   grid.querySelectorAll('.btn-delete-project').forEach(btn => btn.addEventListener('click', () => deleteProject(btn.dataset.id)));
 }
@@ -2850,6 +4375,11 @@ function setActiveProject(id) {
     const tlProj = getData('ks_projects').find(p => p.id === id);
     if (tlProj) tlName.textContent = tlProj.name;
   }
+  // If the Logic Model Map view is currently active, re-render it for the
+  // newly active project rather than leaving the previous project's map on screen.
+  if (document.getElementById('view-logic-map')?.classList.contains('active') && typeof renderLogicMapView === 'function') {
+    renderLogicMapView();
+  }
   // If the AI Assistant panel is open, refresh its context bar and thread
   // for the newly active project.
   const assistantPanel = document.getElementById('assistant-panel');
@@ -2866,6 +4396,7 @@ function deleteProject(id) {
   setData('ks_projects',   getData('ks_projects').filter(p => p.id !== id));
   setData('ks_components', getData('ks_components').filter(c => c.projectId !== id));
   setData('ks_audit_log',  getData('ks_audit_log').filter(e => e.projectId !== id));
+  setData('ks_project_versions', getData('ks_project_versions').filter(v => v.projectId !== id));
   queueDeletion('projects', id);
   // Clean up score history to prevent storage leaks
   try {
@@ -3452,7 +4983,7 @@ function renderHomeView() {
   document.getElementById('home-stat-components').textContent = allComponents.length;
   document.getElementById('home-stat-flags').textContent = allFlags.length;
   if (projects.length > 0) {
-    const scores = projects.map(p => Math.max(0, 100 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='High').length*20 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='Medium').length*8 - allFlags.filter(e=>e.projectId===p.id&&e.riskLevel==='Low').length*3));
+    const scores = projects.map(p => calcHealthScoreFromEntries(allFlags.filter(e => e.projectId === p.id), p.mandate));
     document.getElementById('home-stat-score').textContent = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
   } else { document.getElementById('home-stat-score').textContent = '—'; }
   const grid = document.getElementById('home-recent-grid');
@@ -3462,7 +4993,7 @@ function renderHomeView() {
   } else {
     grid.innerHTML = recent.map(proj => {
       const comps = allComponents.filter(c=>c.projectId===proj.id).length;
-      const score = Math.max(0, 100 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='High').length*20 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='Medium').length*8 - allFlags.filter(e=>e.projectId===proj.id&&e.riskLevel==='Low').length*3);
+      const score = calcHealthScoreFromEntries(allFlags.filter(e => e.projectId === proj.id), proj.mandate);
       const scoreColor = score>=70?'var(--green)':score>=40?'#fbbf24':'#fb7185';
       return `<div class="home-recent-card" data-proj-id="${proj.id}"><div class="home-recent-name">${escHtml(proj.name)}</div><div class="home-recent-dept">${escHtml(proj.department)}</div><div class="home-recent-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span style="font-size:12px;color:var(--muted);">${comps} components</span><span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;">${score}</span></div></div>`;
     }).join('');
@@ -3509,11 +5040,12 @@ function getDocAnalysisHistory() {
   try { return getData('ks_doc_analysis_history'); } catch(e) { return []; }
 }
 
-function saveDocAnalysisHistory(fileName, mandate, components) {
+function saveDocAnalysisHistory(fileName, mandate, components, fileHash) {
   const entry = {
     id: generateId(),
     fileName,
     mandate,
+    fileHash: fileHash || null,
     timestamp: Date.now(),
     components: components.map(c => ({ ...c })) // snapshot — accepted/rejected state included
   };
@@ -3523,6 +5055,14 @@ function saveDocAnalysisHistory(fileName, mandate, components) {
   setData('ks_doc_analysis_history', history.slice(0, 25));
   daActiveHistoryId = entry.id;
   return entry;
+}
+
+/* Finds a past analysis of the exact same file content, regardless of
+   filename (a renamed copy of the same plan still matches) or which
+   project/mandate was active at the time. Returns the most recent match. */
+function findDocAnalysisByHash(fileHash) {
+  if (!fileHash) return null;
+  return getDocAnalysisHistory().find(h => h.fileHash === fileHash) || null;
 }
 
 function updateActiveHistoryEntry() {
@@ -3591,10 +5131,15 @@ function loadDocAnalysisFromHistory(id) {
   if (!entry) return;
   daExtractedComponents = entry.components.map(c => ({ ...c }));
   daActiveHistoryId = entry.id;
+  daCrossRefFlags = [];
   document.getElementById('da-history-area').style.display = 'none';
   document.getElementById('da-upload-area').style.display = 'none';
   renderDAResults();
   showToast(`Loaded analysis of "${entry.fileName}".`);
+  // Re-run cross-referencing against the now-active project, since the
+  // project's components may have changed since this analysis was saved.
+  const proj = activeProjectId ? getData('ks_projects').find(p => p.id === activeProjectId) : null;
+  if (proj) crossReferenceExtractedComponents(proj);
 }
 
 document.getElementById('da-btn-history').addEventListener('click', () => {
@@ -3616,6 +5161,18 @@ daZone.addEventListener('dragover', e => { e.preventDefault(); daZone.classList.
 daZone.addEventListener('dragleave', () => daZone.classList.remove('drag-over'));
 daZone.addEventListener('drop', e => { e.preventDefault(); daZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processDAFile(e.dataTransfer.files[0]); });
 daFileInput.addEventListener('change', e => { if (e.target.files[0]) processDAFile(e.target.files[0]); e.target.value=''; });
+
+/* ── File content hashing ─────────────────────────────────────────────────────
+   Used to detect "I've already analyzed this exact document" before
+   spending AI tokens on it again. Hashes the raw file BYTES (not the
+   extracted text), so it's stable regardless of mammoth/pdf.js extraction
+   quirks and can be computed up front, before any extraction work happens.
+   ──────────────────────────────────────────────────────────────────────────── */
+async function hashFile(file) {
+  const buf = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 /* ── Shared document extraction helper ──────────────────────────────────────
    Converts a .docx or .pdf File into { docText, docBase64, mimeType } for
@@ -3670,6 +5227,21 @@ async function processDAFile(file) {
   document.getElementById('da-upload-area').style.display = 'none';
   document.getElementById('da-loading').style.display = 'block';
   try {
+    const fileHash = await hashFile(file);
+    const cached = findDocAnalysisByHash(fileHash);
+    if (cached) {
+      // Exact same file content was analyzed before — reuse that result
+      // instead of spending AI tokens on an identical extraction.
+      daExtractedComponents = cached.components.map(c => ({ ...c, accepted: true }));
+      daActiveHistoryId = cached.id;
+      daCrossRefFlags = [];
+      document.getElementById('da-loading').style.display = 'none';
+      renderDAResults();
+      showToast(`📎 Already analyzed "${cached.fileName}" on ${formatHistoryTimestamp(cached.timestamp)} — reused that result, no AI call made.`);
+      if (proj) crossReferenceExtractedComponents(proj);
+      return;
+    }
+
     const { docText, docBase64, mimeType } = await extractDocumentPayload(file);
     const data = await aiFetch('/api/ai/extract-components', {
       document_text: docText, document_base64: docBase64,
@@ -3680,13 +5252,52 @@ async function processDAFile(file) {
     ['inputs','activities','outputs','outcomes'].forEach((key,i) => {
       (data.data[key]||[]).forEach(item => daExtractedComponents.push({...item, componentType:['Input','Activity','Output','Outcome'][i], accepted:true}));
     });
-    saveDocAnalysisHistory(file.name, proj?.mandate || 'Service Delivery', daExtractedComponents);
+    saveDocAnalysisHistory(file.name, proj?.mandate || 'Service Delivery', daExtractedComponents, fileHash);
     document.getElementById('da-loading').style.display = 'none';
     renderDAResults();
+    // Cross-reference against the active project's existing components, if
+    // any — runs after the results are already shown so the analyst sees
+    // their extraction immediately and the cross-ref warnings layer in a
+    // moment later rather than blocking the whole import flow on a second
+    // Gemini call.
+    if (proj) crossReferenceExtractedComponents(proj);
   } catch(e) {
     document.getElementById('da-loading').style.display = 'none';
     document.getElementById('da-upload-area').style.display = 'block';
     showToast('Extract failed: ' + (e.message || 'Unknown error'), true); console.error(e);
+  }
+}
+
+/* ── Document Cross-Referencing ──────────────────────────────────────────────
+   Compares the just-extracted components against the active project's
+   EXISTING components and flags likely duplicates/contradictions before the
+   analyst imports anything — catching near-duplicates at import time rather
+   than relying on Rule G (Duplicate_Component) to notice after the fact,
+   and catching contradictions that no structural rule currently checks.
+   ──────────────────────────────────────────────────────────────────────────── */
+let daCrossRefFlags = []; // [{ extracted_index, issue_type, existing_description, explanation }]
+
+async function crossReferenceExtractedComponents(proj) {
+  const existing = getData('ks_components').filter(c => c.projectId === proj.id);
+  if (!existing.length || !daExtractedComponents.length) { daCrossRefFlags = []; return; }
+
+  try {
+    const data = await aiFetch('/api/ai/cross-reference-components', {
+      project_name: proj.name,
+      mandate: proj.mandate,
+      extracted_components: daExtractedComponents.map(c => ({ type: c.componentType, description: c.description, targetBenchmark: c.targetBenchmark||'', verificationSource: c.verificationSource||'' })),
+      existing_components: existing.map(c => ({ type: c.type, description: c.description, targetBenchmark: c.targetBenchmark||'', verificationSource: c.verificationSource||'' }))
+    }, 45000);
+    daCrossRefFlags = data.flags || [];
+    if (daCrossRefFlags.length) {
+      renderDAResults(); // re-render to layer in the warning badges
+      showToast(`⚠ Cross-reference found ${daCrossRefFlags.length} potential ${daCrossRefFlags.length===1?'issue':'issues'} with your existing project — review before importing.`, true);
+    }
+  } catch(e) {
+    // Cross-referencing is a nice-to-have layered on top of extraction —
+    // never block or alarm the analyst if it fails; just skip silently.
+    console.error('Cross-reference failed:', e);
+    daCrossRefFlags = [];
   }
 }
 
@@ -3696,7 +5307,18 @@ function renderDAResults() {
   document.getElementById('da-btn-import').style.display = 'inline-block';
   document.getElementById('da-btn-import-new').style.display = 'inline-block';
   const list = document.getElementById('da-results-list');
-  list.innerHTML = daExtractedComponents.map((comp,idx) => `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button></div></div>`).join('');
+  list.innerHTML = daExtractedComponents.map((comp,idx) => {
+    const flag = daCrossRefFlags.find(f => f.extracted_index === idx);
+    const flagBanner = flag ? `<div class="da-crossref-flag ${flag.issue_type}">
+      <span class="da-crossref-icon">${flag.issue_type === 'duplicate' ? '🔁' : '⚠️'}</span>
+      <div>
+        <strong>${flag.issue_type === 'duplicate' ? 'Possible duplicate' : 'Possible contradiction'}</strong>
+        of existing ${escHtml(flag.existing_description ? '"'+flag.existing_description.slice(0,60)+(flag.existing_description.length>60?'…':'')+'"' : 'component')}.
+        ${escHtml(flag.explanation || '')}
+      </div>
+    </div>` : '';
+    return `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}${flagBanner}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button></div></div>`;
+  }).join('');
   list.querySelectorAll('.btn-da-accept').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=true; updateActiveHistoryEntry(); renderDAResults(); }));
   list.querySelectorAll('.btn-da-reject').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=false; updateActiveHistoryEntry(); renderDAResults(); }));
   document.getElementById('da-accept-count').textContent = `${daExtractedComponents.filter(c=>c.accepted).length} accepted`;
@@ -3705,6 +5327,7 @@ function renderDAResults() {
 document.getElementById('da-btn-reset').addEventListener('click', () => {
   daExtractedComponents=[];
   daActiveHistoryId=null;
+  daCrossRefFlags=[];
   document.getElementById('da-upload-area').style.display='block';
   document.getElementById('da-results-area').style.display='none';
   document.getElementById('da-btn-reset').style.display='none';
@@ -3748,6 +5371,7 @@ document.getElementById('da-btn-import').addEventListener('click', () => {
     document.getElementById('da-btn-reset').style.display='none';
     daExtractedComponents=[];
     daActiveHistoryId=null;
+    daCrossRefFlags=[];
   };
   openImpactPreview(activeProjectId, newComps, commit);
 });
@@ -3874,6 +5498,142 @@ document.getElementById('tl-btn-print').addEventListener('click', () => {
     showToast('Popup blocked — timeline downloaded as HTML.');
   }
 });
+
+/* ── Compare Projects ─────────────────────────────────────────────────────────
+   Renders a 2-or-3-up side-by-side comparison: Health Score, risk counts,
+   mandate, component coverage, and a merged flag list grouped by project so
+   a Director reviewing a portfolio can spot accountability gaps across
+   several related initiatives at once (e.g. all the projects bundled into
+   one Treasury Board submission).
+   ──────────────────────────────────────────────────────────────────────────── */
+let _comparePickerSelection = [null, null, null];
+
+function renderComparePicker() {
+  const row = document.getElementById('cmp-picker-row');
+  const projects = getData('ks_projects');
+  row.innerHTML = [0, 1, 2].map(slot => {
+    const taken = _comparePickerSelection.filter((v, i) => v && i !== slot);
+    const options = projects.filter(p => !taken.includes(p.id));
+    return `<div class="cmp-picker-slot">
+      <select data-slot="${slot}">
+        <option value="">${slot < 2 ? `Select project ${slot + 1}…` : 'Select project 3 (optional)…'}</option>
+        ${options.map(p => `<option value="${p.id}" ${_comparePickerSelection[slot] === p.id ? 'selected' : ''}>${escHtml(p.name)}</option>`).join('')}
+      </select>
+    </div>`;
+  }).join('');
+
+  row.querySelectorAll('select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      _comparePickerSelection[parseInt(sel.dataset.slot, 10)] = sel.value || null;
+      renderComparePicker();
+      renderCompareResults();
+    });
+  });
+  renderCompareResults();
+}
+
+function renderCompareResults() {
+  const selectedIds = _comparePickerSelection.filter(Boolean);
+  const empty = document.getElementById('cmp-empty-state');
+  const results = document.getElementById('cmp-results');
+
+  if (selectedIds.length < 2) {
+    empty.style.display = 'block';
+    results.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  results.style.display = 'block';
+
+  const projects = selectedIds.map(id => getData('ks_projects').find(p => p.id === id)).filter(Boolean);
+  const projectData = projects.map(proj => {
+    const components = getData('ks_components').filter(c => c.projectId === proj.id);
+    const findings   = getData('ks_audit_log').filter(e => e.projectId === proj.id);
+    const score = calcHealthScoreFromEntries(findings, proj.mandate);
+    const completeness = computeCompletenessScores(components, getRuleSettings(proj.id));
+    const totalScore = completeness.reduce((s,c)=>s+c.score,0);
+    const totalMax = completeness.reduce((s,c)=>s+c.maxScore,0);
+    return {
+      proj, components, findings, score,
+      high: findings.filter(f=>f.riskLevel==='High').length,
+      medium: findings.filter(f=>f.riskLevel==='Medium').length,
+      low: findings.filter(f=>f.riskLevel==='Low').length,
+      completenessPct: totalMax ? Math.round(totalScore/totalMax*100) : null
+    };
+  });
+
+  const typeCounts = (comps) => STEPS.reduce((acc,t) => ({...acc, [t]: comps.filter(c=>c.type===t).length}), {});
+
+  results.innerHTML = `
+    <div class="cmp-table-wrapper">
+      <table class="cmp-table">
+        <thead><tr>
+          <th>Project</th>
+          ${projectData.map(d => `<th>${escHtml(d.proj.name)}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="cmp-row-label">Department</td>
+            ${projectData.map(d => `<td>${escHtml(d.proj.department || '—')}</td>`).join('')}
+          </tr>
+          <tr>
+            <td class="cmp-row-label">Mandate</td>
+            ${projectData.map(d => `<td><span class="badge ${mandateBadgeClass(d.proj.mandate)}">${escHtml(d.proj.mandate)}</span></td>`).join('')}
+          </tr>
+          <tr>
+            <td class="cmp-row-label">Health Score</td>
+            ${projectData.map(d => `<td><span class="cmp-score-cell" style="color:${scoreColorFor(d.score)};">${d.score}</span><span style="font-size:11px;color:var(--muted);">/100</span></td>`).join('')}
+          </tr>
+          <tr>
+            <td class="cmp-row-label">Risk Flags</td>
+            ${projectData.map(d => `<td><div class="cmp-risk-cell">
+              ${d.high?`<span class="risk-flag high">${d.high} High</span>`:''}
+              ${d.medium?`<span class="risk-flag medium">${d.medium} Medium</span>`:''}
+              ${d.low?`<span class="risk-flag" style="background:rgba(0,194,255,0.1);color:var(--cyan);">${d.low} Advisory</span>`:''}
+              ${!d.high&&!d.medium&&!d.low?'<span style="color:var(--green);font-size:12px;">None</span>':''}
+            </div></td>`).join('')}
+          </tr>
+          <tr>
+            <td class="cmp-row-label">Component Coverage</td>
+            ${projectData.map(d => {
+              const counts = typeCounts(d.components);
+              return `<td><div class="cmp-coverage-cell">${STEPS.map(t => `<span class="cmp-coverage-pill ${counts[t]===0?'zero':''}">${t[0]}: ${counts[t]}</span>`).join('')}</div></td>`;
+            }).join('')}
+          </tr>
+          <tr>
+            <td class="cmp-row-label">Submission Readiness</td>
+            ${projectData.map(d => d.completenessPct === null
+              ? `<td style="color:var(--muted);font-size:12px;">No Outcomes/Outputs yet</td>`
+              : `<td><span style="font-family:'DM Mono',monospace;font-weight:700;color:${scoreColorForFraction(d.completenessPct,100)};">${d.completenessPct}%</span></td>`
+            ).join('')}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cmp-flag-section">
+      <div class="cmp-flag-section-title">High &amp; Medium Risk Flags Across Selected Projects</div>
+      ${renderCompareFlagList(projectData)}
+    </div>
+  `;
+}
+
+function renderCompareFlagList(projectData) {
+  const allFlagged = projectData.flatMap(d =>
+    d.findings.filter(f => f.riskLevel === 'High' || f.riskLevel === 'Medium')
+      .map(f => ({ ...f, projectName: d.proj.name }))
+  ).sort((a,b) => (a.riskLevel === 'High' ? 0 : 1) - (b.riskLevel === 'High' ? 0 : 1));
+
+  if (!allFlagged.length) {
+    return `<div class="impact-empty-note">No high or medium risk flags across the selected projects.</div>`;
+  }
+  return allFlagged.map(f => `<div class="cmp-flag-row ${f.riskLevel.toLowerCase()}">
+    <span class="cmp-flag-project-tag">${escHtml(f.projectName)}</span>
+    <div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${f.riskLevel==='High'?'#fb7185':'#fbbf24'};margin-bottom:2px;">${ERROR_TYPE_LABELS[f.errorType]||f.errorType}</div>
+      ${escHtml(f.message)}
+    </div>
+  </div>`).join('');
+}
 
 /* ── JSON Export / Import ── */
 function exportProject(projectId) {
@@ -4316,8 +6076,8 @@ function renderOnboardingMiniAudit() {
   if (!slot || !onboardingState.projectId) { if (slot) slot.innerHTML=''; return; }
   const components = getData('ks_components').filter(c => c.projectId === onboardingState.projectId);
   if (!components.length) { slot.innerHTML = ''; return; }
-  const findings = computeAuditFindings(components, onboardingState.projectId);
-  const score = calcHealthScoreFromEntries(findings);
+  const findings = computeAuditFindings(components, onboardingState.projectId, onboardingState.mandate, DEFAULT_RULE_SETTINGS);
+  const score = calcHealthScoreFromEntries(findings, onboardingState.mandate);
   const color = scoreColorFor(score);
   const highC = findings.filter(f=>f.riskLevel==='High').length;
   const medC  = findings.filter(f=>f.riskLevel==='Medium').length;

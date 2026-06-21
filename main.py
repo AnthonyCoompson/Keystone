@@ -87,6 +87,18 @@ class ExtractComponentsRequest(BaseModel):
     document_name: str = ""
     mandate: str = "Service Delivery"
 
+class CrossRefComponent(BaseModel):
+    type: str = ""
+    description: str = ""
+    targetBenchmark: str = ""
+    verificationSource: str = ""
+
+class CrossReferenceComponentsRequest(BaseModel):
+    project_name: str = ""
+    mandate: str = "Service Delivery"
+    extracted_components: List[CrossRefComponent] = []
+    existing_components: List[CrossRefComponent] = []
+
 class TimelineComponent(BaseModel):
     type: str = ""
     description: str = ""
@@ -96,6 +108,21 @@ class GenerateTimelineRequest(BaseModel):
     project_name: str
     mandate: str
     components: List[TimelineComponent] = []
+
+class TBComponentDetail(BaseModel):
+    type: str = ""
+    description: str = ""
+    targetBenchmark: str = ""
+    verificationSource: str = ""
+    timeframe: Optional[str] = None
+    baseline: Optional[str] = None
+    responsibleParty: Optional[str] = None
+
+class GenerateTBSubmissionRequest(BaseModel):
+    project_name: str
+    department: str
+    mandate: str
+    components: List[TBComponentDetail] = []
 
 class CreateProjectFromDocumentRequest(BaseModel):
     document_text: str = ""
@@ -163,6 +190,65 @@ Rules:
     return {"success": True, "data": data}
 
 
+# ── Mandate-Aware Narrative Calibration ────────────────────────────────────────
+# The AI Diagnostic Narrative used a single generic system prompt regardless
+# of mandate, which produced technically-correct but contextually-thin
+# writing — a DRIPA framework and a Service Delivery programme don't share
+# the same accountability lens, and a narrative that doesn't speak in the
+# right register reads as generic to the senior official it's meant for.
+# Mirrors the frontend's MANDATE_CALIBRATION pattern (app.html) so the same
+# logical model (mandate shapes evaluation) applies on both the scoring side
+# and the narrative-writing side.
+MANDATE_NARRATIVE_REGISTER = {
+    "DRIPA Alignment": (
+        "This is a DRIPA Section 7 / UNDRIP-aligned initiative. Foreground reconciliation "
+        "obligations and the Province's statutory duty under DRIPA to act consistently with "
+        "UNDRIP. Where data, tracking, or verification gaps appear, frame them specifically as "
+        "OCAP compliance considerations — note whether verification sources are Nation-controlled "
+        "or rely solely on provincial reporting systems, since that distinction matters for "
+        "Indigenous data sovereignty. Where relevant, note Section 35 constitutional rights "
+        "implications of jurisdictional or governance gaps. Avoid generic 'stakeholder engagement' "
+        "language — use the language of joint decision-making, consent, and Nation-to-Nation "
+        "relationship-building that DRIPA contexts require."
+    ),
+    "Self-Government Transition": (
+        "This is a jurisdiction or governance transfer initiative. Foreground reconciliation "
+        "obligations and the durability of the governance structure being built — gaps in this "
+        "context aren't just programme risk, they're risk to the credibility of a jurisdictional "
+        "transfer that the Nation and the Province both need to be able to defend. Where "
+        "verification or data tracking gaps appear, frame them as OCAP compliance and Indigenous "
+        "data sovereignty considerations. Note Section 35 implications where governance or "
+        "jurisdictional authority is ambiguous or under-evidenced."
+    ),
+    "Service Delivery": (
+        "This is a service delivery initiative (health, education, or social programme). "
+        "Foreground programme continuity — whether the activities and resourcing described can "
+        "sustain delivery past the current fiscal cycle — and outcome equity: whether the stated "
+        "outcomes and their benchmarks would actually be felt evenly across the populations this "
+        "programme is meant to serve, or whether gaps in the logic chain risk concentrating "
+        "benefit in easier-to-reach groups. Avoid jurisdictional or reconciliation framing unless "
+        "the components themselves raise it."
+    ),
+    "Economic Development": (
+        "This is an economic development initiative. Foreground benefit-sharing — whether the "
+        "logic model demonstrates that economic gains are structured to flow to the communities "
+        "or Nations involved, not just to government or third-party proponents — and land-use "
+        "revenue structures where relevant. Where verification gaps appear on financial or "
+        "revenue-related benchmarks, note the audit and procurement-transparency stakes "
+        "specifically, since economic development submissions face heightened scrutiny on exactly "
+        "this point."
+    ),
+}
+
+_DEFAULT_NARRATIVE_REGISTER = (
+    "Use a general programme evaluation lens — assess structural integrity, accountability, and "
+    "evaluability without assuming a specific policy register."
+)
+
+def _narrative_register_for(mandate: str) -> str:
+    return MANDATE_NARRATIVE_REGISTER.get(mandate, _DEFAULT_NARRATIVE_REGISTER)
+
+
 # ── Endpoint 2: AI Audit Narrative ────────────────────────────────────────────
 @app.post("/api/ai/audit-narrative")
 async def audit_narrative(req: AuditNarrativeRequest):
@@ -175,6 +261,7 @@ async def audit_narrative(req: AuditNarrativeRequest):
         else "No risk flags detected."
     )
     components_text = "\n".join(f"- [{c.type}] {c.description}" for c in req.components)
+    register = _narrative_register_for(req.mandate)
 
     prompt = f"""You are a senior policy evaluation advisor writing for a Deputy Minister audience.
 
@@ -182,6 +269,9 @@ Project: {req.project_name}
 Department: {req.department}
 Mandate: {req.mandate}
 Health Score: {req.health_score}/100
+
+Mandate-specific framing for this narrative:
+{register}
 
 Logic Model Components:
 {components_text}
@@ -197,11 +287,11 @@ Error type reference — translate into plain language, never use these technica
 - Orphaned_Input: resource committed that no activity actually uses
 - Scale_Mismatch: quantified outcome target with no activity-level benchmarks
 - Duplicate_Component: two components of the same type describing the same thing
-- Timeframe_Mismatch: short-term outcome with high-leverage activities that need more than a year
+- Timeframe_Mismatch: short-term outcome with high-leverage activities that need more than a year, OR a long-term outcome with no intermediate deliverable
 
 Write a 2-3 paragraph plain-English diagnostic narrative:
 1. One-sentence overall assessment of the logic model's structural integrity
-2. What the specific risk flags mean in the context of THIS project (not generic definitions)
+2. What the specific risk flags mean in the context of THIS project, applying the mandate-specific framing above where the findings make it relevant (not generic definitions, and don't force the framing onto findings it doesn't actually apply to)
 3. A concrete, prioritised recommendation for the analyst's next action
 
 Tone: professional, direct. No bullet points. No technical error type names. Return ONLY the narrative text."""
@@ -333,6 +423,69 @@ Rules:
     return {"success": True, "data": data}
 
 
+# ── Endpoint 6b: Cross-Reference Extracted Components ──────────────────────────
+# Called after Document Analysis extracts components from an uploaded
+# document, IF a project is currently active. Compares the newly-extracted
+# components against the project's existing ones and flags likely
+# duplicates or contradictions BEFORE the analyst imports them — catching
+# near-duplicates at the point of import rather than relying on Rule G
+# (Duplicate_Component) to notice after the fact, and catching outright
+# contradictions that no structural audit rule currently checks for at all
+# (e.g. an extracted activity that describes doing the opposite of an
+# existing outcome).
+@app.post("/api/ai/cross-reference-components")
+async def cross_reference_components(req: CrossReferenceComponentsRequest):
+    if not req.existing_components or not req.extracted_components:
+        # Nothing to compare against, or nothing new to check — return an
+        # empty result rather than spending a Gemini call on a no-op.
+        return {"success": True, "flags": []}
+
+    def fmt(comps):
+        return "\n".join(f"  [{i}] [{c.type}] {c.description}" for i, c in enumerate(comps)) or "  (none)"
+
+    prompt = f"""You are an expert Canadian government policy analyst reviewing a logic model for
+internal consistency before components from a newly-uploaded document are imported.
+
+Project: {req.project_name or "Untitled"}
+Mandate: {req.mandate}
+
+EXISTING components already in the project's logic model:
+{fmt(req.existing_components)}
+
+NEWLY EXTRACTED components from the uploaded document, being considered for import:
+{fmt(req.extracted_components)}
+
+Compare the newly extracted components against the existing ones and identify only the
+SIGNIFICANT issues an analyst should see before importing — do not flag minor wording
+differences or components that are simply related but distinct.
+
+Return ONLY a valid JSON array — no markdown, no explanation. Empty array if nothing significant:
+[
+  {{
+    "extracted_index": 0,
+    "extracted_description": "the new component's description, copied exactly",
+    "issue_type": "duplicate" | "contradiction",
+    "existing_index": 2,
+    "existing_description": "the existing component's description, copied exactly",
+    "explanation": "one sentence: why this is a likely duplicate, or specifically how it contradicts the existing component"
+  }}
+]
+
+Rules:
+- "duplicate": the new component describes substantively the same resource, action, or deliverable as an existing one, even if worded differently
+- "contradiction": the new component states or implies something that conflicts with an existing component (e.g. a new activity claims to defer or replace something an existing output already claims was completed; a new outcome claims a different jurisdictional or governance outcome than an existing one)
+- Only flag genuine duplicates or contradictions — most newly extracted components will be neither and should not appear in the output at all
+- extracted_index and existing_index must match the bracketed [n] index shown above for that component
+- Return ONLY the JSON array"""
+
+    data = ai.generate_json(prompt)
+    # Defensive: Gemini should return a list per the prompt, but guard
+    # against a malformed/wrapped response so the frontend never crashes
+    # trying to .map() over something unexpected.
+    flags = data if isinstance(data, list) else data.get("flags", []) if isinstance(data, dict) else []
+    return {"success": True, "flags": flags}
+
+
 # ── Endpoint 7: Timeline Generation ───────────────────────────────────────────
 @app.post("/api/ai/generate-timeline")
 async def generate_timeline(req: GenerateTimelineRequest):
@@ -385,6 +538,91 @@ Rules:
 
     data = ai.generate_json(prompt)
     return {"success": True, "timeline": data}
+
+
+# ── Endpoint 7b: Treasury Board Performance Measurement Framework ─────────────
+# Generates the mechanical-but-time-consuming "Performance Measurement
+# Framework" table that Treasury Board submissions require: outcomes mapped
+# to indicators, baselines, targets, and data sources, in roughly the
+# structure TBS templates expect. This is exactly the kind of formatting-
+# heavy, low-creativity drafting task that consumes analyst hours without
+# requiring much judgment once the logic model itself is sound — Gemini
+# handles the mechanical transformation well.
+@app.post("/api/ai/generate-tb-submission")
+async def generate_tb_submission(req: GenerateTBSubmissionRequest):
+    outcomes = [c for c in req.components if c.type == "Outcome"]
+    outputs = [c for c in req.components if c.type == "Output"]
+    activities = [c for c in req.components if c.type == "Activity"]
+    inputs = [c for c in req.components if c.type == "Input"]
+
+    if not outcomes:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one Outcome is required to generate a Performance Measurement Framework.",
+        )
+
+    def fmt(comps, label):
+        if not comps:
+            return f"  (no {label} defined)"
+        lines = []
+        for c in comps:
+            line = f"  - {c.description}"
+            if c.targetBenchmark: line += f" | benchmark: {c.targetBenchmark}"
+            if c.verificationSource: line += f" | verification: {c.verificationSource}"
+            if c.timeframe: line += f" | timeframe: {c.timeframe}"
+            if c.baseline: line += f" | baseline: {c.baseline}"
+            if c.responsibleParty: line += f" | responsible party: {c.responsibleParty}"
+            lines.append(line)
+        return "\n".join(lines)
+
+    components_text = (
+        f"INPUTS:\n{fmt(inputs,'inputs')}\n\n"
+        f"ACTIVITIES:\n{fmt(activities,'activities')}\n\n"
+        f"OUTPUTS:\n{fmt(outputs,'outputs')}\n\n"
+        f"OUTCOMES:\n{fmt(outcomes,'outcomes')}"
+    )
+
+    prompt = f"""You are a Canadian federal/provincial government policy analyst drafting the Performance
+Measurement Framework section of a Treasury Board submission, in the format Treasury Board
+Secretariat (TBS) expects: a structured table mapping each outcome to its performance
+indicator(s), baseline, target, data source, and reporting frequency.
+
+Project: {req.project_name}
+Department: {req.department}
+Mandate: {req.mandate}
+
+Logic Model:
+{components_text}
+
+Return ONLY a valid JSON object — no markdown, no explanation:
+{{
+  "framework_title": "Performance Measurement Framework — {req.project_name}",
+  "immediate_outcomes": [
+    {{
+      "outcome": "...",
+      "indicator": "a specific, measurable performance indicator for this outcome",
+      "baseline": "current state — use the project's stated baseline if provided, otherwise state a realistic placeholder and mark it '(TO BE CONFIRMED)'",
+      "target": "a specific numeric or qualitative target with a date",
+      "data_source": "named verification mechanism",
+      "reporting_frequency": "Annual | Semi-annual | Quarterly"
+    }}
+  ],
+  "intermediate_outcomes": [ /* same shape, for medium-term (1-3yr) outcomes */ ],
+  "ultimate_outcomes": [ /* same shape, for long-term (3yr+) outcomes */ ],
+  "narrative_summary": "2-3 sentence plain-English summary of how this performance measurement approach demonstrates accountability, written for inclusion at the top of the TBS section",
+  "data_gaps": ["explicit list of any outcomes where the logic model didn't provide a baseline, target, or verification source — name the outcome and what's missing, so the analyst knows what to fill in before submission"]
+}}
+
+Rules:
+- Classify each Outcome into immediate_outcomes (short-term/<1yr), intermediate_outcomes (medium-term/1-3yr), or ultimate_outcomes (long-term/3yr+) based on its stated timeframe; if no timeframe was given, use your judgment based on the outcome's description and place it in the most defensible category
+- Every indicator must be SPECIFIC and MEASURABLE — never vague language like "improved" or "increased" without a quantity or rate
+- If the logic model already provided a baseline, target (from targetBenchmark), or data source (from verificationSource) for an outcome, use that exact information rather than inventing new figures
+- If information is missing, do not silently fabricate precise numbers — use a clearly-marked placeholder and also list it in data_gaps
+- For DRIPA Alignment or Self-Government Transition mandates, data sources should note Nation-controlled or OCAP-compliant mechanisms where the logic model's verification sources support that
+- Return ONLY the JSON object"""
+
+    data = ai.generate_json(prompt)
+    return {"success": True, "submission": data}
 
 
 # ── Endpoint 8: Create Project From Document ──────────────────────────────────
@@ -545,6 +783,32 @@ class SyncComponent(BaseModel):
     targetBenchmark: str = ""
     verificationSource: str = ""
     timeframe: Optional[str] = None
+    # Explicit relationship links (see app.html hasExplicitLinks/buildLogicModelGraph).
+    # Optional/nullable because most components never set these — only
+    # Activities and Outputs carry link pickers in the UI.
+    linkedInputIds: Optional[List[str]] = None
+    linkedOutputIds: Optional[List[str]] = None
+    linkedOutcomeIds: Optional[List[str]] = None
+    # Completeness rubric extra fields (see computeCompletenessScores in
+    # app.html) — baseline only meaningful for Outcomes, responsibleParty
+    # only meaningful for Outputs.
+    baseline: Optional[str] = None
+    responsibleParty: Optional[str] = None
+
+class SyncRuleSettings(BaseModel):
+    projectId: str
+    completeness: dict = {}
+    timeframeCoherence: dict = {}
+
+class SyncProjectVersion(BaseModel):
+    id: str
+    projectId: str
+    label: str = ""
+    timestamp: Any
+    mandate: str = ""
+    score: int = 0
+    components: List[Any] = []
+    findings: List[Any] = []
 
 class SyncAuditEntry(BaseModel):
     id: str
@@ -572,11 +836,14 @@ class SyncPushRequest(BaseModel):
     auditLog: List[SyncAuditEntry] = []
     scoreHistory: List[SyncScoreHistoryEntry] = []
     docAnalysisHistory: List[SyncDocAnalysisEntry] = []
+    projectVersions: List[SyncProjectVersion] = []
+    ruleSettings: List[SyncRuleSettings] = []
     # ids the client deleted locally since the last push, so the server
     # mirrors deletions instead of only ever accumulating rows
     deletedProjectIds: List[str] = []
     deletedComponentIds: List[str] = []
     deletedDocAnalysisIds: List[str] = []
+    deletedVersionIds: List[str] = []
 
 
 def _require_device_id(x_device_id: Optional[str]) -> str:
@@ -595,6 +862,8 @@ async def sync_pull(x_device_id: Optional[str] = Header(default=None)):
         audit_entries = session.query(db.AuditEntry).filter_by(device_id=device_id).all()
         score_history = session.query(db.ScoreHistoryEntry).filter_by(device_id=device_id).all()
         doc_history = session.query(db.DocAnalysisHistoryEntry).filter_by(device_id=device_id).all()
+        versions = session.query(db.ProjectVersion).filter_by(device_id=device_id).all()
+        rule_settings = session.query(db.RuleSettings).filter_by(device_id=device_id).all()
 
         return {
             "success": True,
@@ -611,6 +880,9 @@ async def sync_pull(x_device_id: Optional[str] = Header(default=None)):
                     "id": c.id, "projectId": c.project_id, "type": c.type,
                     "description": c.description, "targetBenchmark": c.target_benchmark,
                     "verificationSource": c.verification_source, "timeframe": c.timeframe,
+                    "linkedInputIds": c.linked_input_ids, "linkedOutputIds": c.linked_output_ids,
+                    "linkedOutcomeIds": c.linked_outcome_ids,
+                    "baseline": c.baseline, "responsibleParty": c.responsible_party,
                 }
                 for c in components
             ],
@@ -631,6 +903,21 @@ async def sync_pull(x_device_id: Optional[str] = Header(default=None)):
                     "timestamp": d.timestamp, "components": d.components,
                 }
                 for d in doc_history
+            ],
+            "projectVersions": [
+                {
+                    "id": v.id, "projectId": v.project_id, "label": v.label,
+                    "timestamp": v.timestamp, "mandate": v.mandate, "score": v.score,
+                    "components": v.components, "findings": v.findings,
+                }
+                for v in versions
+            ],
+            "ruleSettings": [
+                {
+                    "projectId": r.project_id, "completeness": r.completeness,
+                    "timeframeCoherence": r.timeframe_coherence,
+                }
+                for r in rule_settings
             ],
         }
     finally:
@@ -655,6 +942,9 @@ async def sync_push(req: SyncPushRequest, x_device_id: Optional[str] = Header(de
                 "id": c.id, "device_id": device_id, "project_id": c.projectId, "type": c.type,
                 "description": c.description, "target_benchmark": c.targetBenchmark,
                 "verification_source": c.verificationSource, "timeframe": c.timeframe,
+                "linked_input_ids": c.linkedInputIds, "linked_output_ids": c.linkedOutputIds,
+                "linked_outcome_ids": c.linkedOutcomeIds,
+                "baseline": c.baseline, "responsible_party": c.responsibleParty,
             } for c in req.components]
             db.upsert_rows(session, db.Component, rows)
 
@@ -672,6 +962,21 @@ async def sync_push(req: SyncPushRequest, x_device_id: Optional[str] = Header(de
                 "timestamp": str(d.timestamp), "components": d.components,
             } for d in req.docAnalysisHistory]
             db.upsert_rows(session, db.DocAnalysisHistoryEntry, rows)
+
+        if req.projectVersions:
+            rows = [{
+                "id": v.id, "device_id": device_id, "project_id": v.projectId, "label": v.label,
+                "timestamp": str(v.timestamp), "mandate": v.mandate, "score": v.score,
+                "components": v.components, "findings": v.findings,
+            } for v in req.projectVersions]
+            db.upsert_rows(session, db.ProjectVersion, rows)
+
+        if req.ruleSettings:
+            rows = [{
+                "project_id": r.projectId, "device_id": device_id,
+                "completeness": r.completeness, "timeframe_coherence": r.timeframeCoherence,
+            } for r in req.ruleSettings]
+            db.upsert_rows(session, db.RuleSettings, rows)
 
         # Score history is append-only and has no client-assigned id, so we
         # simply insert any rows not already represented (cheap dedupe on
@@ -699,6 +1004,12 @@ async def sync_push(req: SyncPushRequest, x_device_id: Optional[str] = Header(de
             session.query(db.ScoreHistoryEntry).filter(
                 db.ScoreHistoryEntry.device_id == device_id, db.ScoreHistoryEntry.project_id.in_(req.deletedProjectIds)
             ).delete(synchronize_session=False)
+            session.query(db.ProjectVersion).filter(
+                db.ProjectVersion.device_id == device_id, db.ProjectVersion.project_id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
+            session.query(db.RuleSettings).filter(
+                db.RuleSettings.device_id == device_id, db.RuleSettings.project_id.in_(req.deletedProjectIds)
+            ).delete(synchronize_session=False)
 
         if req.deletedComponentIds:
             session.query(db.Component).filter(
@@ -709,6 +1020,12 @@ async def sync_push(req: SyncPushRequest, x_device_id: Optional[str] = Header(de
             session.query(db.DocAnalysisHistoryEntry).filter(
                 db.DocAnalysisHistoryEntry.device_id == device_id,
                 db.DocAnalysisHistoryEntry.id.in_(req.deletedDocAnalysisIds)
+            ).delete(synchronize_session=False)
+
+        if req.deletedVersionIds:
+            session.query(db.ProjectVersion).filter(
+                db.ProjectVersion.device_id == device_id,
+                db.ProjectVersion.id.in_(req.deletedVersionIds)
             ).delete(synchronize_session=False)
 
         session.commit()

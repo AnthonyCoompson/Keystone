@@ -85,6 +85,15 @@ class Component(Base):
     target_benchmark = Column(Text, nullable=False, default="")
     verification_source = Column(Text, nullable=False, default="")
     timeframe = Column(Text, nullable=True)             # only meaningful for Outcomes
+    # Explicit relationship links — JSON list of component ids, or null if
+    # the user has never touched the link picker for this component.
+    linked_input_ids = Column(JSON, nullable=True)
+    linked_output_ids = Column(JSON, nullable=True)
+    linked_outcome_ids = Column(JSON, nullable=True)
+    # Completeness rubric extra fields — baseline (Outcomes), responsible
+    # party (Outputs). Nullable since most components won't set them.
+    baseline = Column(Text, nullable=True)
+    responsible_party = Column(Text, nullable=True)
     updated_at = Column(DateTime, default=now_utc, onupdate=now_utc)
 
 
@@ -122,6 +131,33 @@ class DocAnalysisHistoryEntry(Base):
     components = Column(JSON, nullable=False, default=list)
 
 
+class ProjectVersion(Base):
+    __tablename__ = "project_versions"
+
+    id = Column(String, primary_key=True)
+    device_id = Column(String, index=True, nullable=False)
+    project_id = Column(String, index=True, nullable=False)
+    label = Column(Text, nullable=False, default="")
+    timestamp = Column(String, nullable=False)            # client epoch-ms
+    mandate = Column(Text, nullable=False, default="")
+    score = Column(Integer, nullable=False, default=0)
+    components = Column(JSON, nullable=False, default=list)  # full snapshot
+    findings = Column(JSON, nullable=False, default=list)    # audit findings at save time
+
+
+class RuleSettings(Base):
+    """Per-project overrides for the editable audit rules (completeness
+    rubric, timeframe coherence). One row per project; absent row means the
+    project uses DEFAULT_RULE_SETTINGS client-side."""
+    __tablename__ = "rule_settings"
+
+    project_id = Column(String, primary_key=True)
+    device_id = Column(String, index=True, nullable=False)
+    completeness = Column(JSON, nullable=False, default=dict)
+    timeframe_coherence = Column(JSON, nullable=False, default=dict)
+    updated_at = Column(DateTime, default=now_utc, onupdate=now_utc)
+
+
 def init_db():
     """Create tables if they don't exist. Safe to call on every startup."""
     try:
@@ -141,19 +177,27 @@ def get_session() -> Session:
 # SQLite (local dev only) falls back to a manual merge, since SQLAlchemy's
 # generic insert() doesn't support ON CONFLICT uniformly across dialects.
 
+def _pk_column_name(model) -> str:
+    """Return the name of the model's single primary-key column."""
+    pk_cols = list(model.__table__.primary_key.columns)
+    return pk_cols[0].name if pk_cols else "id"
+
+
 def _upsert_postgres(session: Session, model, rows: list[dict]):
     if not rows:
         return
     table = model.__table__
+    pk = _pk_column_name(model)
     stmt = pg_insert(table).values(rows)
-    update_cols = {c.name: stmt.excluded[c.name] for c in table.columns if c.name != "id"}
-    stmt = stmt.on_conflict_do_update(index_elements=["id"], set_=update_cols)
+    update_cols = {c.name: stmt.excluded[c.name] for c in table.columns if c.name != pk}
+    stmt = stmt.on_conflict_do_update(index_elements=[pk], set_=update_cols)
     session.execute(stmt)
 
 
 def _upsert_sqlite(session: Session, model, rows: list[dict]):
+    pk = _pk_column_name(model)
     for row in rows:
-        existing = session.get(model, row["id"])
+        existing = session.get(model, row[pk])
         if existing:
             for k, v in row.items():
                 setattr(existing, k, v)
