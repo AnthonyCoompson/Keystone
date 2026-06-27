@@ -421,6 +421,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 @media (max-width: 900px) {
   .lm-content { grid-template-columns: 1fr; grid-template-rows: 1fr 220px; }
 }
+/* ── Logic Model Map sub-tabs ── */
+.lm-subtab-bar { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+.lm-subtabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.lm-subtab { background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.lm-subtab:hover { background: var(--hover-bg); color: var(--white); border-color: rgba(255,255,255,0.15); }
+.lm-subtab.active { background: rgba(0,194,255,0.1); border-color: rgba(0,194,255,0.35); color: var(--cyan); }
+.lm-multi-picker { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 12px; background: rgba(0,194,255,0.04); border: 1px solid rgba(0,194,255,0.15); border-radius: 8px; }
+.lm-multi-check { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+.lm-multi-check input { accent-color: var(--cyan); cursor: pointer; width: 14px; height: 14px; }
+.lm-multi-hint { font-size: 11.5px; color: var(--muted); margin-left: auto; }
 /* ── Compare Projects View ── */
 .cmp-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
 .cmp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -660,8 +670,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .ctx-card.current { border-color: rgba(0,194,255,0.2); background: rgba(0,194,255,0.03); }
 .ctx-card.upstream { opacity: 0.8; }
 .ctx-card.downstream { opacity: 0.55; border-style: dashed; }
-.ctx-card-top { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
-.ctx-card-desc { flex: 1; font-size: 12.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: text; }
+.ctx-card-top { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; flex-wrap: wrap; }
+.ctx-card-desc { flex: 1; font-size: 12.5px; color: var(--text); cursor: text; line-height: 1.5; white-space: normal; word-break: break-word; min-width: 0; }
 .ctx-card-desc:hover { color: var(--white); }
 .ctx-link-hint { font-size: 10px; color: var(--muted); padding: 0 10px 7px; line-height: 1.5; font-style: italic; }
 .ctx-link-hint strong { color: var(--text); font-style: normal; }
@@ -679,17 +689,36 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .da-confirm-body { flex: 1; font-size: 13px; line-height: 1.6; color: var(--text); }
 .da-confirm-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
-.da-history-list { display: flex; flex-direction: column; gap: 8px; }
-.da-history-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
-.da-history-item:hover { border-color: rgba(0,194,255,0.3); box-shadow: 0 4px 16px rgba(0,194,255,0.06); }
-.da-history-icon { font-size: 22px; flex-shrink: 0; }
-.da-history-meta { flex: 1; min-width: 0; }
-.da-history-name { font-size: 13.5px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.da-history-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-.da-history-count { font-size: 11.5px; font-weight: 600; color: var(--cyan); flex-shrink: 0; white-space: nowrap; }
-.da-history-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
-.da-history-delete { background: none; color: var(--muted); font-size: 16px; line-height: 1; padding: 2px 6px; border-radius: 4px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
-.da-history-delete:hover { color: #fb7185; background: rgba(196,30,58,0.1); }
+.da-folder-grid { display: flex; flex-direction: column; gap: 12px; }
+.da-folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s; }
+.da-folder-card:hover { border-color: rgba(0,194,255,0.22); }
+.da-folder-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; }
+.da-folder-icon { font-size: 22px; flex-shrink: 0; }
+.da-folder-meta { flex: 1; min-width: 0; }
+.da-folder-name { font-size: 13.5px; font-weight: 700; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.da-folder-sub { font-size: 11.5px; color: var(--muted); }
+.da-folder-counts { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; align-items: center; }
+.da-folder-count-pill { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+.da-cached-badge { font-size: 9.5px; font-weight: 700; color: var(--green); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 1px 6px; }
+.da-folder-toggle { font-size: 11px; color: var(--muted); flex-shrink: 0; transition: transform 0.2s; padding: 0 4px; }
+.da-folder-card.open .da-folder-toggle { transform: rotate(90deg); }
+.da-folder-body { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+.da-folder-card.open .da-folder-body { display: block; }
+.da-folder-actions-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+.da-folder-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.da-folder-btn { display: flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); transition: background 0.15s, border-color 0.15s, color 0.15s; font-family: var(--font); white-space: nowrap; }
+.da-folder-btn:hover { background: var(--hover-bg); border-color: rgba(0,194,255,0.3); color: var(--white); }
+.da-folder-btn.primary { background: linear-gradient(135deg,#1d4ed8,#2563eb); border-color: transparent; color: #fff; }
+.da-folder-btn.primary:hover { opacity: 0.9; }
+.da-folder-comp-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px; }
+.da-folder-comp-list { display: flex; flex-direction: column; gap: 5px; max-height: 200px; overflow-y: auto; margin-bottom: 8px; }
+.da-folder-comp-item { display: flex; align-items: flex-start; gap: 8px; padding: 6px 9px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; color: var(--text); line-height: 1.5; }
+.da-folder-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.da-folder-load-btn { background: none; color: var(--cyan); font-size: 12px; font-weight: 600; padding: 4px 8px; border: 1px solid rgba(0,194,255,0.3); border-radius: 5px; cursor: pointer; font-family: var(--font); transition: background 0.15s; }
+.da-folder-load-btn:hover { background: rgba(0,194,255,0.07); }
+.da-folder-delete-btn { background: none; color: var(--muted); font-size: 12px; padding: 4px 8px; border: 1px solid rgba(196,30,58,0.2); border-radius: 5px; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.da-folder-delete-btn:hover { color: #fb7185; border-color: rgba(196,30,58,0.4); background: rgba(196,30,58,0.07); }
+.da-history-empty { text-align: center; padding: 48px 20px; color: var(--muted); font-size: 13px; }
 /* ── Timeline View ── */
 .tl-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
 .tl-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -1207,7 +1236,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <p style="font-size:13px;color:var(--muted);">Upload a policy document (.docx or .pdf) and AI will extract logic model components for review.</p>
           </div>
           <div style="display:flex;gap:8px;">
-            <button class="btn-secondary" id="da-btn-history">🕘 History</button>
+            <button class="btn-secondary" id="da-btn-history">📁 Analyzed Documents</button>
             <button class="btn-secondary" id="da-btn-reset" style="display:none;">Upload New Document</button>
             <button class="btn-secondary" id="da-btn-import-new" style="display:none;">+ Import to New Project</button>
             <button class="btn-primary" id="da-btn-import" style="display:none;">⬇ Import to Active Project</button>
@@ -1285,6 +1314,28 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <button class="btn-secondary" id="lm-btn-clear-selection" style="display:none;">✕ Clear Selection</button>
           </div>
         </div>
+
+        <!-- Sub-tab bar for section selection -->
+        <div class="lm-subtab-bar" id="lm-subtab-bar" style="display:none;">
+          <div class="lm-subtabs" id="lm-subtabs">
+            <button class="lm-subtab active" data-lm-tab="full">Full Model</button>
+            <button class="lm-subtab" data-lm-tab="Input">Inputs</button>
+            <button class="lm-subtab" data-lm-tab="Activity">Activities</button>
+            <button class="lm-subtab" data-lm-tab="Output">Outputs</button>
+            <button class="lm-subtab" data-lm-tab="Outcome">Outcomes</button>
+            <button class="lm-subtab" data-lm-tab="multi">Multi-Section</button>
+          </div>
+          <!-- Multi-section picker (shown only when multi tab active) -->
+          <div class="lm-multi-picker" id="lm-multi-picker" style="display:none;">
+            <span style="font-size:11.5px;color:var(--muted);margin-right:8px;">Show:</span>
+            <label class="lm-multi-check"><input type="checkbox" value="Input" checked> Inputs</label>
+            <label class="lm-multi-check"><input type="checkbox" value="Activity" checked> Activities</label>
+            <label class="lm-multi-check"><input type="checkbox" value="Output" checked> Outputs</label>
+            <label class="lm-multi-check"><input type="checkbox" value="Outcome" checked> Outcomes</label>
+            <span class="lm-multi-hint" id="lm-multi-hint"></span>
+          </div>
+        </div>
+
         <div id="lm-no-project" class="lm-empty-state">
           <div style="font-size:40px;margin-bottom:12px;">🗺️</div>
           <div>Select a project with components to view its logic model map.</div>
@@ -1577,6 +1628,10 @@ const MANDATES = ['DRIPA Alignment', 'Self-Government Transition', 'Service Deli
    to be attached to whatever project is created next via the New Project
    modal. Cleared after use or when the modal is closed/cancelled. */
 let _pendingNewProjectComponents = null;
+/* When a DA folder action targets a specific view (timeline, logic-map,
+   new-evaluation) and there's no active project yet, this stores which
+   view to navigate to after the project is created. */
+let _pendingPostProjectAction = null;
 
 /* ── AI API Base URL (auto-detects local vs deployed) ── */
 /* ── AI Backend URL ──────────────────────────────────────────────────────────
@@ -3358,12 +3413,15 @@ let lmHoveredId = null;    // currently hovered node id, or null
 let lmComponents = [];     // last-rendered component set, for the detail panel
 let lmFindings = [];
 let lmEdges = [];
+let lmActiveTab = 'full';  // 'full' | 'Input' | 'Activity' | 'Output' | 'Outcome' | 'multi'
+let lmMultiCols = new Set(['Input','Activity','Output','Outcome']); // checked columns in multi mode
 
 function renderLogicMapView() {
   const proj = activeProjectId ? getData('ks_projects').find(p => p.id === activeProjectId) : null;
   const noProjectEl = document.getElementById('lm-no-project');
   const contentEl = document.getElementById('lm-content');
   const controlsEl = document.getElementById('lm-controls');
+  const subtabBar = document.getElementById('lm-subtab-bar');
   const nameEl = document.getElementById('lm-project-name');
 
   const components = activeProjectId ? getData('ks_components').filter(c => c.projectId === activeProjectId) : [];
@@ -3371,18 +3429,69 @@ function renderLogicMapView() {
     noProjectEl.style.display = 'flex';
     contentEl.style.display = 'none';
     controlsEl.style.display = 'none';
+    subtabBar.style.display = 'none';
     return;
   }
 
   noProjectEl.style.display = 'none';
   contentEl.style.display = 'grid';
   controlsEl.style.display = 'flex';
+  subtabBar.style.display = 'flex';
   nameEl.textContent = `${proj.name} — click any component to trace its connections`;
 
   lmSelectedId = null;
   lmHoveredId = null;
+
+  // Wire sub-tab clicks (idempotent — safe to re-wire on every render)
+  document.querySelectorAll('.lm-subtab').forEach(tab => {
+    tab.onclick = () => {
+      lmActiveTab = tab.dataset.lmTab;
+      document.querySelectorAll('.lm-subtab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const multiPicker = document.getElementById('lm-multi-picker');
+      multiPicker.style.display = (lmActiveTab === 'multi') ? 'flex' : 'none';
+      updateMultiHint();
+      lmSelectedId = null;
+      lmHoveredId = null;
+      renderLogicMapCanvas();
+      renderLogicMapDetail(null);
+      document.getElementById('lm-btn-clear-selection').style.display = 'none';
+    };
+  });
+
+  // Wire multi-section checkboxes
+  document.querySelectorAll('.lm-multi-check input').forEach(cb => {
+    cb.onchange = () => {
+      lmMultiCols = new Set(
+        Array.from(document.querySelectorAll('.lm-multi-check input:checked')).map(c => c.value)
+      );
+      // Enforce at least 1 column always checked
+      if (lmMultiCols.size === 0) { cb.checked = true; lmMultiCols.add(cb.value); }
+      updateMultiHint();
+      lmSelectedId = null; lmHoveredId = null;
+      renderLogicMapCanvas();
+      renderLogicMapDetail(null);
+    };
+  });
+
   renderLogicMapCanvas();
   renderLogicMapDetail(null);
+}
+
+function updateMultiHint() {
+  const hint = document.getElementById('lm-multi-hint');
+  if (!hint) return;
+  const count = lmMultiCols.size;
+  hint.textContent = count === 0 ? 'Select at least 1 column'
+    : count === 4 ? 'Showing all 4 columns — deselect some to narrow the view'
+    : `Showing ${count} of 4 columns`;
+}
+
+/* Returns the set of column types to render given the current sub-tab. */
+function lmVisibleColumns() {
+  if (lmActiveTab === 'full') return ['Input','Activity','Output','Outcome'];
+  if (lmActiveTab === 'multi') return ['Input','Activity','Output','Outcome'].filter(t => lmMultiCols.has(t));
+  return [lmActiveTab]; // single-section tabs
 }
 
 document.getElementById('lm-btn-clear-selection').addEventListener('click', () => {
@@ -3397,9 +3506,22 @@ function renderLogicMapCanvas() {
   lmComponents = getData('ks_components').filter(c => c.projectId === activeProjectId);
   lmFindings = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
   const { columns, edges, flaggedIds } = buildLogicModelGraph(lmComponents, lmFindings);
-  lmEdges = edges;
 
-  const colTypes = ['Input', 'Activity', 'Output', 'Outcome'];
+  // Determine which column types to render based on the active sub-tab.
+  // Single-section tabs isolate one column type; multi shows the analyst's
+  // checkbox selection; full shows all four.
+  const colTypes = lmVisibleColumns();
+
+  // Filter edges so only edges between two currently-visible columns appear.
+  // In single-column view this means zero edges (intentional — removing all
+  // crossing lines makes a dense column much easier to read at a glance).
+  lmEdges = edges.filter(e => {
+    const fromComp = lmComponents.find(c => c.id === e.from);
+    const toComp   = lmComponents.find(c => c.id === e.to);
+    return fromComp && toComp
+      && colTypes.includes(fromComp.type)
+      && colTypes.includes(toComp.type);
+  });
   const colWidth = 260;
   const nodeW = 222;
   const nodeH = 64;
@@ -3412,13 +3534,13 @@ function renderLogicMapCanvas() {
   // randomly each time.
   const nodeColorById = {};
   colTypes.forEach(type => {
-    columns[type].forEach((comp, i) => { nodeColorById[comp.id] = LM_EDGE_PALETTE[i % LM_EDGE_PALETTE.length]; });
+    (columns[type] || []).forEach((comp, i) => { nodeColorById[comp.id] = LM_EDGE_PALETTE[i % LM_EDGE_PALETTE.length]; });
   });
 
   const positions = {};
   let maxNodes = 1;
   colTypes.forEach((type, ci) => {
-    const items = columns[type];
+    const items = columns[type] || [];
     maxNodes = Math.max(maxNodes, items.length);
     items.forEach((comp, ri) => {
       positions[comp.id] = { x: ci * colWidth + 10, y: topPad + ri * (nodeH + nodeGapY), w: nodeW, h: nodeH, type, colIndex: ci };
@@ -3431,7 +3553,7 @@ function renderLogicMapCanvas() {
   // each edge between the same two columns gets a different curve "lane"
   // instead of all of them sharing the exact same bezier path.
   const laneGroups = {};
-  edges.forEach(e => {
+  lmEdges.forEach(e => {
     const a = positions[e.from], b = positions[e.to];
     if (!a || !b) return;
     const key = `${a.colIndex}-${b.colIndex}`;
@@ -4035,12 +4157,11 @@ function renderContextualStepPanel() {
       <div class="ctx-section-label ctx-upstream">← ${upstreamType}s (${upstreamComps.length})</div>`;
     upstreamComps.forEach(comp => {
       const flagged = flaggedIds.has(comp.id);
-      const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
       html += `<div class="ctx-card upstream">
         <div class="ctx-card-top">
           <span class="badge ${typeBadgeClass(upstreamType)}" style="font-size:10px;padding:2px 6px;">${upstreamType}</span>
           ${flagged ? '<span style="color:#fb7185;font-size:11px;">⚠</span>' : ''}
-          <span class="ctx-card-desc">${escHtml(desc)}</span>
+          <span class="ctx-card-desc">${escHtml(comp.description)}</span>
         </div>
       </div>`;
     });
@@ -4065,7 +4186,6 @@ function renderContextualStepPanel() {
       const feedsInto = linkedIds(comp.id);
       const matchedUpstream   = upstreamComps.filter(u => feedsFrom.has(u.id));
       const matchedDownstream = downstreamComps.filter(d => feedsInto.has(d.id));
-      const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
       const timeframeBadge = comp.type === 'Outcome' && comp.timeframe
         ? `<span class="badge-timeframe-${comp.timeframe}">${comp.timeframe==='short'?'< 1yr':comp.timeframe==='medium'?'1–3yr':'3yr+'}</span>`
         : '';
@@ -4079,10 +4199,10 @@ function renderContextualStepPanel() {
 
       let linkHint = '';
       if (matchedUpstream.length) {
-        linkHint += `<strong>Uses:</strong> ${matchedUpstream.map(u => `"${u.description.slice(0,40)}${u.description.length>40?'…':''}"`) .join(', ')}`;
+        linkHint += `<strong>Uses:</strong> ${matchedUpstream.map(u => `"${u.description.slice(0,120)}${u.description.length>120?'…':''}"`) .join(', ')}`;
       }
       if (matchedDownstream.length) {
-        linkHint += (linkHint?' · ':'') + `<strong>Produces:</strong> ${matchedDownstream.map(d => `"${d.description.slice(0,40)}${d.description.length>40?'…':''}"` ).join(', ')}`;
+        linkHint += (linkHint?' · ':'') + `<strong>Produces:</strong> ${matchedDownstream.map(d => `"${d.description.slice(0,120)}${d.description.length>120?'…':''}"` ).join(', ')}`;
       }
 
       html += `<div class="ctx-card current" data-id="${comp.id}">
@@ -4090,7 +4210,7 @@ function renderContextualStepPanel() {
           <span class="badge ${typeBadgeClass(currentType)}" style="font-size:10px;padding:2px 6px;">${currentType}</span>
           ${timeframeBadge}
           ${completenessBadge}
-          <span class="ctx-card-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(desc)}</span>
+          <span class="ctx-card-desc editable" data-id="${comp.id}" title="Click to edit">${escHtml(comp.description)}</span>
           <button class="btn-expand-comp" data-id="${comp.id}" title="Edit details">⋯</button>
           <button class="btn-improve" data-id="${comp.id}" title="AI: Improve description">✨</button>
           <button class="btn-delete-component" data-id="${comp.id}" title="Remove">×</button>
@@ -4124,11 +4244,10 @@ function renderContextualStepPanel() {
       html += `<div class="ctx-empty-hint">No ${downstreamType}s yet — add them in the next step. ${guidance.hint}</div>`;
     } else {
       downstreamComps.forEach(comp => {
-        const desc = comp.description.length > 72 ? comp.description.slice(0,72)+'…' : comp.description;
         html += `<div class="ctx-card downstream">
           <div class="ctx-card-top">
             <span class="badge ${typeBadgeClass(downstreamType)}" style="font-size:10px;padding:2px 6px;opacity:0.7;">${downstreamType}</span>
-            <span class="ctx-card-desc" style="opacity:0.7;">${escHtml(desc)}</span>
+            <span class="ctx-card-desc" style="opacity:0.7;">${escHtml(comp.description)}</span>
             <span class="ctx-link-arrow">→</span>
           </div>
         </div>`;
@@ -4483,6 +4602,7 @@ function openModal() {
 function closeModal() {
   modalOverlay.classList.remove('open');
   _pendingNewProjectComponents = null;
+  _pendingPostProjectAction = null;
   renderModalStagedNote();
 }
 document.getElementById('btn-new-project').addEventListener('click', openModal);
@@ -4520,7 +4640,18 @@ document.getElementById('btn-modal-submit').addEventListener('click', () => {
     setData('ks_components', [...getData('ks_components'), ...newComps]);
     _pendingNewProjectComponents = null;
   }
-  closeModal(); setActiveProject(project.id); currentStep = 0; showView('new-framework');
+  closeModal();
+  setActiveProject(project.id);
+  currentStep = 0;
+  // If a DA folder action requested a specific view after project creation,
+  // navigate there; otherwise go to the Framework Builder.
+  const targetView = _pendingPostProjectAction
+    ? (_pendingPostProjectAction === 'timeline' ? 'timeline'
+       : _pendingPostProjectAction === 'logic-map' ? 'logic-map'
+       : 'new-framework')
+    : 'new-framework';
+  _pendingPostProjectAction = null;
+  showView(targetView);
 });
 
 ['modal-name','modal-dept'].forEach(id => {
@@ -5021,16 +5152,42 @@ let daExtractedComponents = [];
 let daActiveHistoryId = null; // set when viewing a past analysis from history
 
 function renderDocumentAnalysis() {
-  document.getElementById('da-history-area').style.display = 'none';
   // Preserve extracted components across view switches — only reset if empty
   if (daExtractedComponents.length === 0) {
-    document.getElementById('da-upload-area').style.display = 'block';
-    document.getElementById('da-results-area').style.display = 'none';
-    document.getElementById('da-btn-reset').style.display = 'none';
-    document.getElementById('da-btn-import').style.display = 'none';
+    // Show the analyzed-documents folder panel automatically if there's
+    // something in history — it's more useful as the landing state than
+    // an empty upload zone, and the analyst can still drag a file onto
+    // the upload zone which always takes priority.
+    const history = getDocAnalysisHistory();
+    if (history.length) {
+      document.getElementById('da-upload-area').style.display = 'none';
+      document.getElementById('da-results-area').style.display = 'none';
+      document.getElementById('da-history-area').style.display = 'block';
+      document.getElementById('da-btn-history').textContent = '✕ Close Documents';
+      const importBtn = document.getElementById('da-btn-import');
+      const importNewBtn = document.getElementById('da-btn-import-new');
+      const resetBtn = document.getElementById('da-btn-reset');
+      if (importBtn) importBtn.style.display = 'none';
+      if (importNewBtn) importNewBtn.style.display = 'none';
+      if (resetBtn) resetBtn.style.display = 'none';
+      renderDAHistory();
+    } else {
+      document.getElementById('da-upload-area').style.display = 'block';
+      document.getElementById('da-results-area').style.display = 'none';
+      document.getElementById('da-history-area').style.display = 'none';
+      document.getElementById('da-btn-history').textContent = '📁 Analyzed Documents';
+      const importBtn = document.getElementById('da-btn-import');
+      const importNewBtn = document.getElementById('da-btn-import-new');
+      const resetBtn = document.getElementById('da-btn-reset');
+      if (importBtn) importBtn.style.display = 'none';
+      if (importNewBtn) importNewBtn.style.display = 'none';
+      if (resetBtn) resetBtn.style.display = 'none';
+    }
   } else {
     // Re-render results if we have components (navigated back to this view)
     document.getElementById('da-upload-area').style.display = 'none';
+    document.getElementById('da-history-area').style.display = 'none';
+    document.getElementById('da-btn-history').textContent = '📁 Analyzed Documents';
     renderDAResults();
   }
 }
@@ -5094,36 +5251,145 @@ function renderDAHistory() {
   const area = document.getElementById('da-history-area');
   const history = getDocAnalysisHistory();
   if (!history.length) {
-    area.innerHTML = '<div class="da-history-empty">No past analyses yet. Upload a document to get started.</div>';
+    area.innerHTML = '<div class="da-history-empty">📁 No analyzed documents yet.<br>Upload a .docx or .pdf to get started — analyzed files are saved here automatically.</div>';
     return;
   }
-  area.innerHTML = `<div class="da-history-list">${history.map(h => {
-    const total = h.components.length;
-    const accepted = h.components.filter(c => c.accepted).length;
-    return `<div class="da-history-item" data-history-id="${h.id}">
-      <div class="da-history-icon">📄</div>
-      <div class="da-history-meta">
-        <div class="da-history-name">${escHtml(h.fileName)}</div>
-        <div class="da-history-sub">${escHtml(h.mandate)} · ${formatHistoryTimestamp(h.timestamp)}</div>
+
+  const COMP_TYPES = ['Input','Activity','Output','Outcome'];
+
+  area.innerHTML = `<div class="da-folder-grid">${history.map(h => {
+    const comps = h.components || [];
+    const hasCacheKey = !!h.fileHash;
+    const byType = COMP_TYPES.reduce((acc,t) => ({ ...acc, [t]: comps.filter(c => c.componentType === t || c.type === t).length }), {});
+    const pills = COMP_TYPES.map(t => byType[t] ? `<span class="da-folder-count-pill">${t[0]}: ${byType[t]}</span>` : '').join('');
+    const cachedBadge = hasCacheKey ? `<span class="da-cached-badge">⚡ cached</span>` : '';
+
+    const compRows = comps.slice(0, 20).map(c => {
+      const type = c.componentType || c.type || '';
+      return `<div class="da-folder-comp-item">
+        <span class="badge ${typeBadgeClass(type)}" style="font-size:9px;padding:1px 5px;flex-shrink:0;">${type}</span>
+        <span>${escHtml(c.description || '')}</span>
+      </div>`;
+    }).join('');
+    const moreNote = comps.length > 20 ? `<div style="font-size:11.5px;color:var(--muted);padding:4px 0;">+ ${comps.length - 20} more components</div>` : '';
+
+    return `<div class="da-folder-card" data-folder-id="${h.id}">
+      <div class="da-folder-header">
+        <div class="da-folder-icon">📄</div>
+        <div class="da-folder-meta">
+          <div class="da-folder-name">${escHtml(h.fileName)}</div>
+          <div class="da-folder-sub">${escHtml(h.mandate || '')} · ${formatHistoryTimestamp(h.timestamp)} · ${comps.length} component${comps.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="da-folder-counts">${pills}${cachedBadge}</div>
+        <span class="da-folder-toggle">▶</span>
       </div>
-      <div class="da-history-count">${accepted}/${total} accepted</div>
-      <button class="da-history-delete" data-delete-id="${h.id}" title="Delete this analysis">×</button>
+      <div class="da-folder-body">
+        <div class="da-folder-actions-title">Generate from this analysis</div>
+        <div class="da-folder-actions">
+          <button class="da-folder-btn primary" data-action="new-project" data-folder-id="${h.id}">+ New Project</button>
+          <button class="da-folder-btn" data-action="new-evaluation" data-folder-id="${h.id}">📋 New Evaluation</button>
+          <button class="da-folder-btn" data-action="timeline" data-folder-id="${h.id}">📅 Timeline</button>
+          <button class="da-folder-btn" data-action="logic-map" data-folder-id="${h.id}">🗺️ Logic Model Map</button>
+        </div>
+        <div class="da-folder-comp-section-label">Extracted components (${comps.length})</div>
+        <div class="da-folder-comp-list">${compRows}${moreNote}</div>
+        <div class="da-folder-footer">
+          <button class="da-folder-load-btn" data-load-id="${h.id}">↩ Load into current results</button>
+          <button class="da-folder-delete-btn" data-delete-id="${h.id}">🗑 Delete analysis</button>
+        </div>
+      </div>
     </div>`;
   }).join('')}</div>`;
 
-  area.querySelectorAll('.da-history-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      if (e.target.closest('.da-history-delete')) return;
-      loadDocAnalysisFromHistory(item.dataset.historyId);
+  // Toggle open/close
+  area.querySelectorAll('.da-folder-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const card = header.closest('.da-folder-card');
+      card.classList.toggle('open');
     });
   });
-  area.querySelectorAll('.da-history-delete').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+
+  // Load into current results
+  area.querySelectorAll('.da-folder-load-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      loadDocAnalysisFromHistory(btn.dataset.loadId);
+    });
+  });
+
+  // Delete
+  area.querySelectorAll('.da-folder-delete-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
       if (!window.confirm('Delete this analysis from history?')) return;
       deleteDocAnalysisHistory(btn.dataset.deleteId);
     });
   });
+
+  // Action buttons — generate X from this analysis
+  area.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const entry = getDocAnalysisHistory().find(h => h.id === btn.dataset.folderId);
+      if (!entry) return;
+      handleDAFolderAction(btn.dataset.action, entry);
+    });
+  });
+}
+
+/* Handles each "Generate from this analysis" action.
+   Each action stages the analysis's components as _pendingNewProjectComponents,
+   or if there's already an active project, it imports directly and navigates
+   to the relevant view. */
+function handleDAFolderAction(action, historyEntry) {
+  const comps = (historyEntry.components || []).map(c => ({
+    type: c.componentType || c.type,
+    description: c.description || '',
+    targetBenchmark: c.targetBenchmark || '',
+    verificationSource: c.verificationSource || ''
+  })).filter(c => c.type && c.description);
+
+  if (!comps.length) {
+    showToast('No components in this analysis to use.', true);
+    return;
+  }
+
+  if (action === 'new-project') {
+    _pendingNewProjectComponents = comps;
+    document.getElementById('da-history-area').style.display = 'none';
+    showView('projects');
+    openModal();
+    showToast(`${comps.length} component${comps.length !== 1 ? 's' : ''} staged — fill in project details.`);
+    return;
+  }
+
+  // All other actions need an active project — if none, create a quick
+  // one from the analysis filename, then proceed.
+  function proceedWithProject() {
+    const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+    if (!proj) { showToast('No active project — use "New Project" first.', true); return; }
+    // Import the components into the active project
+    const newComps = comps.map(c => ({ id: generateId(), projectId: activeProjectId, type: c.type, description: c.description, targetBenchmark: c.targetBenchmark, verificationSource: c.verificationSource }));
+    const existing = getData('ks_components');
+    setData('ks_components', [...existing, ...newComps]);
+    runAuditEngine(activeProjectId);
+
+    if (action === 'new-evaluation') { showView('new-framework'); showToast(`✓ Imported ${newComps.length} components into "${proj.name}" — building evaluation.`); }
+    else if (action === 'timeline') { showView('timeline'); showToast(`✓ Imported ${newComps.length} components — generate a timeline now.`); }
+    else if (action === 'logic-map') { showView('logic-map'); showToast(`✓ Imported ${newComps.length} components — opening Logic Model Map.`); }
+  }
+
+  if (!activeProjectId) {
+    // No active project: stage as pending and open New Project modal,
+    // then navigate to the requested view after creation.
+    _pendingNewProjectComponents = comps;
+    _pendingPostProjectAction = action;
+    showView('projects');
+    openModal();
+    showToast(`${comps.length} component${comps.length !== 1 ? 's' : ''} staged — create a project to continue.`);
+  } else {
+    proceedWithProject();
+  }
 }
 
 function loadDocAnalysisFromHistory(id) {
@@ -5145,12 +5411,22 @@ function loadDocAnalysisFromHistory(id) {
 document.getElementById('da-btn-history').addEventListener('click', () => {
   const area = document.getElementById('da-history-area');
   const showing = area.style.display !== 'none';
-  if (showing) { area.style.display = 'none'; return; }
+  if (showing) {
+    area.style.display = 'none';
+    document.getElementById('da-btn-history').textContent = '📁 Analyzed Documents';
+    return;
+  }
+  // Hide upload zone and results so history panel has full space
   document.getElementById('da-upload-area').style.display = 'none';
   document.getElementById('da-results-area').style.display = 'none';
-  document.getElementById('da-btn-reset').style.display = 'none';
-  document.getElementById('da-btn-import').style.display = 'none';
+  const importBtn = document.getElementById('da-btn-import');
+  const importNewBtn = document.getElementById('da-btn-import-new');
+  const resetBtn = document.getElementById('da-btn-reset');
+  if (importBtn) importBtn.style.display = 'none';
+  if (importNewBtn) importNewBtn.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none';
   area.style.display = 'block';
+  document.getElementById('da-btn-history').textContent = '✕ Close Documents';
   renderDAHistory();
 });
 
