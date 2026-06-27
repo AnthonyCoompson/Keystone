@@ -186,7 +186,7 @@ Rules:
 - Outcomes must describe systemic changes — not restate the activities
 - Return ONLY the JSON object"""
 
-    data = ai.generate_json(prompt)
+    data = ai.generate_json_large(prompt)
     return {"success": True, "data": data}
 
 
@@ -418,7 +418,7 @@ Rules:
         data = ai.generate_json_with_file(prompt, req.document_mime_type, req.document_base64)
     else:
         full_prompt = prompt + f"\n\nDocument text:\n{req.document_text}"
-        data = ai.generate_json(full_prompt)
+        data = ai.generate_json_large(full_prompt)
 
     return {"success": True, "data": data}
 
@@ -536,7 +536,7 @@ Rules:
 - For DRIPA Alignment or Self-Government Transition, allow 12-24 months minimum for negotiation activities
 - Return ONLY the JSON object"""
 
-    data = ai.generate_json(prompt)
+    data = ai.generate_json_large(prompt)
     return {"success": True, "timeline": data}
 
 
@@ -621,7 +621,7 @@ Rules:
 - For DRIPA Alignment or Self-Government Transition mandates, data sources should note Nation-controlled or OCAP-compliant mechanisms where the logic model's verification sources support that
 - Return ONLY the JSON object"""
 
-    data = ai.generate_json(prompt)
+    data = ai.generate_json_large(prompt)
     return {"success": True, "submission": data}
 
 
@@ -1051,7 +1051,7 @@ async def health():
         db_ready = False
     return {
         "status": "ok",
-        "model": "gemini-1.5-flash",
+        "model": ai._MODEL,
         "gemini_ready": ai.is_ready(),
         "db_ready": db_ready,
     }
