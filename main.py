@@ -124,6 +124,13 @@ class GenerateTBSubmissionRequest(BaseModel):
     mandate: str
     components: List[TBComponentDetail] = []
 
+class TuneMandateRequest(BaseModel):
+    project_name: str
+    mandate_name: str
+    current_calibration: dict = {}
+    components: List[dict] = []
+    audit_findings: List[dict] = []
+
 class CreateProjectFromDocumentRequest(BaseModel):
     document_text: str = ""
     document_base64: str = ""
@@ -623,6 +630,77 @@ Rules:
 
     data = ai.generate_json_large(prompt)
     return {"success": True, "submission": data}
+
+
+# ── Endpoint 7c: AI Mandate Calibration Tuner ─────────────────────────────────
+# Called when the analyst clicks "Tune to my project" in Audit Settings.
+# Takes the current mandate's calibration plus the project's actual
+# components and audit findings, returns a proposed diff of changed
+# calibration values with a one-line rationale per change for the analyst
+# to accept or reject field-by-field.
+@app.post("/api/ai/tune-mandate-calibration")
+async def tune_mandate_calibration(req: TuneMandateRequest):
+    components_text = "\n".join(
+        f"  - [{c.get('type','')}] {c.get('description','')}"
+        for c in req.components
+    ) or "  (no components)"
+    findings_text = "\n".join(
+        f"  - [{f.get('riskLevel','')} / {f.get('errorType','')}] {f.get('message','')}"
+        for f in req.audit_findings
+    ) or "  No risk flags detected."
+    cal = req.current_calibration
+    minor_kw = cal.get('minorKeywords', [])
+
+    prompt = f"""You are a Keystone audit calibration expert reviewing whether the current mandate
+calibration is a good fit for this specific project's actual content.
+
+Project: {req.project_name}
+Current mandate: {req.mandate_name}
+
+Current calibration:
+- Low-leverage keywords (Miracle Leap): {minor_kw}
+- Miracle Leap threshold: {cal.get('miracleLeapThreshold', 0.6)}
+- Severity weights: High={cal.get('severityWeights', {}).get('High', 20)} Medium={cal.get('severityWeights', {}).get('Medium', 8)} Low={cal.get('severityWeights', {}).get('Low', 1)}
+
+Project components:
+{components_text}
+
+Current audit findings:
+{findings_text}
+
+Review whether the calibration fits the project's actual nature. Look specifically for:
+1. Keywords marked as "low-leverage" that are actually substantive for THIS project type
+   (e.g. "meetings" for a governance council where committee meetings ARE the deliverable mechanism)
+2. Severity weights that may over- or under-penalize given the project's mandate
+3. Threshold settings that produce too many or too few Miracle Leap flags given the actual activities
+
+Return ONLY valid JSON — no markdown, no explanation:
+{{
+  "proposed_changes": [
+    {{
+      "field": "minorKeywords",
+      "current_value": {minor_kw},
+      "proposed_value": ["list", "of", "keywords"],
+      "rationale": "one sentence explaining why"
+    }},
+    {{
+      "field": "miracleLeapThreshold",
+      "current_value": {cal.get('miracleLeapThreshold', 0.6)},
+      "proposed_value": 0.75,
+      "rationale": "one sentence explaining why"
+    }}
+  ],
+  "overall_assessment": "2-3 sentence summary of how well this mandate fits the project and what the changes would improve"
+}}
+
+Rules:
+- Only include fields where you have a concrete, justified reason to change them
+- If the current calibration is already a good fit, return an empty proposed_changes array and say so in overall_assessment
+- Never propose changes just for the sake of it — blank proposed_changes is a valid and good response
+- Return ONLY the JSON object"""
+
+    data = ai.generate_json(prompt)
+    return {"success": True, "tuning": data}
 
 
 # ── Endpoint 8: Create Project From Document ──────────────────────────────────

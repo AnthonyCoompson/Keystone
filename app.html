@@ -116,7 +116,7 @@ a { color: inherit; text-decoration: none; }
 .risk-flag { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
 .risk-flag.high { background: rgba(196,30,58,0.15); color: #fb7185; }
 .risk-flag.medium { background: rgba(184,134,11,0.15); color: #fbbf24; }
-.project-card-actions { display: flex; gap: 8px; margin-top: 4px; }
+.project-card-actions { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
 .empty-state-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
@@ -431,6 +431,33 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .lm-multi-check { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); cursor: pointer; }
 .lm-multi-check input { accent-color: var(--cyan); cursor: pointer; width: 14px; height: 14px; }
 .lm-multi-hint { font-size: 11.5px; color: var(--muted); margin-left: auto; }
+/* ── Mandates Management View ── */
+/* ── Mandate Tune Result ── */
+.tune-change-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; transition: opacity 0.2s; }
+.tune-change-field { font-size: 11px; font-weight: 700; color: var(--cyan); width: 140px; flex-shrink: 0; padding-top: 2px; font-family: 'DM Mono', monospace; }
+.tune-change-detail { flex: 1; min-width: 0; }
+.tune-change-rationale { font-size: 12.5px; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+.tune-change-values { font-size: 11.5px; color: var(--muted); }
+.tune-change-values code { font-family: 'DM Mono', monospace; font-size: 11px; background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px; }
+.tune-accept-toggle { flex-shrink: 0; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-family: var(--font); transition: all 0.15s; white-space: nowrap; }
+/* ── Mandate Management View ── */
+.mandates-mgr-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.mandates-mgr-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-shrink: 0; }
+.mandate-project-tuning { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: rgba(0,194,255,0.06); border: 1px solid rgba(0,194,255,0.2); border-radius: 8px; flex-shrink: 0; }
+.mandate-tuning-label { font-size: 12px; color: var(--muted); }
+.mandate-tuning-project { font-size: 13px; font-weight: 700; color: var(--white); flex: 1; }
+.mandate-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.15s; }
+.mandate-card:hover { border-color: rgba(0,194,255,0.2); }
+.mandate-card.is-preset { border-left: 3px solid var(--cyan); }
+.mandate-card.is-custom { border-left: 3px solid #a78bfa; }
+.mandate-card-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+.mandate-card-name { font-size: 14px; font-weight: 700; color: var(--white); flex: 1; }
+.mandate-card-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 2px 7px; border-radius: 8px; }
+.mandate-card-tag.preset { background: rgba(0,194,255,0.1); color: var(--cyan); }
+.mandate-card-tag.custom { background: rgba(167,139,250,0.12); color: #a78bfa; }
+.mandate-card-desc { font-size: 12.5px; color: var(--muted); padding: 0 16px 14px; line-height: 1.5; }
+.mandate-card-actions { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.mandate-card-stat { font-size: 11.5px; color: var(--muted); padding: 0 16px 10px; }
 /* ── Compare Projects View ── */
 .cmp-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
 .cmp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -738,6 +765,20 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .tl-bar-label { font-size: 10px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tl-milestone { position: absolute; top: 6px; width: 16px; height: 16px; background: #fff; border-radius: 3px; transform: rotate(45deg); opacity: 0.9; }
 .tl-critical-note { font-size: 12px; color: var(--muted); border-left: 3px solid #fb7185; padding-left: 12px; }
+.tl-main-area { display: grid; grid-template-columns: 1fr; gap: 16px; transition: grid-template-columns 0.25s ease; }
+.tl-main-area.detail-open { grid-template-columns: 1fr 300px; }
+.tl-detail-panel { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; overflow-y: auto; max-height: 420px; }
+.tl-detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.tl-detail-type-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 3px 8px; border-radius: 10px; }
+.tl-detail-close { background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+.tl-detail-close:hover { background: var(--hover-bg); color: var(--white); }
+.tl-detail-title { font-size: 13.5px; font-weight: 700; color: var(--white); line-height: 1.4; margin-bottom: 14px; }
+.tl-detail-field { margin-bottom: 10px; }
+.tl-detail-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 3px; }
+.tl-detail-field-value { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+.tl-bar { cursor: pointer; }
+.tl-bar.selected { outline: 2px solid #fff; outline-offset: 1px; opacity: 1 !important; }
+.tl-milestone.selected { outline: 2px solid #fff; outline-offset: 2px; }
 .tl-bar-input    { background: #1d4ed8; }
 .tl-bar-activity { background: #0891b2; }
 .tl-bar-output   { background: #10b981; }
@@ -760,6 +801,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 [data-theme="light"] .score-gauge::before { background: var(--bg2); }
 [data-theme="light"] .form-control { color: var(--text); }
 [data-theme="light"] select.form-control option { background: var(--bg3); color: var(--text); }
+[data-theme="dark"] select.form-control option { background: #1a2540; color: #c8d4e8; }
+select.form-control option { background: #1a2540; color: #c8d4e8; }
 </style>
 </head>
 <body>
@@ -824,6 +867,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.2 7.2 16.8 11"/><path d="M7.2 16.8 16.8 13"/></svg>
         Logic Model Map
         <span class="nav-badge">New</span>
+      </div>
+      <div class="nav-item" data-view="mandates" title="Manage mandate classifications">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Mandates
       </div>
       <div class="nav-item" data-view="compare" title="Compare multiple projects side-by-side">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
@@ -1288,8 +1335,18 @@ textarea.form-control { resize: vertical; min-height: 80px; }
         <div id="tl-content" style="display:none;flex-direction:column;gap:16px;">
           <div class="tl-summary" id="tl-summary"></div>
           <div class="tl-phase-legend" id="tl-phase-legend"></div>
-          <div class="tl-gantt-wrapper">
-            <div class="tl-gantt" id="tl-gantt"></div>
+          <div class="tl-main-area" id="tl-main-area">
+            <div class="tl-gantt-wrapper">
+              <div class="tl-gantt" id="tl-gantt"></div>
+            </div>
+            <div class="tl-detail-panel" id="tl-detail-panel" style="display:none;">
+              <div class="tl-detail-header">
+                <span class="tl-detail-type-badge" id="tl-detail-badge"></span>
+                <button class="tl-detail-close" id="tl-detail-close">✕</button>
+              </div>
+              <div class="tl-detail-title" id="tl-detail-title"></div>
+              <div id="tl-detail-fields"></div>
+            </div>
           </div>
           <div class="tl-critical-note" id="tl-critical-note"></div>
         </div>
@@ -1351,6 +1408,26 @@ textarea.form-control { resize: vertical; min-height: 80px; }
             <div id="lm-detail-body" style="display:none;"></div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- View: Mandates -->
+    <div id="view-mandates" class="view-panel">
+      <div class="mandates-mgr-view">
+        <div class="mandates-mgr-header">
+          <div>
+            <h1 style="font-size:22px;font-weight:700;color:var(--white);font-family:'Cormorant Garamond',serif;margin-bottom:4px;">Mandate Classifications</h1>
+            <p style="font-size:13px;color:var(--muted);">Define how the audit engine interprets your project type. Presets ship with Keystone — clone one to create a custom variant you can freely edit.</p>
+          </div>
+          <button class="btn-primary" id="btn-new-mandate">+ New Mandate</button>
+        </div>
+        <!-- Per-project tuning selector -->
+        <div class="mandate-project-tuning" id="mandate-project-tuning" style="display:none;">
+          <div class="mandate-tuning-label">Editing per-project override for:</div>
+          <div class="mandate-tuning-project" id="mandate-tuning-project-name"></div>
+          <button class="btn-secondary" id="btn-mandate-tuning-back" style="font-size:12px;padding:5px 10px;">← Back to global list</button>
+        </div>
+        <div id="mandates-list"></div>
       </div>
     </div>
 
@@ -1452,6 +1529,29 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- Switch Mandate Modal -->
+<div class="modal-overlay" id="modal-switch-mandate">
+  <div class="modal" style="width:440px;">
+    <div class="modal-title">Switch Mandate Classification</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;">
+      Changing the mandate recalibrates the audit engine immediately — keyword thresholds, severity weights,
+      and AI narrative framing all shift to match the new mandate. Your components stay unchanged.
+    </p>
+    <div class="form-group">
+      <label class="form-label" for="switch-mandate-select">New Mandate</label>
+      <select class="form-control" id="switch-mandate-select" data-mandate-select="true"></select>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label" style="margin-bottom:8px;">Compare audit behavior</label>
+      <div id="switch-mandate-preview" style="font-size:12px;color:var(--muted);background:var(--input-bg);border:1px solid var(--border);border-radius:7px;padding:10px 12px;line-height:1.6;min-height:48px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-switch-mandate-cancel">Cancel</button>
+      <button class="btn-modal-submit" id="btn-switch-mandate-confirm">Switch &amp; Recalculate</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Project Modal -->
 <div class="modal-overlay" id="modal-edit-project">
   <div class="modal">
@@ -1529,10 +1629,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 <div class="modal-overlay" id="modal-audit-settings">
   <div class="modal" style="width:560px;">
     <div class="modal-title">Audit Settings</div>
-    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:18px;">
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:6px;">
       Customize two of Keystone's rules for this project. Other settings (mandate, audit rule
       thresholds tied to mandate calibration) are set when you choose a mandate classification.
     </p>
+    <div id="audit-settings-tune-note" style="display:none;font-size:11px;color:var(--muted);margin-bottom:14px;padding:5px 10px;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.18);border-radius:6px;"></div>
 
     <div class="settings-rule-group">
       <div class="settings-rule-header">
@@ -1569,6 +1670,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
     <div class="modal-footer">
       <button class="btn-modal-cancel" id="btn-audit-settings-reset">Reset to Defaults</button>
+      <button class="btn-secondary" id="btn-ai-tune-mandate" style="background:linear-gradient(135deg,#7c3aed,#0ea5e9);color:#fff;border-color:transparent;" title="Let AI suggest calibration adjustments based on your actual project components">✨ Tune to my project</button>
       <button class="btn-modal-submit" id="btn-audit-settings-save">Save Settings</button>
     </div>
   </div>
@@ -1583,6 +1685,74 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <button class="btn-modal-cancel" id="btn-tb-close">Close</button>
       <button class="btn-secondary" id="btn-tb-regenerate" style="display:none;">↻ Regenerate</button>
       <button class="btn-modal-submit" id="btn-tb-print" style="display:none;">⎙ Open as Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mandate Editor Modal -->
+<div class="modal-overlay" id="modal-mandate-editor">
+  <div class="modal" style="width:600px;">
+    <div class="modal-title" id="mandate-editor-title">Edit Mandate</div>
+    <div class="form-group">
+      <label class="form-label">Name <span class="required">*</span></label>
+      <input type="text" class="form-control" id="mandate-editor-name" placeholder="e.g. Governance & Coordination">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-control" id="mandate-editor-desc" rows="2" placeholder="Brief description of when to use this mandate…"></textarea>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--border);">Miracle Leap Calibration</div>
+    <div class="form-group">
+      <label class="form-label">Low-leverage activity keywords <span style="font-weight:400;color:var(--muted);">(comma-separated — these trigger the Miracle Leap rule)</span></label>
+      <input type="text" class="form-control" id="mandate-editor-minor-keywords" placeholder="e.g. webinar, newsletter, survey, info session">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Miracle Leap trigger threshold <span style="font-weight:400;color:var(--muted);">(0–1, fraction of activities that must match keywords)</span></label>
+      <input type="number" class="form-control" id="mandate-editor-ml-threshold" min="0.1" max="1" step="0.05" style="width:100px;">
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--border);">Severity Weights</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">High flag weight</label>
+        <input type="number" class="form-control" id="mandate-editor-w-high" min="5" max="40" step="1">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Medium flag weight</label>
+        <input type="number" class="form-control" id="mandate-editor-w-med" min="2" max="20" step="1">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Low flag weight</label>
+        <input type="number" class="form-control" id="mandate-editor-w-low" min="1" max="10" step="1">
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:16px 0 10px;padding-top:12px;border-top:1px solid var(--border);">Completeness Rubric</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-baseline"> Outcomes require a baseline</label>
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-responsible"> Outputs require a responsible party</label>
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-bench-out"> Outcomes require a benchmark</label>
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-bench-op"> Outputs require a benchmark</label>
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-verif-out"> Outcomes require a verification source</label>
+      <label class="settings-sub-toggle"><input type="checkbox" id="mandate-editor-req-verif-op"> Outputs require a verification source</label>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-mandate-editor-cancel">Cancel</button>
+      <button class="btn-modal-submit" id="btn-mandate-editor-save">Save Mandate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mandate Tune Result Modal -->
+<div class="modal-overlay" id="modal-tune-result">
+  <div class="modal" style="width:620px;">
+    <div class="modal-title">✨ AI Calibration Suggestions</div>
+    <div id="tune-result-body" style="max-height:60vh;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" id="btn-tune-close">Cancel</button>
+      <button class="btn-modal-submit" id="btn-tune-apply" style="display:none;">Apply Accepted Changes</button>
     </div>
   </div>
 </div>
@@ -1978,6 +2148,7 @@ function showView(v) {
   if (v === 'document-analysis') renderDocumentAnalysis();
   if (v === 'timeline') renderTimeline();
   if (v === 'logic-map') renderLogicMapView();
+  if (v === 'mandates') renderMandatesView();
   if (v === 'compare') renderComparePicker();
   if (v === 'reference') { /* static content */ }
 }
@@ -2989,6 +3160,18 @@ function readAuditSettingsForm() {
 document.getElementById('btn-audit-settings').addEventListener('click', () => {
   if (!activeProjectId) { showToast('Open a project first.', true); return; }
   populateAuditSettingsForm(getRuleSettings(activeProjectId));
+  // Show quiet AI-tune timestamp if present
+  const rs = getRuleSettings(activeProjectId);
+  const tuneNote = document.getElementById('audit-settings-tune-note');
+  if (tuneNote) {
+    if (rs.tunedAt) {
+      const d = new Date(rs.tunedAt);
+      tuneNote.textContent = `Last AI-tuned: ${d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })} via ${rs.tunedVia === 'ai' ? 'AI suggestion' : 'manual edit'}`;
+      tuneNote.style.display = 'block';
+    } else {
+      tuneNote.style.display = 'none';
+    }
+  }
   auditSettingsModal.classList.add('open');
 });
 auditSettingsModal.addEventListener('click', e => { if (e.target === auditSettingsModal) auditSettingsModal.classList.remove('open'); });
@@ -3004,6 +3187,144 @@ document.getElementById('btn-audit-settings-save').addEventListener('click', () 
   auditSettingsModal.classList.remove('open');
   runAuditEngine(activeProjectId);
   showToast('Audit settings saved — findings recalculated.');
+});
+
+/* ── AI Mandate Tuner ── */
+document.getElementById('btn-ai-tune-mandate').addEventListener('click', async () => {
+  if (!activeProjectId) { showToast('Open a project first.', true); return; }
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  if (!proj) return;
+
+  // Get current mandate calibration to send as context
+  const cal = MANDATE_CALIBRATION[proj.mandate] || {};
+  const components = getData('ks_components').filter(c => c.projectId === activeProjectId);
+  const findings = getData('ks_audit_log').filter(e => e.projectId === activeProjectId);
+
+  const btn = document.getElementById('btn-ai-tune-mandate');
+  const origText = btn.textContent;
+  btn.textContent = '✨ Analysing…'; btn.disabled = true;
+
+  try {
+    const data = await aiFetch('/api/ai/tune-mandate-calibration', {
+      project_name: proj.name,
+      mandate_name: proj.mandate,
+      current_calibration: {
+        minorKeywords: cal.minorKeywords || [],
+        miracleLeapThreshold: cal.miracleLeapThreshold || 0.6,
+        severityWeights: cal.severityWeights || { High: 20, Medium: 8, Low: 1 }
+      },
+      components: components.map(c => ({ type: c.type, description: c.description })),
+      audit_findings: findings.map(f => ({ riskLevel: f.riskLevel, errorType: f.errorType, message: f.message.slice(0, 120) }))
+    }, 45000);
+
+    auditSettingsModal.classList.remove('open');
+    openTuneResultModal(data.tuning, proj);
+  } catch(e) {
+    showToast('Tune failed: ' + (e.message || 'Unknown error'), true);
+  } finally {
+    btn.textContent = origText; btn.disabled = false;
+  }
+});
+
+/* Tune Result Modal — shows proposed changes with accept/reject per field */
+let _tuneResultForProject = null;
+let _tuneProposedChanges = [];
+
+function openTuneResultModal(tuning, proj) {
+  _tuneResultForProject = proj;
+  _tuneProposedChanges = (tuning.proposed_changes || []).map(c => ({ ...c, accepted: true }));
+
+  const body = document.getElementById('tune-result-body');
+  const modal = document.getElementById('modal-tune-result');
+
+  if (!_tuneProposedChanges.length) {
+    body.innerHTML = `
+      <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✓ Calibration looks good</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">${escHtml(tuning.overall_assessment || 'The current calibration fits this project well. No changes suggested.')}</div>
+      </div>`;
+    document.getElementById('btn-tune-apply').style.display = 'none';
+    document.getElementById('btn-tune-close').textContent = 'Close';
+  } else {
+    body.innerHTML = `
+      <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:16px;padding:12px 14px;background:var(--input-bg);border-radius:8px;">${escHtml(tuning.overall_assessment || '')}</div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;">Proposed changes — accept or reject each</div>
+      ${_tuneProposedChanges.map((ch, i) => `
+        <div class="tune-change-row" data-tune-idx="${i}">
+          <div class="tune-change-field">${escHtml(ch.field)}</div>
+          <div class="tune-change-detail">
+            <div class="tune-change-rationale">${escHtml(ch.rationale)}</div>
+            <div class="tune-change-values">
+              <span style="color:var(--muted);">Current: </span><code>${escHtml(JSON.stringify(ch.current_value))}</code>
+              <span style="color:var(--cyan);margin:0 6px;">→</span>
+              <span style="color:var(--green);">Proposed: </span><code>${escHtml(JSON.stringify(ch.proposed_value))}</code>
+            </div>
+          </div>
+          <button class="tune-accept-toggle" data-tune-idx="${i}" style="background:rgba(16,185,129,0.12);color:var(--green);border:1px solid rgba(16,185,129,0.3);">✓ Accept</button>
+        </div>`).join('')}`;
+
+    body.querySelectorAll('.tune-accept-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.tuneIdx, 10);
+        _tuneProposedChanges[idx].accepted = !_tuneProposedChanges[idx].accepted;
+        const acc = _tuneProposedChanges[idx].accepted;
+        btn.textContent = acc ? '✓ Accept' : '✗ Reject';
+        btn.style.background = acc ? 'rgba(16,185,129,0.12)' : 'rgba(196,30,58,0.1)';
+        btn.style.color = acc ? 'var(--green)' : '#fb7185';
+        btn.style.borderColor = acc ? 'rgba(16,185,129,0.3)' : 'rgba(196,30,58,0.25)';
+        btn.closest('.tune-change-row').style.opacity = acc ? '1' : '0.45';
+      });
+    });
+    document.getElementById('btn-tune-apply').style.display = 'inline-block';
+    document.getElementById('btn-tune-close').textContent = 'Cancel';
+  }
+  modal.classList.add('open');
+}
+
+document.getElementById('btn-tune-close').addEventListener('click', () => {
+  document.getElementById('modal-tune-result').classList.remove('open');
+});
+document.getElementById('modal-tune-result').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-tune-result'))
+    document.getElementById('modal-tune-result').classList.remove('open');
+});
+
+document.getElementById('btn-tune-apply').addEventListener('click', () => {
+  if (!_tuneResultForProject || !activeProjectId) return;
+  const accepted = _tuneProposedChanges.filter(c => c.accepted);
+  if (!accepted.length) { showToast('No changes accepted.', true); return; }
+
+  // Apply accepted changes as per-project rule settings override — stored
+  // in ks_rule_settings so it's project-specific (not global), with the
+  // quiet tunedAt timestamp visible only in Audit Settings as agreed.
+  const existing = getRuleSettings(activeProjectId);
+  const override = { ...existing };
+
+  accepted.forEach(ch => {
+    if (ch.field === 'minorKeywords') {
+      // Store as a completeness/timeframe-adjacent override — for now we
+      // write into a new 'mandateCalibrationOverride' bucket since the
+      // existing ruleSettings structure doesn't have a minorKeywords slot.
+      override.mandateCalibrationOverride = override.mandateCalibrationOverride || {};
+      override.mandateCalibrationOverride.minorKeywords = ch.proposed_value;
+    }
+    if (ch.field === 'miracleLeapThreshold') {
+      override.mandateCalibrationOverride = override.mandateCalibrationOverride || {};
+      override.mandateCalibrationOverride.miracleLeapThreshold = ch.proposed_value;
+    }
+    if (ch.field === 'severityWeights') {
+      override.mandateCalibrationOverride = override.mandateCalibrationOverride || {};
+      override.mandateCalibrationOverride.severityWeights = ch.proposed_value;
+    }
+  });
+  // Record the quiet timestamp visible only inside Audit Settings
+  override.tunedAt = new Date().toISOString();
+  override.tunedVia = 'ai';
+
+  saveRuleSettings(activeProjectId, override);
+  runAuditEngine(activeProjectId);
+  document.getElementById('modal-tune-result').classList.remove('open');
+  showToast(`✨ ${accepted.length} calibration change${accepted.length !== 1 ? 's' : ''} applied — audit recalculated.`);
 });
 </script>
 <script>
@@ -4497,11 +4818,12 @@ function renderProjects() {
       <div class="project-card-name">${escHtml(proj.name)}</div>
       <div class="project-card-dept">${escHtml(proj.department)}</div>
       <div class="project-card-meta"><span class="badge ${mandateBadgeClass(proj.mandate)}">${escHtml(proj.mandate)}</span><span class="project-card-stats">${components.length} component${components.length !== 1 ? 's' : ''}</span>${riskFlags}${timelineBadge}<span style="font-size:12px;font-weight:700;color:${scoreColor};font-family:'DM Mono',monospace;margin-left:auto;">${score}</span></div>
-      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button>${proj.timeline?`<button class="btn-secondary btn-view-timeline" data-id="${proj.id}">📅 Timeline</button>`:''}<button class="btn-secondary btn-view-versions" data-id="${proj.id}">📜 Versions${versionCount?` (${versionCount})`:''}</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
+      <div class="project-card-actions"><button class="btn-secondary btn-open-project" data-id="${proj.id}">Open</button><button class="btn-secondary btn-edit-project" data-id="${proj.id}">Edit</button><button class="btn-secondary btn-switch-mandate" data-id="${proj.id}">⚡ Mandate</button>${proj.timeline?`<button class="btn-secondary btn-view-timeline" data-id="${proj.id}">📅 Timeline</button>`:''}<button class="btn-secondary btn-view-versions" data-id="${proj.id}">📜 Versions${versionCount?` (${versionCount})`:''}</button><button class="btn-secondary btn-export-project" data-id="${proj.id}">Export</button><button class="btn-danger btn-delete-project" data-id="${proj.id}">Delete</button></div>
     </div>`;
   }).join('');
   grid.querySelectorAll('.btn-open-project').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
   grid.querySelectorAll('.btn-edit-project').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+  grid.querySelectorAll('.btn-switch-mandate').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openSwitchMandateModal(btn.dataset.id); }));
   grid.querySelectorAll('.btn-view-timeline').forEach(btn => btn.addEventListener('click', () => { setActiveProject(btn.dataset.id); showView('timeline'); }));
   grid.querySelectorAll('.btn-view-versions').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openVersionsModal(btn.dataset.id); }));
   grid.querySelectorAll('.btn-export-project').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); exportProject(btn.dataset.id); }));
@@ -4564,6 +4886,63 @@ function deleteProject(id) {
 /* ── Edit Project Modal ── */
 let _editingProjectId = null;
 const editModalOverlay = document.getElementById('modal-edit-project');
+
+/* ── Switch Mandate Modal ── */
+const MANDATE_DESCRIPTIONS = {
+  'DRIPA Alignment': 'Foregrounds reconciliation obligations, OCAP compliance, and Nation-to-Nation decision-making. Meetings and engagement are treated as substantive governance activities, not low-leverage.',
+  'Self-Government Transition': 'Focuses on jurisdiction and governance transfer credibility. High-leverage activities (negotiation, legislative drafting) are weighted heavily; outcome accountability is viewed through a Section 35 lens.',
+  'Service Delivery': 'Emphasises programme continuity and outcome equity. Benchmarks and verification sources are checked for population-level reach; data equity (disaggregation by group) is flagged when absent.',
+  'Economic Development': 'Foregrounds benefit-sharing, revenue structures, and procurement transparency. Quantified financial targets without audit mechanisms are flagged at higher severity.',
+};
+
+let _switchMandateProjectId = null;
+const switchMandateModal = document.getElementById('modal-switch-mandate');
+
+function openSwitchMandateModal(projectId) {
+  const proj = getData('ks_projects').find(p => p.id === projectId);
+  if (!proj) return;
+  _switchMandateProjectId = projectId;
+
+  // Populate select with all known mandates, pre-selected to current
+  const sel = document.getElementById('switch-mandate-select');
+  sel.innerHTML = MANDATES.map(m => `<option value="${m}" ${m === proj.mandate ? 'selected' : ''}>${m}</option>`).join('');
+  updateSwitchMandatePreview(proj.mandate);
+  sel.onchange = () => updateSwitchMandatePreview(sel.value);
+
+  switchMandateModal.classList.add('open');
+}
+
+function updateSwitchMandatePreview(mandate) {
+  const el = document.getElementById('switch-mandate-preview');
+  el.textContent = MANDATE_DESCRIPTIONS[mandate] || 'No description available for this mandate.';
+}
+
+function closeSwitchMandateModal() {
+  switchMandateModal.classList.remove('open');
+  _switchMandateProjectId = null;
+}
+
+document.getElementById('btn-switch-mandate-cancel').addEventListener('click', closeSwitchMandateModal);
+switchMandateModal.addEventListener('click', e => { if (e.target === switchMandateModal) closeSwitchMandateModal(); });
+
+document.getElementById('btn-switch-mandate-confirm').addEventListener('click', () => {
+  if (!_switchMandateProjectId) return;
+  const newMandate = document.getElementById('switch-mandate-select').value;
+  const projects = getData('ks_projects');
+  const updated = projects.map(p => p.id === _switchMandateProjectId ? { ...p, mandate: newMandate } : p);
+  setData('ks_projects', updated);
+  // Re-run audit with new calibration
+  runAuditEngine(_switchMandateProjectId);
+  closeSwitchMandateModal();
+  renderProjects();
+  // If this is the active project, refresh the audit panel and form
+  if (activeProjectId === _switchMandateProjectId) {
+    const nameEl = document.getElementById('active-project-name');
+    nameEl.textContent = getData('ks_projects').find(p => p.id === _switchMandateProjectId)?.name || '';
+    renderFormPanel();
+  }
+  showToast(`Mandate switched to "${newMandate}" — audit recalculated.`);
+});
 
 function openEditModal(id) {
   const proj = getData('ks_projects').find(p => p.id === id);
@@ -5774,11 +6153,66 @@ function renderTLGantt(tl) {
     const isCritical=criticalSet.has(idx);
     const barClass=typeColorMap[item.component_type]||'tl-bar-input';
     const truncLabel=item.description.length>30?item.description.slice(0,30)+'…':item.description;
-    return `<div class="tl-row"><div class="tl-row-label" title="${escHtml(item.description)}"><span style="font-size:10px;font-weight:700;color:var(--muted)">${item.component_type[0]}</span>${escHtml(truncLabel)}</div><div class="tl-row-track">${item.is_milestone?`<div class="tl-milestone" style="left:calc(${left}% - 8px);${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.description)}"></div>`:`<div class="tl-bar ${barClass}" style="left:${left}%;width:${width}%;${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.rationale||'')}"><span class="tl-bar-label">${escHtml(truncLabel)}</span></div>`}</div></div>`;
+    return `<div class="tl-row"><div class="tl-row-label" title="${escHtml(item.description)}"><span style="font-size:10px;font-weight:700;color:var(--muted)">${item.component_type[0]}</span>${escHtml(truncLabel)}</div><div class="tl-row-track">${item.is_milestone?`<div class="tl-milestone" data-tl-idx="${idx}" style="left:calc(${left}% - 8px);${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.description)}"></div>`:`<div class="tl-bar ${barClass}" data-tl-idx="${idx}" style="left:${left}%;width:${width}%;${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.rationale||'')}"><span class="tl-bar-label">${escHtml(truncLabel)}</span></div>`}</div></div>`;
   }).join('');
   ganttEl.innerHTML = headerHtml+rowsHtml;
   const critCount=criticalSet.size;
   document.getElementById('tl-critical-note').textContent = critCount>0?`${critCount} items on the critical path (outlined in red). Delays to these components will extend the overall project timeline.`:'';
+
+  // Wire click-to-detail on every bar and milestone
+  const TYPE_COLORS = { Input:'#1d4ed8', Activity:'#0891b2', Output:'#10b981', Outcome:'#7c3aed' };
+  ganttEl.querySelectorAll('[data-tl-idx]').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.tlIdx, 10);
+      const item = (tl.items||[])[idx];
+      if (!item) return;
+      // Deselect previous
+      ganttEl.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
+      el.classList.add('selected');
+      showTLDetail(item, idx, criticalSet.has(idx), tl, TYPE_COLORS);
+    });
+  });
+
+  // Close button
+  const closeBtn = document.getElementById('tl-detail-close');
+  if (closeBtn) closeBtn.onclick = () => {
+    ganttEl.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
+    const panel = document.getElementById('tl-detail-panel');
+    const area = document.getElementById('tl-main-area');
+    panel.style.display = 'none';
+    area.classList.remove('detail-open');
+  };
+}
+
+function showTLDetail(item, idx, isCritical, tl, TYPE_COLORS) {
+  const panel = document.getElementById('tl-detail-panel');
+  const area = document.getElementById('tl-main-area');
+  panel.style.display = 'block';
+  area.classList.add('detail-open');
+
+  const color = TYPE_COLORS[item.component_type] || '#8a9bbf';
+  const badge = document.getElementById('tl-detail-badge');
+  badge.textContent = item.component_type;
+  badge.style.background = color + '22';
+  badge.style.color = color;
+  badge.style.border = `1px solid ${color}44`;
+
+  document.getElementById('tl-detail-title').textContent = item.description;
+
+  const fields = [];
+  fields.push(`<div class="tl-detail-field">
+    <div class="tl-detail-field-label">Timing</div>
+    <div class="tl-detail-field-value">Week ${item.start_week}${item.end_week && item.end_week !== item.start_week ? ` – Week ${item.end_week}` : ''}${item.is_milestone ? ' (milestone)' : ''}</div>
+  </div>`);
+  if (item.phase) fields.push(`<div class="tl-detail-field"><div class="tl-detail-field-label">Phase</div><div class="tl-detail-field-value">${escHtml(item.phase)}</div></div>`);
+  if (item.rationale) fields.push(`<div class="tl-detail-field"><div class="tl-detail-field-label">Rationale</div><div class="tl-detail-field-value">${escHtml(item.rationale)}</div></div>`);
+  if (isCritical) fields.push(`<div class="tl-detail-field"><div class="tl-detail-field-value" style="color:#fb7185;font-weight:600;">⚠ On the critical path — delays here extend the overall timeline.</div></div>`);
+  if (item.depends_on !== null && item.depends_on !== undefined) {
+    const dep = (tl.items||[])[item.depends_on];
+    if (dep) fields.push(`<div class="tl-detail-field"><div class="tl-detail-field-label">Depends on</div><div class="tl-detail-field-value">${escHtml(dep.description.length>60?dep.description.slice(0,60)+'…':dep.description)}</div></div>`);
+  }
+
+  document.getElementById('tl-detail-fields').innerHTML = fields.join('');
 }
 
 document.getElementById('tl-btn-print').addEventListener('click', () => {
@@ -5794,6 +6228,235 @@ document.getElementById('tl-btn-print').addEventListener('click', () => {
     const a=document.createElement('a'); a.href=url; a.download=`keystone-timeline-${Date.now()}.html`; a.click(); URL.revokeObjectURL(url);
     showToast('Popup blocked — timeline downloaded as HTML.');
   }
+});
+
+/* ── Mandate Management ─────────────────────────────────────────────────────
+   Global mandate definitions stored in ks_mandate_definitions (localStorage).
+   Seeded from MANDATE_CALIBRATION on first load. Each mandate has all
+   calibration fields plus description text and a preset flag (presets can be
+   cloned but not deleted; custom mandates can be fully edited/deleted).
+   ──────────────────────────────────────────────────────────────────────────── */
+
+function getMandateDefinitions() {
+  const stored = getData('ks_mandate_definitions');
+  if (stored.length) return stored;
+  // Seed from MANDATE_CALIBRATION on first access
+  const seeded = Object.entries(MANDATE_CALIBRATION).map(([name, cal]) => ({
+    id: 'preset-' + name.toLowerCase().replace(/\s+/g,'-'),
+    name,
+    isPreset: true,
+    description: MANDATE_DESCRIPTIONS[name] || '',
+    minorKeywords: cal.minorKeywords,
+    miracleLeapThreshold: cal.miracleLeapThreshold,
+    severityWeights: { ...cal.severityWeights },
+    completeness: {
+      requireBaseline: name === 'DRIPA Alignment' || name === 'Self-Government Transition',
+      requireResponsibleParty: true,
+      requireBenchmarkOutcome: true,
+      requireBenchmarkOutput: true,
+      requireVerifOutcome: true,
+      requireVerifOutput: true,
+    }
+  }));
+  setData('ks_mandate_definitions', seeded);
+  return seeded;
+}
+
+function saveMandateDefinitions(defs) {
+  setData('ks_mandate_definitions', defs);
+  // Refresh MANDATES constant equivalent so dropdowns stay in sync
+  refreshMandateDropdowns();
+}
+
+function refreshMandateDropdowns() {
+  const names = getMandateDefinitions().map(d => d.name);
+  document.querySelectorAll('[data-mandate-select]').forEach(sel => {
+    const current = sel.value;
+    sel.innerHTML = names.map(m => `<option value="${m}">${m}</option>`).join('');
+    if (names.includes(current)) sel.value = current;
+  });
+}
+
+/* ── Mandates view ── */
+let _mandateViewProjectId = null; // null = global, or a project id for per-project override
+
+function renderMandatesView(projectId) {
+  _mandateViewProjectId = projectId || null;
+  const list = document.getElementById('mandates-list');
+  const tuningBar = document.getElementById('mandate-project-tuning');
+  const tuningName = document.getElementById('mandate-tuning-project-name');
+  const defs = getMandateDefinitions();
+
+  if (_mandateViewProjectId) {
+    const proj = getData('ks_projects').find(p => p.id === _mandateViewProjectId);
+    tuningBar.style.display = 'flex';
+    tuningName.textContent = proj ? proj.name : 'Unknown Project';
+  } else {
+    tuningBar.style.display = 'none';
+  }
+
+  if (!defs.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;">No mandates defined. Click "+ New Mandate" to create one.</div>';
+    return;
+  }
+
+  // Count how many projects use each mandate
+  const projects = getData('ks_projects');
+  const usageCount = {};
+  projects.forEach(p => { usageCount[p.mandate] = (usageCount[p.mandate] || 0) + 1; });
+
+  list.innerHTML = defs.map(def => {
+    const usage = usageCount[def.name] || 0;
+    const isPreset = def.isPreset;
+    return `<div class="mandate-card ${isPreset ? 'is-preset' : 'is-custom'}" data-mandate-id="${def.id}">
+      <div class="mandate-card-header">
+        <div class="mandate-card-name">${escHtml(def.name)}</div>
+        <span class="mandate-card-tag ${isPreset ? 'preset' : 'custom'}">${isPreset ? 'Preset' : 'Custom'}</span>
+      </div>
+      ${def.description ? `<div class="mandate-card-desc">${escHtml(def.description)}</div>` : ''}
+      <div class="mandate-card-stat">Used by ${usage} project${usage !== 1 ? 's' : ''} · ML threshold: ${def.miracleLeapThreshold} · Weights: ${def.severityWeights.High}H / ${def.severityWeights.Medium}M / ${def.severityWeights.Low}L</div>
+      <div class="mandate-card-actions">
+        <button class="btn-secondary mandate-btn-edit" data-id="${def.id}" style="font-size:12px;padding:5px 10px;">Edit</button>
+        <button class="btn-secondary mandate-btn-clone" data-id="${def.id}" style="font-size:12px;padding:5px 10px;">Clone</button>
+        ${_mandateViewProjectId ? `<button class="btn-secondary mandate-btn-apply" data-id="${def.id}" style="font-size:12px;padding:5px 10px;color:var(--cyan);border-color:rgba(0,194,255,0.3);">Apply to Project</button>` : ''}
+        ${!isPreset ? `<button class="btn-danger mandate-btn-delete" data-id="${def.id}" style="font-size:12px;padding:5px 10px;">Delete</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.mandate-btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => openMandateEditor(btn.dataset.id));
+  });
+  list.querySelectorAll('.mandate-btn-clone').forEach(btn => {
+    btn.addEventListener('click', () => cloneMandate(btn.dataset.id));
+  });
+  list.querySelectorAll('.mandate-btn-apply').forEach(btn => {
+    btn.addEventListener('click', () => applyMandateToProject(btn.dataset.id, _mandateViewProjectId));
+  });
+  list.querySelectorAll('.mandate-btn-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!window.confirm('Delete this mandate? Projects using it will keep their existing mandate name.')) return;
+      const defs = getMandateDefinitions().filter(d => d.id !== btn.dataset.id);
+      saveMandateDefinitions(defs);
+      renderMandatesView(_mandateViewProjectId);
+      showToast('Mandate deleted.');
+    });
+  });
+}
+
+function applyMandateToProject(mandateId, projectId) {
+  const def = getMandateDefinitions().find(d => d.id === mandateId);
+  const proj = getData('ks_projects').find(p => p.id === projectId);
+  if (!def || !proj) return;
+  const updated = getData('ks_projects').map(p => p.id === projectId ? { ...p, mandate: def.name } : p);
+  setData('ks_projects', updated);
+  runAuditEngine(projectId);
+  showToast(`Applied "${def.name}" to "${proj.name}" — audit recalculated.`);
+  renderMandatesView(_mandateViewProjectId);
+}
+
+function cloneMandate(mandateId) {
+  const defs = getMandateDefinitions();
+  const src = defs.find(d => d.id === mandateId);
+  if (!src) return;
+  const clone = {
+    ...JSON.parse(JSON.stringify(src)),
+    id: generateId(),
+    name: src.name + ' (Copy)',
+    isPreset: false,
+  };
+  saveMandateDefinitions([...defs, clone]);
+  renderMandatesView(_mandateViewProjectId);
+  showToast(`Cloned "${src.name}" — you can now edit the copy freely.`);
+}
+
+/* ── Mandate Editor Modal ── */
+let _editingMandateId = null;
+const mandateEditorModal = document.getElementById('modal-mandate-editor');
+
+function openMandateEditor(mandateId) {
+  const defs = getMandateDefinitions();
+  const def = mandateId ? defs.find(d => d.id === mandateId) : null;
+  _editingMandateId = mandateId || null;
+
+  document.getElementById('mandate-editor-title').textContent = def ? (def.isPreset ? 'View Preset Mandate' : 'Edit Mandate') : 'New Mandate';
+  document.getElementById('mandate-editor-name').value = def?.name || '';
+  document.getElementById('mandate-editor-name').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-desc').value = def?.description || '';
+  document.getElementById('mandate-editor-desc').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-minor-keywords').value = (def?.minorKeywords || []).join(', ');
+  document.getElementById('mandate-editor-minor-keywords').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-ml-threshold').value = def?.miracleLeapThreshold ?? 0.6;
+  document.getElementById('mandate-editor-ml-threshold').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-high').value = def?.severityWeights?.High ?? 20;
+  document.getElementById('mandate-editor-w-high').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-med').value = def?.severityWeights?.Medium ?? 8;
+  document.getElementById('mandate-editor-w-med').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-low').value = def?.severityWeights?.Low ?? 1;
+  document.getElementById('mandate-editor-w-low').disabled = def?.isPreset || false;
+
+  const comp = def?.completeness || {};
+  document.getElementById('mandate-editor-req-baseline').checked = comp.requireBaseline ?? true;
+  document.getElementById('mandate-editor-req-responsible').checked = comp.requireResponsibleParty ?? true;
+  document.getElementById('mandate-editor-req-bench-out').checked = comp.requireBenchmarkOutcome ?? true;
+  document.getElementById('mandate-editor-req-bench-op').checked = comp.requireBenchmarkOutput ?? true;
+  document.getElementById('mandate-editor-req-verif-out').checked = comp.requireVerifOutcome ?? true;
+  document.getElementById('mandate-editor-req-verif-op').checked = comp.requireVerifOutput ?? true;
+  ['mandate-editor-req-baseline','mandate-editor-req-responsible','mandate-editor-req-bench-out','mandate-editor-req-bench-op','mandate-editor-req-verif-out','mandate-editor-req-verif-op'].forEach(id => {
+    document.getElementById(id).disabled = def?.isPreset || false;
+  });
+
+  document.getElementById('btn-mandate-editor-save').style.display = def?.isPreset ? 'none' : 'inline-block';
+  mandateEditorModal.classList.add('open');
+}
+
+document.getElementById('btn-mandate-editor-cancel').addEventListener('click', () => mandateEditorModal.classList.remove('open'));
+mandateEditorModal.addEventListener('click', e => { if (e.target === mandateEditorModal) mandateEditorModal.classList.remove('open'); });
+
+document.getElementById('btn-mandate-editor-save').addEventListener('click', () => {
+  const name = document.getElementById('mandate-editor-name').value.trim();
+  if (!name) { showToast('Mandate name is required.', true); return; }
+
+  const updated = {
+    id: _editingMandateId || generateId(),
+    name,
+    isPreset: false,
+    description: document.getElementById('mandate-editor-desc').value.trim(),
+    minorKeywords: document.getElementById('mandate-editor-minor-keywords').value.split(',').map(k => k.trim()).filter(Boolean),
+    miracleLeapThreshold: parseFloat(document.getElementById('mandate-editor-ml-threshold').value) || 0.6,
+    severityWeights: {
+      High: parseInt(document.getElementById('mandate-editor-w-high').value) || 20,
+      Medium: parseInt(document.getElementById('mandate-editor-w-med').value) || 8,
+      Low: parseInt(document.getElementById('mandate-editor-w-low').value) || 1,
+    },
+    completeness: {
+      requireBaseline: document.getElementById('mandate-editor-req-baseline').checked,
+      requireResponsibleParty: document.getElementById('mandate-editor-req-responsible').checked,
+      requireBenchmarkOutcome: document.getElementById('mandate-editor-req-bench-out').checked,
+      requireBenchmarkOutput: document.getElementById('mandate-editor-req-bench-op').checked,
+      requireVerifOutcome: document.getElementById('mandate-editor-req-verif-out').checked,
+      requireVerifOutput: document.getElementById('mandate-editor-req-verif-op').checked,
+    }
+  };
+
+  const defs = getMandateDefinitions();
+  const idx = defs.findIndex(d => d.id === updated.id);
+  if (idx >= 0) defs[idx] = updated;
+  else defs.push(updated);
+  saveMandateDefinitions(defs);
+  mandateEditorModal.classList.remove('open');
+  renderMandatesView(_mandateViewProjectId);
+  showToast(`Mandate "${name}" saved.`);
+});
+
+document.getElementById('btn-new-mandate').addEventListener('click', () => {
+  _editingMandateId = null;
+  openMandateEditor(null);
+});
+
+document.getElementById('btn-mandate-tuning-back').addEventListener('click', () => {
+  _mandateViewProjectId = null;
+  renderMandatesView(null);
 });
 
 /* ── Compare Projects ─────────────────────────────────────────────────────────
@@ -5875,7 +6538,10 @@ function renderCompareResults() {
           </tr>
           <tr>
             <td class="cmp-row-label">Mandate</td>
-            ${projectData.map(d => `<td><span class="badge ${mandateBadgeClass(d.proj.mandate)}">${escHtml(d.proj.mandate)}</span></td>`).join('')}
+            ${projectData.map(d => `<td>
+              <span class="badge ${mandateBadgeClass(d.proj.mandate)}">${escHtml(d.proj.mandate)}</span>
+              <button class="btn-secondary" onclick="openSwitchMandateModal('${d.proj.id}')" style="font-size:10.5px;padding:2px 7px;margin-left:6px;">⚡ Switch</button>
+            </td>`).join('')}
           </tr>
           <tr>
             <td class="cmp-row-label">Health Score</td>
