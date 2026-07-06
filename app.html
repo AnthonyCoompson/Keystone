@@ -1070,6 +1070,7 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
           <div class="score-meta">
             <div class="score-label">Health Score</div>
             <div class="score-risks" id="score-risks">Select a project to begin</div>
+            <div id="score-breakdown" style="font-size:11px;color:var(--muted);margin-top:3px;font-family:'DM Mono',monospace;"></div>
             <div id="score-sparkline-container"></div>
           </div>
         </div>
@@ -1091,6 +1092,16 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
           <div id="risk-feed"><div class="risk-empty">Select a project to view audit results.</div></div>
         </div>
         <div class="audit-footer">
+          <div id="ai-error-banner" style="display:none;background:rgba(196,30,58,0.08);border:1px solid rgba(196,30,58,0.35);border-radius:8px;padding:10px 12px;">
+            <div style="display:flex;align-items:flex-start;gap:8px;">
+              <span style="font-size:15px;flex-shrink:0;margin-top:1px;">⚠️</span>
+              <div style="flex:1;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#fb7185;margin-bottom:3px;" id="ai-error-title">AI Error</div>
+                <div id="ai-error-text" style="font-size:12px;color:var(--text);line-height:1.5;"></div>
+              </div>
+              <button onclick="document.getElementById('ai-error-banner').style.display='none';" style="background:none;color:var(--muted);font-size:16px;padding:0 4px;border-radius:3px;cursor:pointer;flex-shrink:0;line-height:1;" title="Dismiss">×</button>
+            </div>
+          </div>
           <div class="ai-narrative-slot" id="ai-narrative-slot">
             <div class="ai-narrative-box" id="ai-narrative-box">
               <div class="ai-narrative-label">✨ AI Diagnostic Summary</div>
@@ -1328,6 +1339,16 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
         <div id="tl-no-project" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;text-align:center;color:var(--muted);">
           <div style="font-size:40px;margin-bottom:12px;">📅</div>
           <div style="font-size:14px;">Select a project with components to generate a timeline.</div>
+        </div>
+        <div id="tl-error-banner" style="display:none;background:rgba(196,30,58,0.08);border:1px solid rgba(196,30,58,0.35);border-radius:8px;padding:14px 16px;margin:0 0 8px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+            <div style="flex:1;">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#fb7185;margin-bottom:4px;">Timeline Generation Failed</div>
+              <div id="tl-error-text" style="font-size:13px;color:var(--text);line-height:1.5;"></div>
+            </div>
+            <button onclick="document.getElementById('tl-error-banner').style.display='none';" style="background:none;color:var(--muted);font-size:18px;padding:0 4px;border-radius:3px;cursor:pointer;flex-shrink:0;line-height:1;transition:color 0.15s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">×</button>
+          </div>
         </div>
         <div id="tl-loading" style="display:none;padding:32px;text-align:center;">
           <span class="ai-loading">Generating AI timeline...</span>
@@ -2068,9 +2089,20 @@ async function aiFetch(endpoint, payload, timeoutMs = 45000) {
   throw new Error(detail);
 }
 
+/* ── Persistent AI Error Banner (audit panel) ── */
+function showAIError(title, message) {
+  const banner = document.getElementById('ai-error-banner');
+  const titleEl = document.getElementById('ai-error-title');
+  const textEl = document.getElementById('ai-error-text');
+  if (!banner || !textEl) { showToast(message, true); return; }
+  if (titleEl) titleEl.textContent = title;
+  textEl.textContent = message;
+  banner.style.display = 'block';
+  banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 /* ── Toast ── */
-function showToast(msg, isError = false) {
-  const t = document.getElementById('ai-toast');
+function showToast(msg, isError = false) {  const t = document.getElementById('ai-toast');
   // Sanitise raw server/stack-trace errors — truncate and clean up
   let display = msg;
   if (isError && msg && msg.length > 220) {
@@ -2224,6 +2256,27 @@ const MANDATE_CALIBRATION = {
 };
 
 function getMandateCalibration(mandate) {
+  // First check if a user-defined mandate definition exists in localStorage
+  // (created via the Mandates tab). User definitions take priority over
+  // the hardcoded MANDATE_CALIBRATION table so custom weights are respected.
+  const userDefs = (function() {
+    try { return JSON.parse(localStorage.getItem('ks_mandate_definitions')) || []; }
+    catch(_) { return []; }
+  })();
+  const userDef = userDefs.find(d => d.name === mandate);
+  if (userDef && userDef.severityWeights) {
+    // User-defined mandate: merge with defaults so missing fields fall back gracefully
+    const removeFromMinor = new Set((userDef.removeFromMinor || []).map(k => k.toLowerCase()));
+    const minorKeywords = BASE_MINOR_KEYWORDS.filter(k => !removeFromMinor.has(k.toLowerCase()));
+    const majorKeywords = [...BASE_MIRACLE_KEYWORDS, ...(userDef.extraMajorKeywords || [])];
+    return {
+      minorKeywords,
+      majorKeywords,
+      miracleLeapThreshold: userDef.miracleLeapThreshold ?? 0.6,
+      severityWeights: { ...DEFAULT_SEVERITY_WEIGHTS, ...userDef.severityWeights }
+    };
+  }
+  // Fall back to hardcoded calibration table
   const cfg = MANDATE_CALIBRATION[mandate] || {};
   const removeFromMinor = new Set((cfg.removeFromMinor || []).map(k => k.toLowerCase()));
   const minorKeywords = BASE_MINOR_KEYWORDS.filter(k => !removeFromMinor.has(k.toLowerCase()));
@@ -4156,6 +4209,24 @@ function renderAuditPanel() {
     ? (hasComponents ? 'No risks detected' : 'Add components to run audit')
     : [highC && `${highC}H`, medC && `${medC}M`, lowC && `${lowC}L`].filter(Boolean).join(' · ') + ` risk${entries.length !== 1 ? 's' : ''}`;
 
+  // Score breakdown: show formula with active mandate weights
+  const breakdownEl = document.getElementById('score-breakdown');
+  if (breakdownEl) {
+    if (entries.length > 0) {
+      const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+      const weights = getMandateCalibration(proj?.mandate).severityWeights;
+      const lowPenalty = Math.min(5, lowC * weights.Low);
+      const parts = [];
+      if (highC) parts.push(`${highC}×${weights.High}H`);
+      if (medC)  parts.push(`${medC}×${weights.Medium}M`);
+      if (lowC)  parts.push(`${lowPenalty}L(cap)`);
+      breakdownEl.textContent = parts.length ? `100 − (${parts.join(' + ')}) = ${score}` : `100 = ${score}`;
+      breakdownEl.title = `Weights for ${proj?.mandate || 'this mandate'}: High −${weights.High}, Medium −${weights.Medium}, Low −${weights.Low} (max 5 total)`;
+    } else {
+      breakdownEl.textContent = '';
+    }
+  }
+
   if (sparklineContainer) sparklineContainer.innerHTML = renderSparkline(activeProjectId);
 
   // Human-readable label for each error type
@@ -4841,6 +4912,9 @@ function setActiveProject(id) {
   // Reset AI narrative slot when switching projects
   const slot = document.getElementById('ai-narrative-slot');
   if (slot) slot.classList.remove('open');
+  // Clear persistent error banner on project switch
+  const errBanner = document.getElementById('ai-error-banner');
+  if (errBanner) errBanner.style.display = 'none';
   runAuditEngine(id);
   // Record a score history entry on open so sparkline has data immediately
   const currentScore = calcHealthScore(id);
@@ -5155,7 +5229,7 @@ document.getElementById('btn-ai-suggest').addEventListener('click', async () => 
     // pass through simulateAuditImpact's "currentComponents" path automatically)
     openImpactPreview(activeProjectId, newComps, commit);
   } catch(e) {
-    showToast('AI suggestion failed: ' + (e.message || 'Unknown error'), true);
+    showAIError('Component Suggestion Failed', e.message || 'Unknown error — please try again.');
     console.error(e);
   } finally { btn.disabled = false; loading.style.display = 'none'; }
 });
@@ -5188,7 +5262,7 @@ document.getElementById('btn-ai-narrative').addEventListener('click', async () =
     narrativeSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     showToast('✨ AI diagnostic summary generated.');
   } catch(e) {
-    showToast('Failed to generate narrative: ' + (e.message || 'Unknown error'), true);
+    showAIError('Diagnostic Summary Failed', e.message || 'Unknown error — please try again.');
     console.error(e);
   } finally { btn.disabled = false; btn.textContent = '✨ Generate AI Diagnostic Summary'; }
 });
@@ -6114,6 +6188,9 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
   const proj = getData('ks_projects').find(p=>p.id===activeProjectId);
   const components = getData('ks_components').filter(c=>c.projectId===activeProjectId);
   if (components.length < 2) { showToast('Add at least 2 components before generating a timeline.', true); return; }
+  // Clear any previous error
+  const errBanner = document.getElementById('tl-error-banner');
+  if (errBanner) errBanner.style.display = 'none';
   document.getElementById('tl-loading').style.display='block';
   document.getElementById('tl-content').style.display='none';
   try {
@@ -6130,8 +6207,13 @@ document.getElementById('tl-btn-generate').addEventListener('click', async () =>
     showToast('✨ Timeline generated.');
   } catch(e) {
     document.getElementById('tl-loading').style.display='none';
-    document.getElementById('tl-content').style.display='none';
-    showToast('Failed to generate timeline. ' + (e.message||'Please try again.'), true); console.error(e);
+    // Show persistent error banner instead of auto-dismissing toast
+    if (errBanner) {
+      const errText = document.getElementById('tl-error-text');
+      if (errText) errText.textContent = e.message || 'Unknown error — check your network connection and try again.';
+      errBanner.style.display = 'block';
+    }
+    console.error(e);
   }
 });
 
