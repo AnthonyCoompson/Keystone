@@ -423,6 +423,8 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 }
 /* ── Logic Model Map sub-tabs ── */
 .lm-subtab-bar { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+/* ── LM column spacing control ── */
+.lm-spacing-control { padding: 6px 0; }
 .lm-subtabs { display: flex; gap: 4px; flex-wrap: wrap; }
 .lm-subtab { background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
 .lm-subtab:hover { background: var(--hover-bg); color: var(--white); border-color: rgba(255,255,255,0.15); }
@@ -460,6 +462,16 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .mandate-card-stat { font-size: 11.5px; color: var(--muted); padding: 0 16px 10px; }
 /* ── Compare Projects View ── */
 .cmp-view { padding: 24px 32px; overflow-y: auto; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+/* ── Mandates guide sub-tabs ── */
+.mandates-sub-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-shrink: 0; }
+.mandates-sub-tab { background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.mandates-sub-tab.active { background: rgba(0,194,255,0.1); border-color: rgba(0,194,255,0.35); color: var(--cyan); }
+.mandate-guide-section { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+.mandate-guide-section:last-child { border-bottom: none; }
+.mandate-guide-section h2 { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 10px; }
+.mandate-guide-section p, .mandate-guide-section li { font-size: 13.5px; color: var(--text); line-height: 1.75; margin-bottom: 8px; }
+.mandate-guide-section code { display: block; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 12.5px; color: var(--cyan); margin: 10px 0; }
+.mandate-guide-section ul { padding-left: 18px; }
 .cmp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .cmp-picker-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .cmp-picker-slot { flex: 1; min-width: 220px; }
@@ -684,6 +696,14 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .btn-da-accept { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.3); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
 .btn-da-accept:hover { background: rgba(16,185,129,0.2); }
 .btn-da-reject { background: rgba(196,30,58,0.08); color: #fb7185; border: 1px solid rgba(196,30,58,0.2); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+/* ── DA inline editing ── */
+.btn-da-edit { background: rgba(129,140,248,0.08); color: #a5b4fc; border: 1px solid rgba(129,140,248,0.2); padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-da-edit:hover { background: rgba(129,140,248,0.16); }
+.da-inline-edit { margin-top: 8px; padding: 10px; background: var(--bg2); border-radius: 6px; border: 1px solid var(--border); }
+.da-edit-textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 13px; color: var(--text); background: var(--input-bg); font-family: var(--font); resize: vertical; }
+.da-edit-textarea:focus { border-color: var(--cyan); outline: none; }
+.btn-da-edit-save { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; border: none; padding: 5px 14px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); }
+.btn-da-edit-cancel { background: var(--input-bg); color: var(--muted); border: 1px solid var(--border); padding: 5px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; font-family: var(--font); }
 .btn-da-reject:hover { background: rgba(196,30,58,0.15); }
 /* ── Contextual Step Panel ── */
 .ctx-section { margin-bottom: 14px; }
@@ -783,6 +803,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .tl-bar-activity { background: #0891b2; }
 .tl-bar-output   { background: #10b981; }
 .tl-bar-outcome  { background: #7c3aed; }
+/* ── Timeline granularity + filter controls ── */
+.tl-controls-bar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; flex-shrink: 0; padding: 8px 0; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.tl-granularity-pills { display: flex; gap: 4px; }
+.tl-unit-pill { background: var(--input-bg); border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: all 0.15s; }
+.tl-unit-pill:hover { background: var(--hover-bg); color: var(--white); }
+.tl-unit-pill.active { background: rgba(0,194,255,0.1); border-color: rgba(0,194,255,0.35); color: var(--cyan); }
+.tl-type-filters { display: flex; gap: 12px; }
+.tl-type-filters label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text); cursor: pointer; }
+.tl-type-filters input { accent-color: var(--cyan); }
 /* ── Timeframe Mismatch ── */
 .risk-item.timeframe { border-left-color: #fb923c; }
 .risk-item.timeframe .risk-type-label { color: #fb923c; }
@@ -1057,6 +1086,7 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
         <div class="audit-header">
           <div class="audit-header-row">
             <span class="audit-title">Logic Audit</span>
+            <span id="audit-mandate-badge" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:2px 7px;border-radius:8px;background:rgba(0,194,255,0.1);color:var(--cyan);border:1px solid rgba(0,194,255,0.2);display:none;"></span>
             <div style="display:flex;align-items:center;gap:8px;">
               <button class="btn-audit-settings" id="btn-audit-settings" title="Customize completeness rubric and timeframe rules">⚙</button>
               <span class="audit-timestamp" id="audit-timestamp">Last checked: just now</span>
@@ -1356,6 +1386,20 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
         <div id="tl-content" style="display:none;flex-direction:column;gap:16px;">
           <div class="tl-summary" id="tl-summary"></div>
           <div class="tl-phase-legend" id="tl-phase-legend"></div>
+          <div class="tl-controls-bar" id="tl-controls-bar">
+            <div class="tl-granularity-pills">
+              <button class="tl-unit-pill active" data-unit="weeks">Weeks</button>
+              <button class="tl-unit-pill" data-unit="months">Months</button>
+              <button class="tl-unit-pill" data-unit="quarters">Quarters</button>
+              <button class="tl-unit-pill" data-unit="years">Years</button>
+            </div>
+            <div class="tl-type-filters">
+              <label><input type="checkbox" class="tl-type-filter" value="Input" checked> Inputs</label>
+              <label><input type="checkbox" class="tl-type-filter" value="Activity" checked> Activities</label>
+              <label><input type="checkbox" class="tl-type-filter" value="Output" checked> Outputs</label>
+              <label><input type="checkbox" class="tl-type-filter" value="Outcome" checked> Outcomes</label>
+            </div>
+          </div>
           <div class="tl-main-area" id="tl-main-area">
             <div class="tl-gantt-wrapper">
               <div class="tl-gantt" id="tl-gantt"></div>
@@ -1412,6 +1456,14 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
             <label class="lm-multi-check"><input type="checkbox" value="Outcome" checked> Outcomes</label>
             <span class="lm-multi-hint" id="lm-multi-hint"></span>
           </div>
+          <!-- Column spacing slider (shown for multi + full tabs) -->
+          <div class="lm-spacing-control" id="lm-spacing-control" style="display:none;">
+            <label style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:10px;">
+              Column spacing
+              <input type="range" id="lm-col-spacing" min="200" max="500" value="260" step="10" style="width:120px;accent-color:var(--cyan);">
+              <span id="lm-col-spacing-val" style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;width:30px;">260</span>
+            </label>
+          </div>
         </div>
 
         <div id="lm-no-project" class="lm-empty-state">
@@ -1448,7 +1500,12 @@ select.form-control option { background: #1a2540; color: #c8d4e8; }
           <div class="mandate-tuning-project" id="mandate-tuning-project-name"></div>
           <button class="btn-secondary" id="btn-mandate-tuning-back" style="font-size:12px;padding:5px 10px;">← Back to global list</button>
         </div>
+        <div class="mandates-sub-tabs" id="mandates-sub-tabs">
+          <button class="mandates-sub-tab active" data-tab="list">Mandate Library</button>
+          <button class="mandates-sub-tab" data-tab="guide">Grading Guide</button>
+        </div>
         <div id="mandates-list"></div>
+        <div id="mandates-guide" style="display:none;max-width:760px;"></div>
       </div>
     </div>
 
@@ -3823,6 +3880,7 @@ let lmComponents = [];     // last-rendered component set, for the detail panel
 let lmFindings = [];
 let lmEdges = [];
 let lmActiveTab = 'full';  // 'full' | 'Input' | 'Activity' | 'Output' | 'Outcome' | 'multi'
+let lmColWidth = 260; // user-adjustable via spacing slider
 let lmMultiCols = new Set(['Input','Activity','Output','Outcome']); // checked columns in multi mode
 
 function renderLogicMapView() {
@@ -3859,6 +3917,8 @@ function renderLogicMapView() {
       tab.classList.add('active');
       const multiPicker = document.getElementById('lm-multi-picker');
       multiPicker.style.display = (lmActiveTab === 'multi') ? 'flex' : 'none';
+      const spacingControl = document.getElementById('lm-spacing-control');
+      if (spacingControl) spacingControl.style.display = (lmActiveTab === 'multi' || lmActiveTab === 'full') ? 'block' : 'none';
       updateMultiHint();
       lmSelectedId = null;
       lmHoveredId = null;
@@ -3882,6 +3942,21 @@ function renderLogicMapView() {
       renderLogicMapDetail(null);
     };
   });
+
+  // Wire column spacing slider
+  const colSpacingSlider = document.getElementById('lm-col-spacing');
+  if (colSpacingSlider && !colSpacingSlider._wired) {
+    colSpacingSlider._wired = true;
+    colSpacingSlider.addEventListener('input', function() {
+      lmColWidth = parseInt(this.value, 10);
+      const valEl = document.getElementById('lm-col-spacing-val');
+      if (valEl) valEl.textContent = lmColWidth;
+      if (activeProjectId) renderLogicMapCanvas();
+    });
+  }
+  // Show spacing control for multi/full tabs on initial render
+  const spacingControlInit = document.getElementById('lm-spacing-control');
+  if (spacingControlInit) spacingControlInit.style.display = (lmActiveTab === 'multi' || lmActiveTab === 'full') ? 'block' : 'none';
 
   renderLogicMapCanvas();
   renderLogicMapDetail(null);
@@ -3931,7 +4006,7 @@ function renderLogicMapCanvas() {
       && colTypes.includes(fromComp.type)
       && colTypes.includes(toComp.type);
   });
-  const colWidth = 260;
+  const colWidth = lmColWidth;
   const nodeW = 222;
   const nodeH = 64;
   const nodeGapY = 18;
@@ -4188,6 +4263,8 @@ function renderAuditPanel() {
     btnNarrative.disabled = true;
     if (btnSaveVersion) btnSaveVersion.disabled = true;
     if (btnTbSubmission) btnTbSubmission.disabled = true;
+    const mb = document.getElementById('audit-mandate-badge');
+    if (mb) mb.style.display = 'none';
     renderStepMinimap();
     return;
   }
@@ -4201,7 +4278,16 @@ function renderAuditPanel() {
   scoreGauge.style.setProperty('--pct', (score / 100 * 360) + 'deg');
   scoreGauge.className = 'score-gauge ' + (score >= 70 ? 'green' : score >= 40 ? 'amber' : 'red');
 
+  // QoL A: formula tooltip on the gauge
+  const proj = getData('ks_projects').find(p => p.id === activeProjectId);
+  const weights = getMandateCalibration(proj?.mandate).severityWeights;
   const highC = entries.filter(e => e.riskLevel === 'High').length;
+  // QoL B: mandate badge in audit header
+  const mandateBadge = document.getElementById('audit-mandate-badge');
+  if (mandateBadge) {
+    if (proj?.mandate) { mandateBadge.textContent = proj.mandate; mandateBadge.style.display = 'inline-block'; }
+    else { mandateBadge.style.display = 'none'; }
+  }
   const medC  = entries.filter(e => e.riskLevel === 'Medium').length;
   const lowC  = entries.filter(e => e.riskLevel === 'Low').length;
   const hasComponents = getData('ks_components').filter(c => c.projectId === activeProjectId).length > 0;
@@ -4213,17 +4299,19 @@ function renderAuditPanel() {
   const breakdownEl = document.getElementById('score-breakdown');
   if (breakdownEl) {
     if (entries.length > 0) {
-      const proj = getData('ks_projects').find(p => p.id === activeProjectId);
-      const weights = getMandateCalibration(proj?.mandate).severityWeights;
       const lowPenalty = Math.min(5, lowC * weights.Low);
       const parts = [];
       if (highC) parts.push(`${highC}×${weights.High}H`);
       if (medC)  parts.push(`${medC}×${weights.Medium}M`);
       if (lowC)  parts.push(`${lowPenalty}L(cap)`);
       breakdownEl.textContent = parts.length ? `100 − (${parts.join(' + ')}) = ${score}` : `100 = ${score}`;
-      breakdownEl.title = `Weights for ${proj?.mandate || 'this mandate'}: High −${weights.High}, Medium −${weights.Medium}, Low −${weights.Low} (max 5 total)`;
+      // QoL A: also set tooltip on the gauge
+      const tooltipText = `${parts.length ? `100 − (${parts.join(' + ')}) = ${score}` : score} — ${proj?.mandate || 'mandate'} weights`;
+      breakdownEl.title = tooltipText;
+      scoreGauge.title = tooltipText;
     } else {
       breakdownEl.textContent = '';
+      scoreGauge.title = `Health Score: ${score}/100 — ${proj?.mandate || 'No mandate'}`;
     }
   }
 
@@ -6067,10 +6155,31 @@ function renderDAResults() {
         ${escHtml(flag.explanation || '')}
       </div>
     </div>` : '';
-    return `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}${flagBanner}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button></div></div>`;
+    return `<div class="da-component-card ${comp.accepted?'accepted':'rejected'}" data-da-idx="${idx}"><div class="da-card-header"><span class="badge ${typeBadgeClass(comp.componentType)}">${comp.componentType}</span>${comp.accepted?'<span style="font-size:11px;color:var(--green);font-weight:600;">✓ Accepted</span>':'<span style="font-size:11px;color:#fb7185;font-weight:600;">✗ Rejected</span>'}</div><div class="da-card-desc">${escHtml(comp.description)}</div>${comp.sourceQuote?`<div class="da-card-quote">"${escHtml(comp.sourceQuote)}"</div>`:''}${flagBanner}<div class="da-card-actions"><button class="btn-da-accept" data-da-idx="${idx}">✓ Accept</button><button class="btn-da-reject" data-da-idx="${idx}">✗ Reject</button><button class="btn-da-edit" data-da-idx="${idx}">✎ Edit</button></div><div class="da-inline-edit" id="da-edit-${idx}" style="display:none;"><select class="da-edit-type-select" data-da-idx="${idx}" style="margin-bottom:8px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;color:var(--text);background:var(--input-bg);font-family:var(--font);width:100%;"><option value="Input" ${comp.componentType==='Input'?'selected':''}>Input</option><option value="Activity" ${comp.componentType==='Activity'?'selected':''}>Activity</option><option value="Output" ${comp.componentType==='Output'?'selected':''}>Output</option><option value="Outcome" ${comp.componentType==='Outcome'?'selected':''}>Outcome</option></select><textarea class="da-edit-textarea" data-da-idx="${idx}" rows="3">${escHtml(comp.description)}</textarea><div style="display:flex;gap:6px;margin-top:6px;"><button class="btn-da-edit-save" data-da-idx="${idx}">Save</button><button class="btn-da-edit-cancel" data-da-idx="${idx}">Cancel</button></div></div></div>`;
   }).join('');
   list.querySelectorAll('.btn-da-accept').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=true; updateActiveHistoryEntry(); renderDAResults(); }));
   list.querySelectorAll('.btn-da-reject').forEach(btn => btn.addEventListener('click', () => { daExtractedComponents[btn.dataset.daIdx].accepted=false; updateActiveHistoryEntry(); renderDAResults(); }));
+  list.querySelectorAll('.btn-da-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.daIdx;
+      const editPanel = document.getElementById(`da-edit-${idx}`);
+      if (editPanel) { editPanel.style.display = 'block'; btn.style.display = 'none'; }
+    });
+  });
+  list.querySelectorAll('.btn-da-edit-save').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.daIdx, 10);
+      const ta = list.querySelector(`.da-edit-textarea[data-da-idx="${idx}"]`);
+      const typeSelect = list.querySelector(`.da-edit-type-select[data-da-idx="${idx}"]`);
+      if (ta) daExtractedComponents[idx].description = ta.value.trim();
+      if (typeSelect) daExtractedComponents[idx].componentType = typeSelect.value;
+      updateActiveHistoryEntry();
+      renderDAResults();
+    });
+  });
+  list.querySelectorAll('.btn-da-edit-cancel').forEach(btn => {
+    btn.addEventListener('click', () => { renderDAResults(); });
+  });
   document.getElementById('da-accept-count').textContent = `${daExtractedComponents.filter(c=>c.accepted).length} accepted`;
 }
 
@@ -6143,6 +6252,21 @@ document.getElementById('da-btn-import-new').addEventListener('click', () => {
 
 /* ── Timeline View ── */
 let tlTimelineData = null;
+let tlGranularity = 'weeks';  // 'weeks' | 'months' | 'quarters' | 'years'
+let tlVisibleTypes = new Set(['Input','Activity','Output','Outcome']);
+
+function weeksToUnit(week, totalWeeks, unit) {
+  if (unit === 'months')   return `Mo ${Math.ceil(week / 4.33)}`;
+  if (unit === 'quarters') return `Q${Math.ceil(week / 13)}`;
+  if (unit === 'years')    return `Yr ${Math.ceil(week / 52)}`;
+  return `Wk ${week}`;
+}
+function unitStep(totalWeeks, unit) {
+  if (unit === 'months')   return Math.ceil(totalWeeks / 12);
+  if (unit === 'quarters') return Math.ceil(totalWeeks / 4);
+  if (unit === 'years')    return Math.ceil(totalWeeks / 2);
+  return Math.ceil(totalWeeks / 12);
+}
 function renderTimeline() {
   const proj = activeProjectId ? getData('ks_projects').find(p=>p.id===activeProjectId) : null;
   const components = activeProjectId ? getData('ks_components').filter(c=>c.projectId===activeProjectId) : [];
@@ -6225,17 +6349,24 @@ function renderTLGantt(tl) {
   const totalWeeks = tl.total_weeks||52;
   const typeColorMap = {Input:'tl-bar-input',Activity:'tl-bar-activity',Output:'tl-bar-output',Outcome:'tl-bar-outcome'};
   const criticalSet = new Set(tl.critical_path_indices||[]);
+
+  // Filter by visible types
+  const visibleItems = (tl.items||[]).filter(item => tlVisibleTypes.has(item.component_type));
+
+  // Build header using current granularity
+  const step = unitStep(totalWeeks, tlGranularity);
   let headerHtml = '<div class="tl-gantt-header">';
-  const step = Math.ceil(totalWeeks/12);
-  for (let w=1; w<=totalWeeks; w+=step) headerHtml+=`<div class="tl-week-label" style="width:${(step/totalWeeks*100).toFixed(1)}%">Wk ${w}</div>`;
+  for (let w=1; w<=totalWeeks; w+=step) headerHtml+=`<div class="tl-week-label" style="width:${(step/totalWeeks*100).toFixed(1)}%">${weeksToUnit(w, totalWeeks, tlGranularity)}</div>`;
   headerHtml+='</div>';
-  const rowsHtml = (tl.items||[]).map((item,idx) => {
+
+  const rowsHtml = visibleItems.map((item,idx) => {
+    const origIdx = (tl.items||[]).indexOf(item);
     const left=((item.start_week-1)/totalWeeks*100).toFixed(2);
     const width=((item.end_week-item.start_week+1)/totalWeeks*100).toFixed(2);
-    const isCritical=criticalSet.has(idx);
+    const isCritical=criticalSet.has(origIdx);
     const barClass=typeColorMap[item.component_type]||'tl-bar-input';
     const truncLabel=item.description.length>30?item.description.slice(0,30)+'…':item.description;
-    return `<div class="tl-row"><div class="tl-row-label" title="${escHtml(item.description)}"><span style="font-size:10px;font-weight:700;color:var(--muted)">${item.component_type[0]}</span>${escHtml(truncLabel)}</div><div class="tl-row-track">${item.is_milestone?`<div class="tl-milestone" data-tl-idx="${idx}" style="left:calc(${left}% - 8px);${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.description)}"></div>`:`<div class="tl-bar ${barClass}" data-tl-idx="${idx}" style="left:${left}%;width:${width}%;${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.rationale||'')}"><span class="tl-bar-label">${escHtml(truncLabel)}</span></div>`}</div></div>`;
+    return `<div class="tl-row"><div class="tl-row-label" title="${escHtml(item.description)}"><span style="font-size:10px;font-weight:700;color:var(--muted)">${item.component_type[0]}</span>${escHtml(truncLabel)}</div><div class="tl-row-track">${item.is_milestone?`<div class="tl-milestone" data-tl-idx="${origIdx}" style="left:calc(${left}% - 8px);${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.description)}"></div>`:`<div class="tl-bar ${barClass}" data-tl-idx="${origIdx}" style="left:${left}%;width:${width}%;${isCritical?'outline:2px solid #fb7185;':''}" title="${escHtml(item.rationale||'')}"><span class="tl-bar-label">${escHtml(truncLabel)}</span></div>`}</div></div>`;
   }).join('');
   ganttEl.innerHTML = headerHtml+rowsHtml;
   const critCount=criticalSet.size;
@@ -6265,6 +6396,45 @@ function renderTLGantt(tl) {
     area.classList.remove('detail-open');
   };
 }
+
+/* ── Timeline granularity & type filter controls ── */
+(function wireTLControls() {
+  document.querySelectorAll('.tl-unit-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tlGranularity = btn.dataset.unit;
+      document.querySelectorAll('.tl-unit-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      localStorage.setItem('ks_tl_granularity', tlGranularity);
+      if (tlTimelineData) renderTLGantt(tlTimelineData.timeline);
+    });
+  });
+  document.querySelectorAll('.tl-type-filter').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.checked) tlVisibleTypes.add(cb.value);
+      else tlVisibleTypes.delete(cb.value);
+      if (tlVisibleTypes.size === 0) { cb.checked = true; tlVisibleTypes.add(cb.value); }
+      localStorage.setItem('ks_tl_visible_types', JSON.stringify([...tlVisibleTypes]));
+      if (tlTimelineData) renderTLGantt(tlTimelineData.timeline);
+    });
+  });
+  // Restore persisted state (QoL C)
+  const savedGran = localStorage.getItem('ks_tl_granularity');
+  if (savedGran) {
+    tlGranularity = savedGran;
+    document.querySelectorAll('.tl-unit-pill').forEach(b => {
+      b.classList.toggle('active', b.dataset.unit === savedGran);
+    });
+  }
+  const savedTypes = localStorage.getItem('ks_tl_visible_types');
+  if (savedTypes) {
+    try {
+      tlVisibleTypes = new Set(JSON.parse(savedTypes));
+      document.querySelectorAll('.tl-type-filter').forEach(cb => {
+        cb.checked = tlVisibleTypes.has(cb.value);
+      });
+    } catch(_) {}
+  }
+})();
 
 function showTLDetail(item, idx, isCritical, tl, TYPE_COLORS) {
   const panel = document.getElementById('tl-detail-panel');
@@ -6323,23 +6493,31 @@ function getMandateDefinitions() {
   const stored = getData('ks_mandate_definitions');
   if (stored.length) return stored;
   // Seed from MANDATE_CALIBRATION on first access
-  const seeded = Object.entries(MANDATE_CALIBRATION).map(([name, cal]) => ({
-    id: 'preset-' + name.toLowerCase().replace(/\s+/g,'-'),
-    name,
-    isPreset: true,
-    description: MANDATE_DESCRIPTIONS[name] || '',
-    minorKeywords: cal.minorKeywords,
-    miracleLeapThreshold: cal.miracleLeapThreshold,
-    severityWeights: { ...cal.severityWeights },
-    completeness: {
-      requireBaseline: name === 'DRIPA Alignment' || name === 'Self-Government Transition',
-      requireResponsibleParty: true,
-      requireBenchmarkOutcome: true,
-      requireBenchmarkOutput: true,
-      requireVerifOutcome: true,
-      requireVerifOutput: true,
-    }
-  }));
+  const seeded = Object.entries(MANDATE_CALIBRATION).map(([name, cal]) => {
+    const defaults = {
+      minorKeywords: cal.minorKeywords,
+      miracleLeapThreshold: cal.miracleLeapThreshold,
+      severityWeights: { ...cal.severityWeights },
+    };
+    return {
+      id: 'preset-' + name.toLowerCase().replace(/\s+/g,'-'),
+      name,
+      isPreset: true,
+      description: MANDATE_DESCRIPTIONS[name] || '',
+      minorKeywords: cal.minorKeywords,
+      miracleLeapThreshold: cal.miracleLeapThreshold,
+      severityWeights: { ...cal.severityWeights },
+      originalDefaults: defaults,
+      completeness: {
+        requireBaseline: name === 'DRIPA Alignment' || name === 'Self-Government Transition',
+        requireResponsibleParty: true,
+        requireBenchmarkOutcome: true,
+        requireBenchmarkOutput: true,
+        requireVerifOutcome: true,
+        requireVerifOutput: true,
+      }
+    };
+  });
   setData('ks_mandate_definitions', seeded);
   return seeded;
 }
@@ -6362,12 +6540,63 @@ function refreshMandateDropdowns() {
 /* ── Mandates view ── */
 let _mandateViewProjectId = null; // null = global, or a project id for per-project override
 
+function renderMandatesGuide() {
+  const el = document.getElementById('mandates-guide');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="mandate-guide-section">
+      <h2>How the Health Score is calculated</h2>
+      <p>The Health Score starts at 100 and subtracts penalty points for each audit finding, using mandate-specific weights:</p>
+      <code>Score = max(0, 100 − (High flags × High weight) − (Medium flags × Medium weight) − min(5, Low flags × Low weight))</code>
+      <p>The weights differ by mandate — DRIPA Alignment uses 18H/7M/1L while Service Delivery uses 20H/9M/1L, reflecting that the same structural gap is more accountable-risk in some contexts than others.</p>
+    </div>
+    <div class="mandate-guide-section">
+      <h2>Miracle Leap Calibration</h2>
+      <p><strong>Low-leverage keywords:</strong> Activities whose descriptions contain these words count as "low-leverage" for the Miracle Leap rule. If more than [threshold]% of all activities are low-leverage AND the project claims a major systemic outcome, the rule fires. For governance mandates, "meeting" should be removed from this list since committee meetings are the legitimate mechanism.</p>
+      <p><strong>Threshold:</strong> 0.6 means 60% of activities must match before the rule fires. Raise this (e.g. 0.8) for contexts where many low-leverage activities are expected alongside a few substantive ones.</p>
+    </div>
+    <div class="mandate-guide-section">
+      <h2>Completeness Rubric</h2>
+      <p>Scores each Output and Outcome 0–3 based on which fields are filled. Each enabled requirement adds 1 point to the maximum. Disable requirements that don't apply to your context:</p>
+      <ul>
+        <li><strong>Baseline:</strong> The starting state before the programme. Required for Outcomes in most Treasury Board contexts to prove improvement.</li>
+        <li><strong>Benchmark/Target:</strong> A measurable target. Required for Outputs and Outcomes to be evaluable.</li>
+        <li><strong>Verification Source:</strong> The named mechanism that will track this. Required for audit defensibility.</li>
+        <li><strong>Responsible Party:</strong> Who is accountable for the Output. Required in RACI-governed programmes.</li>
+      </ul>
+    </div>
+    <div class="mandate-guide-section">
+      <h2>When to clone vs. edit a preset</h2>
+      <p><strong>Clone</strong> when you want a named variant for a specific programme type (e.g. "Governance &amp; Coordination" from a Self-Government Transition base) that won't affect other projects using the original preset.</p>
+      <p><strong>Edit the preset directly</strong> when you want all projects using that mandate to use updated calibration — e.g. you've found the Miracle Leap threshold is consistently too sensitive for your team's work.</p>
+      <p>Note: editing a preset affects how ALL projects under that mandate are scored. Use the AI Tune feature in Audit Settings for project-specific adjustments instead.</p>
+    </div>`;
+}
+
 function renderMandatesView(projectId) {
   _mandateViewProjectId = projectId || null;
   const list = document.getElementById('mandates-list');
   const tuningBar = document.getElementById('mandate-project-tuning');
   const tuningName = document.getElementById('mandate-tuning-project-name');
   const defs = getMandateDefinitions();
+
+  // Wire sub-tabs (idempotent)
+  document.querySelectorAll('.mandates-sub-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.mandates-sub-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const isGuide = tab.dataset.tab === 'guide';
+      const listEl = document.getElementById('mandates-list');
+      const guideEl = document.getElementById('mandates-guide');
+      const newBtn = document.getElementById('btn-new-mandate');
+      const subTabsEl = document.getElementById('mandates-sub-tabs');
+      if (listEl) listEl.style.display = isGuide ? 'none' : '';
+      if (newBtn) newBtn.style.display = isGuide ? 'none' : '';
+      if (guideEl) { guideEl.style.display = isGuide ? 'block' : 'none'; if (isGuide) renderMandatesGuide(); }
+      // Keep tuning bar hidden during guide view
+      if (tuningBar) tuningBar.style.display = isGuide ? 'none' : (_mandateViewProjectId ? 'flex' : 'none');
+    };
+  });
 
   if (_mandateViewProjectId) {
     const proj = getData('ks_projects').find(p => p.id === _mandateViewProjectId);
@@ -6426,6 +6655,20 @@ function renderMandatesView(projectId) {
   });
 }
 
+function resetPresetToDefaults(defId) {
+  if (!window.confirm('Reset this preset to Keystone defaults? Your edits will be lost.')) return;
+  const defs = getMandateDefinitions();
+  const idx = defs.findIndex(d => d.id === defId);
+  if (idx < 0) return;
+  const orig = defs[idx].originalDefaults;
+  if (!orig) { showToast('No original defaults stored for this preset.', true); return; }
+  defs[idx] = { ...defs[idx], ...orig };
+  saveMandateDefinitions(defs);
+  mandateEditorModal.classList.remove('open');
+  renderMandatesView(_mandateViewProjectId);
+  showToast('Preset reset to Keystone defaults.');
+}
+
 function applyMandateToProject(mandateId, projectId) {
   const def = getMandateDefinitions().find(d => d.id === mandateId);
   const proj = getData('ks_projects').find(p => p.id === projectId);
@@ -6461,21 +6704,21 @@ function openMandateEditor(mandateId) {
   const def = mandateId ? defs.find(d => d.id === mandateId) : null;
   _editingMandateId = mandateId || null;
 
-  document.getElementById('mandate-editor-title').textContent = def ? (def.isPreset ? 'View Preset Mandate' : 'Edit Mandate') : 'New Mandate';
+  document.getElementById('mandate-editor-title').textContent = def ? (def.isPreset ? 'Edit Preset Mandate' : 'Edit Mandate') : 'New Mandate';
   document.getElementById('mandate-editor-name').value = def?.name || '';
-  document.getElementById('mandate-editor-name').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-name').disabled = false;
   document.getElementById('mandate-editor-desc').value = def?.description || '';
-  document.getElementById('mandate-editor-desc').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-desc').disabled = false;
   document.getElementById('mandate-editor-minor-keywords').value = (def?.minorKeywords || []).join(', ');
-  document.getElementById('mandate-editor-minor-keywords').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-minor-keywords').disabled = false;
   document.getElementById('mandate-editor-ml-threshold').value = def?.miracleLeapThreshold ?? 0.6;
-  document.getElementById('mandate-editor-ml-threshold').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-ml-threshold').disabled = false;
   document.getElementById('mandate-editor-w-high').value = def?.severityWeights?.High ?? 20;
-  document.getElementById('mandate-editor-w-high').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-high').disabled = false;
   document.getElementById('mandate-editor-w-med').value = def?.severityWeights?.Medium ?? 8;
-  document.getElementById('mandate-editor-w-med').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-med').disabled = false;
   document.getElementById('mandate-editor-w-low').value = def?.severityWeights?.Low ?? 1;
-  document.getElementById('mandate-editor-w-low').disabled = def?.isPreset || false;
+  document.getElementById('mandate-editor-w-low').disabled = false;
 
   const comp = def?.completeness || {};
   document.getElementById('mandate-editor-req-baseline').checked = comp.requireBaseline ?? true;
@@ -6485,10 +6728,28 @@ function openMandateEditor(mandateId) {
   document.getElementById('mandate-editor-req-verif-out').checked = comp.requireVerifOutcome ?? true;
   document.getElementById('mandate-editor-req-verif-op').checked = comp.requireVerifOutput ?? true;
   ['mandate-editor-req-baseline','mandate-editor-req-responsible','mandate-editor-req-bench-out','mandate-editor-req-bench-op','mandate-editor-req-verif-out','mandate-editor-req-verif-op'].forEach(id => {
-    document.getElementById(id).disabled = def?.isPreset || false;
+    document.getElementById(id).disabled = false;
   });
 
-  document.getElementById('btn-mandate-editor-save').style.display = def?.isPreset ? 'none' : 'inline-block';
+  document.getElementById('btn-mandate-editor-save').style.display = 'inline-block';
+
+  // Show Reset button only for presets that have stored defaults
+  let resetBtn = document.getElementById('btn-mandate-editor-reset');
+  if (!resetBtn) {
+    resetBtn = document.createElement('button');
+    resetBtn.id = 'btn-mandate-editor-reset';
+    resetBtn.className = 'btn-secondary';
+    resetBtn.style.cssText = 'font-size:12px;';
+    resetBtn.textContent = '↺ Reset to Keystone defaults';
+    document.getElementById('btn-mandate-editor-save').parentNode.insertBefore(resetBtn, document.getElementById('btn-mandate-editor-save'));
+  }
+  if (def?.isPreset && def?.originalDefaults) {
+    resetBtn.style.display = 'inline-block';
+    resetBtn.onclick = () => resetPresetToDefaults(def.id);
+  } else {
+    resetBtn.style.display = 'none';
+  }
+
   mandateEditorModal.classList.add('open');
 }
 
@@ -6622,6 +6883,7 @@ function renderCompareResults() {
             <td class="cmp-row-label">Mandate</td>
             ${projectData.map(d => `<td>
               <span class="badge ${mandateBadgeClass(d.proj.mandate)}">${escHtml(d.proj.mandate)}</span>
+              <div style="font-size:11px;color:var(--muted);margin-top:3px;">${escHtml(d.proj.mandate)}</div>
               <button class="btn-secondary" onclick="openSwitchMandateModal('${d.proj.id}')" style="font-size:10.5px;padding:2px 7px;margin-left:6px;">⚡ Switch</button>
             </td>`).join('')}
           </tr>
